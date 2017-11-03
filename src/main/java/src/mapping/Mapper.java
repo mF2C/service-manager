@@ -37,6 +37,7 @@ public class Mapper {
 
     public boolean mapTask(int taskId) {
 
+        log.info("Mapping new task @id-" + taskId);
         boolean error = false;
         Task newTask;
 
@@ -56,18 +57,18 @@ public class Mapper {
 
         // Check the QoS Requirements
         if (qosProvider.checkRequirements(taskId)) {
-            log.info("The QoS requirements are checked for task - id: " + taskId);
+            log.info("The QoS requirements are checked for task @id-" + taskId);
 
         } else {
-            log.info("Something went wrong with the QoS requirements for task - id: " + taskId);
+            log.info("Something went wrong with the QoS requirements for task @id-" + taskId);
             error = true;
         }
 
         // Allocate resources
         if (allocator.reserveResources(taskId)) {
-            log.info("The resources are allocated for task - id:" + taskId);
+            log.info("The resources are allocated for task @id-" + taskId);
         } else {
-            log.info("Something went wrong with the allocation of resources for task - id: " + taskId);
+            log.info("Something went wrong with the allocation of resources for task @id-" + taskId);
             error = true;
         }
 
@@ -75,13 +76,13 @@ public class Mapper {
     }
 
     private boolean checkTaskInDB(int taskId) {
-        log.info("Checking if task already exist in DB - id: " + taskId);
+        log.info("Checking if task already exist in DB @id-" + taskId);
         //TODO
-        return true;
+        return false;
     }
 
     private Task getTaskFromDB(int taskId) {
-        log.info("Getting the task from the DB - id:" + taskId);
+        log.info("Getting the task from the DB @id-" + taskId);
         Task task = new Task(taskId);
         //TODO
         return task;

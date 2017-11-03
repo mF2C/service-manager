@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import src.ServiceManager;
-import src.elements.Task;
 
 @RestController
 @EnableAutoConfiguration
@@ -29,12 +28,12 @@ public class ServiceManagerApi {
     }
 
     @RequestMapping("/computeTask")
-    public String computeTask(@RequestParam(value = "name", defaultValue = "World") Task task) {
+    public String computeTask(@RequestParam(value = "id") int taskId) {
 
-        if (serviceManager.computeTask(task)) {
-            return "Task computed correctly - id: " + task.getId();
+        if (!serviceManager.computeTask(taskId)) {
+            return "Task computed correctly @id-" + taskId;
         } else
-            return "Something went wrong with the task! - id: " + task.getId();
+            return "Something went wrong with the task! @id-" + taskId;
     }
 
     public static void main(String[] args) throws Exception {

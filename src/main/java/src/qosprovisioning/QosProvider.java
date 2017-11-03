@@ -20,7 +20,7 @@ public class QosProvider {
     }
 
     public boolean checkRequirements(int taskId) {
-        log.info("Checking QoS requirements for task - ID: " + taskId);
+        log.info("Checking QoS requirements for task @id-" + taskId);
         //TODO
         return true;
     }

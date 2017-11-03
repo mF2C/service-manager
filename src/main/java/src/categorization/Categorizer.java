@@ -22,7 +22,7 @@ public class Categorizer {
     }
 
     public Category categorise(int taskId) {
-        log.info("Categorizing task - id: " + taskId);
+        log.info("Categorizing task @id-" + taskId);
         Category category = new Category();
 
         //TODO

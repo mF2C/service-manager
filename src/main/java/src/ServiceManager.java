@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import src.allocation.Allocator;
 import src.categorization.Categorizer;
-import src.elements.Task;
 import src.mapping.Mapper;
 import src.qosprovisioning.QosProvider;
 
@@ -46,15 +45,15 @@ public class ServiceManager {
     /**
      * Method to compute a task received from the PM
      *
-     * @param task
+     * @param taskId
      */
-    public boolean computeTask(Task task) {
+    public boolean computeTask(int taskId) {
 
-        log.info("Received task with id: " + task.getId());
+        log.info("Received task with @id-" + taskId);
 
-        boolean error = false;
+        boolean error;
 
-        mapper.mapTask(task.getId());
+        error = mapper.mapTask(taskId);
 
         return error;
     }
