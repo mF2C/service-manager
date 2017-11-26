@@ -10,7 +10,7 @@ package src.categorization;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import src.elements.Category;
+import src.Task;
 
 
 public class Categorizer {
@@ -21,9 +21,9 @@ public class Categorizer {
         //TODO
     }
 
-    public Category categorise(int taskId) {
-        log.info("Categorizing task @id-" + taskId);
-        Category category = new Category();
+    public Category categorise(Task task) {
+        log.info("Categorizing task @id-" + task.getId());
+        Category category = new Category(task);
 
         //TODO
 

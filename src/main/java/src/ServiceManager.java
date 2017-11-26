@@ -45,15 +45,15 @@ public class ServiceManager {
     /**
      * Method to compute a task received from the PM
      *
-     * @param taskId
+     * @param task
      */
-    public boolean computeTask(int taskId) {
+    public boolean computeTask(Task task) {
 
-        log.info("Received task with @id-" + taskId);
+        log.info("Received task with @id-" + task.getId());
 
         boolean error;
 
-        error = mapper.mapTask(taskId);
+        error = mapper.mapTask(task);
 
         return error;
     }

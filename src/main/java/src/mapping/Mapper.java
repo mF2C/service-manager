@@ -11,64 +11,63 @@ package src.mapping;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import src.Task;
 import src.allocation.Allocator;
 import src.categorization.Categorizer;
-import src.elements.Category;
-import src.elements.Task;
+import src.categorization.Category;
 import src.qosprovisioning.QosProvider;
 
-import java.util.LinkedHashMap;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Mapper {
 
     private static Logger log = LoggerFactory.getLogger(Mapper.class);
 
-    private LinkedHashMap<Integer, Task[]> taskMap;
+    private Map<Integer, Task> taskMap;
     private Categorizer categorizer;
     private Allocator allocator;
     private QosProvider qosProvider;
 
     public Mapper() {
-        taskMap = new LinkedHashMap<>();
+        taskMap = new HashMap<>();
         categorizer = new Categorizer();
         allocator = new Allocator();
         qosProvider = new QosProvider();
     }
 
-    public boolean mapTask(int taskId) {
+    public boolean mapTask(Task task) {
 
-        log.info("Mapping new task @id-" + taskId);
+        log.info("Mapping new task @id-" + task.getId());
         boolean error = false;
-        Task newTask;
 
         // Check if the task already exist in the DB
-        if (!checkTaskInDB(taskId)) {
+        if (!checkTaskInDB(task.getId())) {
 
-            newTask = new Task(taskId);
             // Categorize the task
-            Category category = categorizer.categorise(taskId);
+            Category category = categorizer.categorise(task);
 
             // Assign category to the task
-            newTask.setCategory(category);
+            task.setCategory(category);
 
         } else
-            newTask = getTaskFromDB(taskId);
+            task = getTaskFromDB(task.getId());
 
 
         // Check the QoS Requirements
-        if (qosProvider.checkRequirements(taskId)) {
-            log.info("The QoS requirements are checked for task @id-" + taskId);
+        if (qosProvider.checkRequirements(task.getId())) {
+            log.info("The QoS requirements are checked for task @id-" + task.getId());
 
         } else {
-            log.info("Something went wrong with the QoS requirements for task @id-" + taskId);
+            log.info("Something went wrong with the QoS requirements for task @id-" + task.getId());
             error = true;
         }
 
         // Allocate resources
-        if (allocator.reserveResources(taskId)) {
-            log.info("The resources are allocated for task @id-" + taskId);
+        if (allocator.reserveResources(task.getId())) {
+            log.info("The resources are allocated for task @id-" + task.getId());
         } else {
-            log.info("Something went wrong with the allocation of resources for task @id-" + taskId);
+            log.info("Something went wrong with the allocation of resources for task @id-" + task.getId());
             error = true;
         }
 
@@ -83,8 +82,8 @@ public class Mapper {
 
     private Task getTaskFromDB(int taskId) {
         log.info("Getting the task from the DB @id-" + taskId);
-        Task task = new Task(taskId);
         //TODO
+        Task task = new Task();
         return task;
     }
 

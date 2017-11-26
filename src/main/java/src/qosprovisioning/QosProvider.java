@@ -15,7 +15,6 @@ public class QosProvider {
     private static Logger log = LoggerFactory.getLogger(QosProvider.class);
 
     public QosProvider() {
-
         //TODO
     }
 
