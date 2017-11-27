@@ -11,9 +11,7 @@ package src.restapi;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import src.ServiceManager;
 import src.Task;
 
@@ -28,22 +26,33 @@ public class ServiceManagerApi {
         return "Welcome to the Service Manager!";
     }
 
-//    @RequestMapping("/computeTask")
-//    public String computeTask(@RequestParam(value = "id") int taskId) {
-//
-//        if (!serviceManager.computeTask(taskId)) {
-//            return "Task computed correctly @id-" + taskId;
-//        } else
-//            return "Something went wrong with the task! @id-" + taskId;
-//    }
+    @RequestMapping(method = RequestMethod.GET, value = "/api/v1/mapping/")
+    public EntryPoint getEntryPoints() {
+        EntryPoint entryPoint = new EntryPoint();
+        entryPoint.setBaseURI("/api/v1/mapping/");
+        entryPoint.setSubmitTask("submit");
+        entryPoint.setTaskOperation("{task_id}/{operation}");
+        return entryPoint;
+    }
 
-    @RequestMapping("/computeTask")
-    public String computeTask(@RequestParam(value = "task") Task task) {
+    @RequestMapping(method = RequestMethod.POST, value = "/api/v1/mapping/submit")
+    public Response submitTask(@RequestBody Task task) {
+        Response response = new Response();
 
         if (!serviceManager.computeTask(task)) {
-            return "Task computed correctly @id-" + task.getId();
+            response.setEvents("Task computed correctly");
         } else
-            return "Something went wrong with the task! @id-" + task.getId();
+            response.setEvents("Something went wrong with the task!");
+
+        response.setId(task.getId());
+        return response;
+    }
+
+    @RequestMapping(method = RequestMethod.PUT, value = "/api/v1/mapping/{task_id}/{operation}")
+    public Response taskOperation(@PathVariable int task_id,  @PathVariable String operation) {
+        Response response = new Response();
+
+        return response;
     }
 
     public static void main(String[] args) throws Exception {
