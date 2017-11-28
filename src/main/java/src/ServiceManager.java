@@ -34,29 +34,34 @@ public class ServiceManager {
         qosProvider = new QosProvider();
     }
 
-    public void run() {
-        //TODO
+    public void restart() {
+        mapper = new Mapper();
+        categorizer = new Categorizer();
+        allocator = new Allocator();
+        qosProvider = new QosProvider();
     }
 
     public void stop() {
-        //TODO
+        mapper = null;
+        categorizer = null;
+        allocator = null;
+        qosProvider = null;
     }
 
-    /**
-     * Method to compute a task received from the PM
-     *
-     * @param task
-     */
-    public boolean computeTask(Task task) {
-
-        log.info("Received task with @id-" + task.getId());
-
-        boolean error;
-
-        error = mapper.mapTask(task);
-
-        return error;
+    public Mapper getMapper() {
+        return mapper;
     }
 
+    public Categorizer getCategorizer() {
+        return categorizer;
+    }
+
+    public Allocator getAllocator() {
+        return allocator;
+    }
+
+    public QosProvider getQosProvider() {
+        return qosProvider;
+    }
 }
 

@@ -17,29 +17,63 @@ import src.categorization.Categorizer;
 import src.categorization.Category;
 import src.qosprovisioning.QosProvider;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedHashMap;
 
 public class Mapper {
 
     private static Logger log = LoggerFactory.getLogger(Mapper.class);
 
-    private Map<Integer, Task> taskMap;
+    private LinkedHashMap<String, Task> tasksMap;
     private Categorizer categorizer;
     private Allocator allocator;
     private QosProvider qosProvider;
 
     public Mapper() {
-        taskMap = new HashMap<>();
+        tasksMap = new LinkedHashMap<>();
         categorizer = new Categorizer();
         allocator = new Allocator();
         qosProvider = new QosProvider();
     }
 
-    public boolean mapTask(Task task) {
+    /**
+     * Method to compute a task received from the PM
+     *
+     * @param task
+     */
+    public boolean submitTask(Task task) {
 
-        log.info("Mapping new task @id-" + task.getId());
+        log.info("Received task with @id-" + task.getId());
+
+        if (tasksMap.containsKey(task.getId()))
+            return true;
+        else
+            tasksMap.put(task.getId(), task);
+        return false;
+    }
+
+    public boolean applyOperationToTask(String taskId, String operation) {
+
         boolean error = false;
+        switch (operation) {
+            case "START":
+                error = mapTask(taskId);
+                break;
+            case "STOP":
+                break;
+            case "RESTART":
+                break;
+            case "DELETE":
+                break;
+        }
+        return error;
+    }
+
+    private boolean mapTask(String taskId) {
+
+        log.info("Mapping new task @id-" + taskId);
+        Task task = tasksMap.get(taskId);
+        boolean error = false;
+
 
         // Check if the task already exist in the DB
         if (!checkTaskInDB(task.getId())) {
@@ -74,13 +108,13 @@ public class Mapper {
         return error;
     }
 
-    private boolean checkTaskInDB(int taskId) {
+    private boolean checkTaskInDB(String taskId) {
         log.info("Checking if task already exist in DB @id-" + taskId);
         //TODO
         return false;
     }
 
-    private Task getTaskFromDB(int taskId) {
+    private Task getTaskFromDB(String taskId) {
         log.info("Getting the task from the DB @id-" + taskId);
         //TODO
         Task task = new Task();
@@ -97,6 +131,10 @@ public class Mapper {
 
         //TODO
         return true;
+    }
+
+    public boolean checkIfTaskExistOnMemory(String taskId) {
+        return tasksMap.containsKey(taskId);
     }
 
 

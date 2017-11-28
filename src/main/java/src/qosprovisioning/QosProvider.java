@@ -18,7 +18,7 @@ public class QosProvider {
         //TODO
     }
 
-    public boolean checkRequirements(int taskId) {
+    public boolean checkRequirements(String taskId) {
         log.info("Checking QoS requirements for task @id-" + taskId);
         //TODO
         return true;

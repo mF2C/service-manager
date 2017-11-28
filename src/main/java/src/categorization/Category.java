@@ -19,8 +19,7 @@ public class Category {
     // Physical location from where the request is coming from {cloud layer 0, Fog layer 1, fog layer 2, ..., fog layer N}
     private int location;
 
-    public
-    Category(Task task) {
+    public Category(Task task) {
         this.timeLimit = task.getTimeLimit();
         this.location = task.getLocation();
     }

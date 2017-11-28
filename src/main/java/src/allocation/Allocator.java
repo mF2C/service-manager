@@ -19,7 +19,7 @@ public class Allocator {
         //TODO
     }
 
-    public boolean reserveResources(int taskId) {
+    public boolean reserveResources(String taskId) {
         log.info("Reserving resources for task @id-" + taskId);
 
         //TODO

@@ -14,7 +14,7 @@ import src.categorization.Category;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Task {
 
-    private int id;
+    private String id;
     // Time limit for a task to be executed
     private double timeLimit;
     // Physical location from where the request is coming from {cloud layer 0, Fog layer 1, fog layer 2, ..., fog layer N}
@@ -24,12 +24,7 @@ public class Task {
     public Task() {
     }
 
-    public Task(double timeLimit, int location) {
-        this.timeLimit = timeLimit;
-        this.location = location;
-    }
-
-    public int getId() {
+    public String getId() {
         return id;
     }
 
