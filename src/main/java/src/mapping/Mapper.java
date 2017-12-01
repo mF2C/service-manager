@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import src.Task;
 import src.allocation.Allocator;
 import src.categorization.Categorizer;
-import src.categorization.Category;
+import src.categorization.elements.Category;
 import src.qosprovisioning.QosProvider;
 
 import java.util.LinkedHashMap;

@@ -9,7 +9,7 @@
 package src;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import src.categorization.Category;
+import src.categorization.elements.Category;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Task {

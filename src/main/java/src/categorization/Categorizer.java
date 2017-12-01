@@ -11,6 +11,7 @@ package src.categorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import src.Task;
+import src.categorization.elements.Category;
 
 
 public class Categorizer {
