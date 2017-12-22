@@ -126,7 +126,7 @@ Entry point to compute a task on the Service Management block:
 -	Method: POST
 -	Params: none
 - Body: task - JSON object representing a task.
-  - Example
+  - Example:
   ```
   {
   "id" : "1",
