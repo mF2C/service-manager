@@ -112,3 +112,27 @@ Finally, if the service is running correctly, typing localhost:8080 on your web 
 ```
 Welcome to the Service Manager!
 ```
+## Interfaces
+
+### Get available methods
+Returns the list of available methods to call on the mapping interface:
+-	URI: `localhost:8080/api/v1/mapping/`
+-	Method: GET
+-	Params: none
+
+### Submit a task
+Entry point to compute a task on the Service Management block:
+-	URI: `localhost:8080/api/v1/mapping/submit`
+-	Method: POST
+-	Params: none
+-	Body: task - JSON object representing a task.
+
+### Task operation
+Start, stop, restart or delete a task: 
+-	URI: `localhost:8080/api/v1/mapping/<task_id>/<options>` 
+-	Method: PUT
+- Params
+  - `<task_id>`: id of the task
+  - `<options>`: type of operation {start, stop, restart, delete}
+
+
