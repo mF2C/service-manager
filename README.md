@@ -125,7 +125,15 @@ Entry point to compute a task on the Service Management block:
 -	URI: `localhost:8080/api/v1/mapping/submit`
 -	Method: POST
 -	Params: none
--	Body: task - JSON object representing a task.
+- Body: task - JSON object representing a task.
+  - Example
+  ```
+  {
+  "id" : "1",
+  "timeLimit" : "10",
+  "location" : "0"
+  }
+  ```
 
 ### Task operation
 Start, stop, restart or delete a task: 
