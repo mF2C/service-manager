@@ -15,19 +15,23 @@ import src.categorization.Categorizer;
 import src.mapping.Mapper;
 import src.qosprovisioning.QosProvider;
 
+import java.util.LinkedHashMap;
+
 public class ServiceManager {
 
     private static Logger log = LoggerFactory.getLogger(ServiceManager.class);
 
-    private Mapper mapper;
-    private Categorizer categorizer;
-    private Allocator allocator;
-    private QosProvider qosProvider;
+    private static LinkedHashMap<String, Service> services;
+    private static Mapper mapper;
+    private static Categorizer categorizer;
+    private static Allocator allocator;
+    private static QosProvider qosProvider;
 
     /**
      * Constructor class
      */
     public ServiceManager() {
+        services = new LinkedHashMap<>();
         mapper = new Mapper();
         categorizer = new Categorizer();
         allocator = new Allocator();
@@ -48,19 +52,27 @@ public class ServiceManager {
         qosProvider = null;
     }
 
-    public Mapper getMapper() {
+    public static LinkedHashMap<String, Service> getServices() {
+        return services;
+    }
+
+    public static boolean checkIfServiceExistOnMemory(String serviceId) {
+        return services.containsKey(serviceId);
+    }
+
+    public static Mapper getMapper() {
         return mapper;
     }
 
-    public Categorizer getCategorizer() {
+    public static Categorizer getCategorizer() {
         return categorizer;
     }
 
-    public Allocator getAllocator() {
+    public static Allocator getAllocator() {
         return allocator;
     }
 
-    public QosProvider getQosProvider() {
+    public static QosProvider getQosProvider() {
         return qosProvider;
     }
 }

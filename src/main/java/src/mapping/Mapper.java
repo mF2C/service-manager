@@ -11,131 +11,115 @@ package src.mapping;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import src.Task;
+import src.Service;
+import src.ServiceManager;
 import src.allocation.Allocator;
 import src.categorization.Categorizer;
-import src.categorization.elements.Category;
+import src.categorization.Category;
 import src.qosprovisioning.QosProvider;
-
-import java.util.LinkedHashMap;
 
 public class Mapper {
 
     private static Logger log = LoggerFactory.getLogger(Mapper.class);
 
-    private LinkedHashMap<String, Task> tasksMap;
+
     private Categorizer categorizer;
     private Allocator allocator;
     private QosProvider qosProvider;
 
     public Mapper() {
-        tasksMap = new LinkedHashMap<>();
+
         categorizer = new Categorizer();
         allocator = new Allocator();
         qosProvider = new QosProvider();
     }
 
-    /**
-     * Method to compute a task received from the PM
-     *
-     * @param task
-     */
-    public boolean submitTask(Task task) {
+    public boolean submit(Service service) {
 
-        log.info("Received task with @id-" + task.getId());
+        log.info("Received service with @id-" + service.getId());
 
-        if (tasksMap.containsKey(task.getId()))
+        if (ServiceManager.getServices().containsKey(service.getId()))
             return true;
         else
-            tasksMap.put(task.getId(), task);
+            ServiceManager.getServices().put(service.getId(), service);
         return false;
     }
 
-    public boolean applyOperationToTask(String taskId, String operation) {
+    public boolean applyOperation(String serviceId, String operation) {
 
-        boolean error = false;
+        boolean error = true;
         switch (operation) {
             case "START":
-                error = mapTask(taskId);
+                error = map(serviceId);
                 break;
             case "STOP":
+                error = false;
                 break;
             case "RESTART":
+                error = false;
                 break;
             case "DELETE":
+                error = false;
                 break;
         }
         return error;
     }
 
-    private boolean mapTask(String taskId) {
+    private boolean map(String serviceId) {
 
-        log.info("Mapping new task @id-" + taskId);
-        Task task = tasksMap.get(taskId);
+        log.info("Mapping new service @id-" + serviceId);
+        Service service = ServiceManager.getServices().get(serviceId);
         boolean error = false;
 
 
-        // Check if the task already exist in the DB
-        if (!checkTaskInDB(task.getId())) {
+        // Check if the service already exist in the DB
+        if (!checkDB(service.getId())) {
 
-            // Categorize the task
-            Category category = categorizer.categorise(task);
-
-            // Assign category to the task
-            task.setCategory(category);
+            // Categorize the service
+            Category category = categorizer.categorise(service);
 
         } else
-            task = getTaskFromDB(task.getId());
+            service = getFromDB(service.getId());
 
 
         // Check the QoS Requirements
-        if (qosProvider.checkRequirements(task.getId())) {
-            log.info("The QoS requirements are checked for task @id-" + task.getId());
+        qosProvider.checkRequirements(service);
+        log.info("The QoS requirements are checked for service @id-" + service.getId());
 
-        } else {
-            log.info("Something went wrong with the QoS requirements for task @id-" + task.getId());
-            error = true;
-        }
 
         // Allocate resources
-        if (allocator.reserveResources(task.getId())) {
-            log.info("The resources are allocated for task @id-" + task.getId());
+        if (allocator.reserveResources(service.getId())) {
+            log.info("The resources are allocated for service @id-" + service.getId());
         } else {
-            log.info("Something went wrong with the allocation of resources for task @id-" + task.getId());
+            log.info("Something went wrong with the allocation of resources for service @id-" + service.getId());
             error = true;
         }
 
         return error;
     }
 
-    private boolean checkTaskInDB(String taskId) {
-        log.info("Checking if task already exist in DB @id-" + taskId);
+    private boolean checkDB(String serviceId) {
+        log.info("Checking if service already exist in DB @id-" + serviceId);
         //TODO
         return false;
     }
 
-    private Task getTaskFromDB(String taskId) {
-        log.info("Getting the task from the DB @id-" + taskId);
+    private Service getFromDB(String serviceId) {
+        log.info("Getting the service from the DB @id-" + serviceId);
         //TODO
-        Task task = new Task();
-        return task;
+        Service service = new Service();
+        return service;
     }
 
-    public boolean applyPolicies(Task task) {
-
-        //TODO
-        return true;
-    }
-
-    public boolean checkUserConstrains(Task task) {
+    public boolean applyPolicies(Service service) {
 
         //TODO
         return true;
     }
 
-    public boolean checkIfTaskExistOnMemory(String taskId) {
-        return tasksMap.containsKey(taskId);
+    public boolean checkUserConstrains(Service service) {
+
+        //TODO
+        return true;
     }
-
-
 }

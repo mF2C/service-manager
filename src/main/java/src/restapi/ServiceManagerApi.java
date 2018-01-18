@@ -17,85 +17,99 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.web.bind.annotation.*;
 import src.ServiceManager;
-import src.Task;
+import src.Service;
+import src.qosprovisioning.Resources;
 import src.restapi.elements.EntryPoints;
 import src.restapi.elements.Response;
+
+import static src.restapi.Parameters.*;
 
 @RestController
 @EnableAutoConfiguration
 public class ServiceManagerApi {
 
-    private static ServiceManager serviceManager;
-
-    @RequestMapping("/")
+    @RequestMapping(SM)
     public String home() {
-        return "Welcome to the Service Manager!";
+        return "Info - Welcome to the mF2C Service Manager!";
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/v1/mapping/", produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.GET, value = SM + MAPPING, produces = MediaType.APPLICATION_JSON_VALUE)
     public EntryPoints getEntryPoints() {
         EntryPoints entryPoints = new EntryPoints();
-        entryPoints.setBaseURI("/api/v1/mapping/");
-        entryPoints.setSubmitTask("submit");
-        entryPoints.setTaskOperation("{taskId}/{options}");
-        entryPoints.getTaskOperation().setOptions("{START, STOP, RESTART, DELETE}");
+        entryPoints.setBaseURI(SM + MAPPING);
+        entryPoints.setSubmitService(SM + MAPPING + SUBMIT_SERVICE);
+        entryPoints.setServiceOperation(OPERATION_SERVICE);
+        entryPoints.getServiceOperation().setOptions(OPERATIONS);
         return entryPoints;
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/v1/mapping/task", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Task generateTask() {
-        Task task = new Task();
-
-        return task;
-    }
-
-    @RequestMapping(method = RequestMethod.POST, value = "/api/v1/mapping/submit", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Response submitTask(@RequestBody Task task) {
-        Response response = new Response();
+    @RequestMapping(method = RequestMethod.POST, value = SM + MAPPING + SUBMIT_SERVICE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Response submit(@RequestBody Service service) {
+        Response response = new Response(service.getId(), "submit_service", SM + MAPPING + SUBMIT_SERVICE);
 
         try {
-            if (!serviceManager.getMapper().submitTask(task)) {
-                response.setMessage("Task computed correctly");
+            if (!ServiceManager.getMapper().submit(service)) {
+                response.setDescription("Info - service submitted correctly");
                 response.setStatus(HttpStatus.CREATED.value());
             } else {
-                response.setMessage("A task with the same id already exists!");
+                response.setDescription("Error - a service with the same id already exists!");
                 response.setStatus(HttpStatus.ACCEPTED.value());
             }
-            response.setTaskId(task.getId());
         } catch (Exception e) {
-            response.setMessage("Invalid task!");
+            response.setDescription("Error - invalid service!");
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         }
 
         return response;
     }
 
-    @RequestMapping(method = RequestMethod.PUT, value = "/api/v1/mapping/{task_id}/{options}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Response taskOperation(@PathVariable String task_id, @PathVariable String options) {
-        Response response = new Response();
+    @RequestMapping(method = RequestMethod.PUT, value = SM + MAPPING + OPERATION_SERVICE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Response operation(@PathVariable String service_id, @PathVariable String options) {
+        Response response = new Response(service_id, "operation_service", SM + MAPPING + OPERATION_SERVICE);
 
         try {
-            if (serviceManager.getMapper().checkIfTaskExistOnMemory(task_id)) {
-                if (!serviceManager.getMapper().applyOperationToTask(task_id, options))
-                    response.setMessage("The operation - " + options + " - was successfully applied");
+            if (ServiceManager.checkIfServiceExistOnMemory(service_id)) {
+                if (!ServiceManager.getMapper().applyOperation(service_id, options))
+                    response.setDescription("Info - " + options + " operation successfully applied");
                 else
-                    response.setMessage("Error applying - " + options + " -");
+                    response.setDescription("Error - wrong operation!");
                 response.setStatus(HttpStatus.CREATED.value());
             } else {
-                response.setMessage("The task does not exist!");
+                response.setDescription("Error - the service does not exist!");
                 response.setStatus(HttpStatus.ACCEPTED.value());
             }
-            response.setTaskId(task_id);
         } catch (Exception e) {
-            response.setMessage("Invalid task!");
+            response.setDescription("Error - invalid service!");
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         }
 
         return response;
     }
 
-    public static void main(String[] args) throws Exception {
-        serviceManager = new ServiceManager();
+    @RequestMapping(method = RequestMethod.PUT, value = SM + QOS + CHECK, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Response check(@PathVariable String service_id) {
+        Response response = new Response(service_id, "check_QoS", SM + QOS + CHECK);
+
+        try {
+            if (ServiceManager.checkIfServiceExistOnMemory(service_id)) {
+                Resources resources = ServiceManager.getQosProvider().checkRequirements(ServiceManager.getServices().get(service_id));
+                response.setDescription("Info - Checked QoS requirements correctly");
+                response.setAdmittedResources(resources);
+                response.setStatus(HttpStatus.CREATED.value());
+            } else {
+                response.setDescription("Error - the service does not exist!");
+                response.setStatus(HttpStatus.ACCEPTED.value());
+            }
+        } catch (Exception e) {
+            response.setDescription("Error - invalid service!");
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
+        }
+
+        return response;
+    }
+
+    public static void main(String[] args) {
+        new ServiceManager();
         SpringApplication.run(ServiceManagerApi.class, args);
     }
 

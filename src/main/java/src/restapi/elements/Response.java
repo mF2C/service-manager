@@ -1,5 +1,5 @@
 /**
- * Service Manager REST api.
+ * Response class.
  * Part of the mF2C Project: http://www.mf2c-project.eu/
  * <p>
  * This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
@@ -8,37 +8,76 @@
  */
 package src.restapi.elements;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import src.qosprovisioning.Resources;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Response {
 
-    private String taskId;
+    private String id;
+    private String name;
+    private String description;
+    private String created;
+    private String updated;
+    private String resourceURI;
     private int status;
-    private String message;
+    private Resources admittedResources;
 
-    public Response(){
-
+    public Response(String id, String name, String resourceURI) {
+        this.id = id;
+        this.name = name;
+        this.resourceURI = resourceURI;
     }
 
-    public void setStatus(int status) {
-        this.status = status;
+    public String getId() {
+        return id;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public String getName() {
+        return name;
     }
 
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
+    public String getDescription() {
+        return description;
     }
 
-    public String getTaskId() {
-        return taskId;
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getCreated() {
+        return created;
+    }
+
+    public void setCreated(String created) {
+        this.created = created;
+    }
+
+    public String getUpdated() {
+        return updated;
+    }
+
+    public void setUpdated(String updated) {
+        this.updated = updated;
+    }
+
+    public String getResourceURI() {
+        return resourceURI;
     }
 
     public int getStatus() {
         return status;
     }
 
-    public String getMessage() {
-        return message;
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public Resources getAdmittedResources() {
+        return admittedResources;
+    }
+
+    public void setAdmittedResources(Resources admittedResources) {
+        this.admittedResources = admittedResources;
     }
 }

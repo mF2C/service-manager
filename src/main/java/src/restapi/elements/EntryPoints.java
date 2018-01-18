@@ -14,8 +14,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class EntryPoints {
 
     private String baseURI;
-    private EntryPoint submitTask;
-    private EntryPoint taskOperation;
+    private EntryPoint submitService;
+    private EntryPoint serviceOperation;
 
     public EntryPoints() {
     }
@@ -24,24 +24,24 @@ public class EntryPoints {
         return baseURI;
     }
 
-    public EntryPoint getSubmitTask() {
-        return submitTask;
+    public EntryPoint getSubmitService() {
+        return submitService;
     }
 
-    public EntryPoint getTaskOperation() {
-        return taskOperation;
+    public EntryPoint getServiceOperation() {
+        return serviceOperation;
     }
 
     public void setBaseURI(String baseURI) {
         this.baseURI = baseURI;
     }
 
-    public void setSubmitTask(String href) {
-        this.submitTask = new EntryPoint(href);
+    public void setSubmitService(String href) {
+        this.submitService = new EntryPoint(href);
     }
 
-    public void setTaskOperation(String href) {
-        this.taskOperation = new EntryPoint(href);
+    public void setServiceOperation(String href) {
+        this.serviceOperation = new EntryPoint(href);
     }
 
 }
