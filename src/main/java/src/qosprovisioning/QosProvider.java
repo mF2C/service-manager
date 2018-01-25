@@ -28,7 +28,7 @@ public class QosProvider {
         Resources admittedResources = new Resources();
 
         //1. Get the user sharing model
-        SharingModel sharingModel = getSharingModel();
+        //SharingModel sharingModel = getSharingModel();
 
         //1.1 Check if the service accomplishes the sharing model
 
@@ -41,10 +41,16 @@ public class QosProvider {
 
     private SharingModel getSharingModel() {
         RestTemplate restTemplate = new RestTemplate();
-        return restTemplate.getForObject(BASE_URL + UM + GET_SHARING_MODEL, SharingModel.class);
+        try {
+            return restTemplate.getForObject(EXTERNAL_URL + UM + GET_SHARING_MODEL, SharingModel.class);
+        } catch (Exception e) {
+            log.error("Error getting the sharing model");
+            return null;
+        }
+
     }
 
-    private boolean checkSharingModel(Service service, SharingModel sharingModel){
+    private boolean checkSharingModel(Service service, SharingModel sharingModel) {
 
         return true;
     }

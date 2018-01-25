@@ -20,7 +20,6 @@ import java.util.LinkedHashMap;
 public class ServiceManager {
 
     private static Logger log = LoggerFactory.getLogger(ServiceManager.class);
-
     private static LinkedHashMap<String, Service> services;
     private static Mapper mapper;
     private static Categorizer categorizer;

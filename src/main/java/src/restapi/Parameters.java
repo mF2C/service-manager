@@ -10,15 +10,13 @@ package src.restapi;
 
 public class Parameters {
 
-    public static final String BASE_URL = "http://localhost:8080/";
+    public static final String EXTERNAL_URL = "http://localhost:8080/";
 
     /***********************************
      * Platform Manager (PM) resources *
      ***********************************/
 
-    /**
-     * Service Orchestration
-     */
+    //Service Orchestration
     public static final String SERVICE_ORCHESTRATION_URI = "api/v1/";
 
 
@@ -26,16 +24,11 @@ public class Parameters {
      * Agent Controller (AC) resources *
      ***********************************/
 
-    /**
-     * Service Management
-     */
-    public static final String SM = "api/v1/service-management/";
-
     // Mapping
     public static final String MAPPING = "mapping/";
     public static final String SUBMIT_SERVICE = "submit/";
     public static final String OPERATION_SERVICE = "{service_id}/{options}";
-    public static final String OPERATIONS = " {START, STOP, RESTART, DELETE}";
+    public static final String OPERATIONS = "{START, STOP, RESTART, DELETE}";
 
     // QoS providing
     public static final String QOS = "qos/";

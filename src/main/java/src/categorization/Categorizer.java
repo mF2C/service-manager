@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import src.Service;
 
-
 public class Categorizer {
 
     private static Logger log = LoggerFactory.getLogger(Categorizer.class);

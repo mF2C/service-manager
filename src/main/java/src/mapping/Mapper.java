@@ -21,8 +21,6 @@ import src.qosprovisioning.QosProvider;
 public class Mapper {
 
     private static Logger log = LoggerFactory.getLogger(Mapper.class);
-
-
     private Categorizer categorizer;
     private Allocator allocator;
     private QosProvider qosProvider;
@@ -36,41 +34,39 @@ public class Mapper {
 
     public boolean submit(Service service) {
 
-        log.info("Received service with @id-" + service.getId());
-
-        if (ServiceManager.getServices().containsKey(service.getId()))
+        log.info("Checking received service @id-" + service.getId());
+        if (ServiceManager.getServices().containsKey(service.getId())) {
+            log.error("Service already exist @id-" + service.getId());
             return true;
-        else
+        } else
             ServiceManager.getServices().put(service.getId(), service);
+        log.info("Service submitted correctly @id-" + service.getId());
         return false;
     }
 
     public boolean applyOperation(String serviceId, String operation) {
 
-        boolean error = true;
+        log.info("Applying operation to service @id-" + serviceId);
         switch (operation) {
             case "START":
-                error = map(serviceId);
-                break;
+//                error = map(serviceId);
+                return false;
             case "STOP":
-                error = false;
-                break;
+                return false;
             case "RESTART":
-                error = false;
-                break;
+                return false;
             case "DELETE":
-                error = false;
-                break;
+                return false;
         }
-        return error;
+        log.error("The operation is not valid for service @id-" + serviceId);
+        return true;
     }
 
     private boolean map(String serviceId) {
 
-        log.info("Mapping new service @id-" + serviceId);
+        log.info("Mapping service @id-" + serviceId);
         Service service = ServiceManager.getServices().get(serviceId);
         boolean error = false;
-
 
         // Check if the service already exist in the DB
         if (!checkDB(service.getId())) {
@@ -81,19 +77,8 @@ public class Mapper {
         } else
             service = getFromDB(service.getId());
 
-
         // Check the QoS Requirements
         qosProvider.checkRequirements(service);
-        log.info("The QoS requirements are checked for service @id-" + service.getId());
-
-
-        // Allocate resources
-        if (allocator.reserveResources(service.getId())) {
-            log.info("The resources are allocated for service @id-" + service.getId());
-        } else {
-            log.info("Something went wrong with the allocation of resources for service @id-" + service.getId());
-            error = true;
-        }
 
         return error;
     }
@@ -107,19 +92,6 @@ public class Mapper {
     private Service getFromDB(String serviceId) {
         log.info("Getting the service from the DB @id-" + serviceId);
         //TODO
-        Service service = new Service();
-        return service;
-    }
-
-    public boolean applyPolicies(Service service) {
-
-        //TODO
-        return true;
-    }
-
-    public boolean checkUserConstrains(Service service) {
-
-        //TODO
-        return true;
+        return new Service();
     }
 }

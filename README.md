@@ -108,7 +108,60 @@ Run the local tagged image using:
 ```
 $ docker run -p 8080:8080 -t mf2c/service-manager
 ```
-Finally, if the service is running correctly, typing localhost:8080 on your web browser, the output should be:
+Finally, if the service is running correctly, typing `http://localhost:8080/api/v1/service-management/` on your web browser, the output should be:
 ```
-Welcome to the Service Manager!
+Info - Welcome to the mF2C Service Manager!
 ```
+## Resources
+
+Representation of the used resources by the Service Manager
+
+#### Service
+  ```
+  {
+  	"id":"1",
+  	"name":"GPS",
+  	"description":"get the GPS location",
+      "created" : "15.01.18",
+      "updated" : "18.01.18",
+      "resourceURI" : "...",
+      "category": {
+      	"timeLimit":"10",
+      	"location":"cloud",
+      	"priority":"1",
+      	"cpu":"1",
+      	"memory":"200",
+      	"storage":"20",
+      	"network":"100"
+      }
+  }
+  ```
+## Interfaces
+
+### Get endpoints
+Returns the list of available endpoints in the Service Manager:
+-	URI: `http://localhost:8080/api/v1/service-management/endpoints/`
+-	Method: GET
+-	Params: none
+
+### Submit a service
+Interface to submit a service to the Service Manager:
+-	URI: `http://localhost:8080/api/v1/service-management/mapping/submit/`
+-	Method: POST
+-	Params: none
+- Body: service - JSON object representing a service.
+
+### Service operation
+Start, stop, restart or delete a service from the Service Manager: 
+-	URI: `http://localhost:8080/api/v1/service-management/mapping/<service_id>/<options>` 
+-	Method: PUT
+- Params
+  - `<service_id>`: id of the service
+  - `<options>`: type of operation {START, STOP, RESTART, DELETE}
+
+### Check QoS 
+Interface to check the QoS: 
+-	URI: `http://localhost:8080/api/v1/service-management/qos/check/<service_id>` 
+-	Method: PUT
+- Params
+  - `<service_id>`: id of the service
