@@ -118,23 +118,23 @@ Representation of the used resources by the Service Manager
 
 #### Service
   ```
-  {
-  	"id":"1",
-  	"name":"GPS",
-  	"description":"get the GPS location",
-      "created" : "15.01.18",
-      "updated" : "18.01.18",
-      "resourceURI" : "...",
-      "category": {
-      	"timeLimit":"10",
-      	"location":"cloud",
-      	"priority":"1",
-      	"cpu":"1",
-      	"memory":"200",
-      	"storage":"20",
-      	"network":"100"
-      }
-  }
+{
+    "id":"1",
+    "name":"GPS",
+    "description":"get the GPS location",
+    "created" : "15.01.18",
+    "updated" : "18.01.18",
+    "resourceURI" : "...",
+        "category": {
+            "timeLimit":"10",
+            "location":"cloud",
+            "priority":"1",
+            "cpu":"1",
+            "memory":"200",
+            "storage":"20",
+            "network":"100"
+            }
+}
   ```
 ## Interfaces
 
