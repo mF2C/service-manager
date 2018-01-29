@@ -9,6 +9,7 @@
 package src.restapi.elements;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import src.Service;
 import src.qosprovisioning.Resources;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -22,6 +23,7 @@ public class Response {
     private String resourceURI;
     private int status;
     private Resources admittedResources;
+    private Service service;
 
     public Response(String id, String name, String resourceURI) {
         this.id = id;
@@ -79,5 +81,13 @@ public class Response {
 
     public void setAdmittedResources(Resources admittedResources) {
         this.admittedResources = admittedResources;
+    }
+
+    public Service getService() {
+        return service;
+    }
+
+    public void setService(Service service) {
+        this.service = service;
     }
 }

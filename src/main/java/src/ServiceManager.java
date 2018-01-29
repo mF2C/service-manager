@@ -51,12 +51,38 @@ public class ServiceManager {
         qosProvider = null;
     }
 
-    public static LinkedHashMap<String, Service> getServices() {
-        return services;
+    public static boolean submitService(Service service) {
+
+        log.info("Service received service @id-" + service.getId());
+        if (services.containsKey(service.getId())) {
+            log.error("Service already exist @id-" + service.getId());
+            return true;
+        } else {
+            services.put(service.getId(), service);
+            log.info("Service submitted correctly @id-" + service.getId());
+            return false;
+        }
     }
 
-    public static boolean checkIfServiceExistOnMemory(String serviceId) {
-        return services.containsKey(serviceId);
+    public static Service getService(String serviceId) {
+        return services.get(serviceId);
+    }
+
+    public static boolean deleteService(String serviceId) {
+
+        log.info("Service received service @id-" + serviceId);
+        if (!services.containsKey(serviceId)) {
+            log.error("Service does not exist @id-" + serviceId);
+            return true;
+        } else {
+            services.remove(serviceId);
+            log.info("Service deleted correctly @id-" + serviceId);
+            return false;
+        }
+    }
+
+    public static LinkedHashMap<String, Service> getServices() {
+        return services;
     }
 
     public static Mapper getMapper() {

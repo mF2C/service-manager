@@ -24,15 +24,13 @@ public class Parameters {
      * Agent Controller (AC) resources *
      ***********************************/
 
-    // Mapping
-    public static final String MAPPING = "mapping/";
-    public static final String SUBMIT_SERVICE = "submit/";
-    public static final String OPERATION_SERVICE = "{service_id}/{options}";
-    public static final String OPERATIONS = "{START, STOP, RESTART, DELETE}";
+    // Service Manager
+    public static final String ROOT = "/";
+    public static final String SERVICE = "{service_id}";
 
     // QoS providing
     public static final String QOS = "qos/";
-    public static final String CHECK = "check/{service_id}";
+    public static final String CHECK = "check/";
 
     /**
      * User Management

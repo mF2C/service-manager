@@ -70,9 +70,9 @@ Output:
 ....... . . .
 ```
 
-If you open a web browser to localhost:8080 you should see the following output:
+If you open a web browser to `http://localhost:8080/api/v1/service-management/` you should see the following output:
 ```
-Welcome to the Service Manager!
+Info - Welcome to the mF2C Service Manager!
 ```
 
 ## Deployment using Docker

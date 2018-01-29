@@ -44,44 +44,63 @@ public class ServiceManagerApi {
         return "Info - Welcome to the mF2C Service Manager!";
     }
 
-    @RequestMapping(method = RequestMethod.POST, path = MAPPING + SUBMIT_SERVICE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.POST, path = ROOT, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     Response submit(@RequestBody Service service) {
 
-        Response response = new Response(service.getId(), "submit_service", MAPPING + SUBMIT_SERVICE);
+        Response response = new Response(service.getId(), "submit_service", ROOT);
         try {
-            if (!ServiceManager.getMapper().submit(service)) {
+            if (!ServiceManager.submitService(service)) {
                 response.setDescription("Info - service submitted correctly");
                 response.setStatus(HttpStatus.CREATED.value());
             } else {
                 response.setDescription("Error - a service with the same id already exists!");
-                response.setStatus(HttpStatus.ACCEPTED.value());
+                response.setStatus(HttpStatus.CONFLICT.value());
             }
         } catch (Exception e) {
-            response.setDescription("Error - invalid service!");
+            response.setDescription("Error - invalid request!");
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         }
         return response;
     }
 
-    @RequestMapping(method = RequestMethod.PUT, path = MAPPING + OPERATION_SERVICE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.GET, path = ROOT, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
-    Response operation(@PathVariable String service_id, @PathVariable String options) {
+    Response get(@PathVariable String service_id) {
 
-        Response response = new Response(service_id, "operation_service", MAPPING + OPERATION_SERVICE);
+        Response response = new Response(service_id, "get_service", ROOT);
         try {
-            if (ServiceManager.checkIfServiceExistOnMemory(service_id)) {
-                if (!ServiceManager.getMapper().applyOperation(service_id, options))
-                    response.setDescription("Info - " + options + " operation successfully applied");
-                else
-                    response.setDescription("Error - wrong operation!");
-                response.setStatus(HttpStatus.CREATED.value());
+            if (ServiceManager.getServices().containsKey(service_id)) {
+                response.setService(ServiceManager.getService(service_id));
+                response.setDescription("Info - service submitted correctly");
+                response.setStatus(HttpStatus.OK.value());
             } else {
                 response.setDescription("Error - the service does not exist!");
-                response.setStatus(HttpStatus.ACCEPTED.value());
+                response.setStatus(HttpStatus.NOT_FOUND.value());
             }
         } catch (Exception e) {
-            response.setDescription("Error - invalid service!");
+            response.setDescription("Error - invalid request!");
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
+        }
+        return response;
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, path = ROOT + SERVICE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody
+    Response delete(@PathVariable String service_id) {
+
+        Response response = new Response(service_id, "delete_service", ROOT + SERVICE);
+        try {
+            if (!ServiceManager.deleteService(service_id)) {
+                response.setDescription("Info - service deleted correctly");
+                response.setStatus(HttpStatus.OK.value());
+                response.setService(ServiceManager.getService(service_id));
+            } else {
+                response.setDescription("Error - the service does not exist!");
+                response.setStatus(HttpStatus.NOT_FOUND.value());
+            }
+        } catch (Exception e) {
+            response.setDescription("Error - invalid request!");
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         }
         return response;
@@ -93,17 +112,17 @@ public class ServiceManagerApi {
 
         Response response = new Response(service_id, "check_QoS", QOS + CHECK);
         try {
-            if (ServiceManager.checkIfServiceExistOnMemory(service_id)) {
+            if (ServiceManager.getServices().containsKey(service_id)) {
                 Resources resources = ServiceManager.getQosProvider().checkRequirements(ServiceManager.getServices().get(service_id));
                 response.setDescription("Info - Checked QoS requirements correctly");
                 response.setAdmittedResources(resources);
-                response.setStatus(HttpStatus.CREATED.value());
+                response.setStatus(HttpStatus.OK.value());
             } else {
                 response.setDescription("Error - the service does not exist!");
-                response.setStatus(HttpStatus.ACCEPTED.value());
+                response.setStatus(HttpStatus.NOT_FOUND.value());
             }
         } catch (Exception e) {
-            response.setDescription("Error - invalid service!");
+            response.setDescription("Error - invalid request!");
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         }
         return response;

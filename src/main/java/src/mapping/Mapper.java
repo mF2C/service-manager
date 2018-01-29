@@ -32,36 +32,6 @@ public class Mapper {
         qosProvider = new QosProvider();
     }
 
-    public boolean submit(Service service) {
-
-        log.info("Checking received service @id-" + service.getId());
-        if (ServiceManager.getServices().containsKey(service.getId())) {
-            log.error("Service already exist @id-" + service.getId());
-            return true;
-        } else
-            ServiceManager.getServices().put(service.getId(), service);
-        log.info("Service submitted correctly @id-" + service.getId());
-        return false;
-    }
-
-    public boolean applyOperation(String serviceId, String operation) {
-
-        log.info("Applying operation to service @id-" + serviceId);
-        switch (operation) {
-            case "START":
-//                error = map(serviceId);
-                return false;
-            case "STOP":
-                return false;
-            case "RESTART":
-                return false;
-            case "DELETE":
-                return false;
-        }
-        log.error("The operation is not valid for service @id-" + serviceId);
-        return true;
-    }
-
     private boolean map(String serviceId) {
 
         log.info("Mapping service @id-" + serviceId);
