@@ -25,16 +25,13 @@ public class Parameters {
      ***********************************/
 
     // Service Manager
-    public static final String ROOT = "/";
+    public static final String ROOT = "/api/v1/service-management/";
     public static final String SERVICE = "{service_id}";
 
     // QoS providing
     public static final String QOS = "qos/";
-    public static final String CHECK = "check/";
 
-    /**
-     * User Management
-     */
+    // User Management
     public static final String UM = "api/v1/user-management/";
     public static final String GET_SHARING_MODEL = "sharingmodel/";
 

@@ -44,7 +44,7 @@ public class ServiceManagerApi {
         return "Info - Welcome to the mF2C Service Manager!";
     }
 
-    @RequestMapping(method = RequestMethod.POST, path = ROOT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     Response submit(@RequestBody Service service) {
 
@@ -64,11 +64,11 @@ public class ServiceManagerApi {
         return response;
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = ROOT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.GET, value = SERVICE, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     Response get(@PathVariable String service_id) {
 
-        Response response = new Response(service_id, "get_service", ROOT);
+        Response response = new Response(service_id, "get_service", ROOT + service_id);
         try {
             if (ServiceManager.getServices().containsKey(service_id)) {
                 response.setService(ServiceManager.getService(service_id));
@@ -85,11 +85,11 @@ public class ServiceManagerApi {
         return response;
     }
 
-    @RequestMapping(method = RequestMethod.DELETE, path = ROOT + SERVICE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.DELETE, path = SERVICE, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     Response delete(@PathVariable String service_id) {
 
-        Response response = new Response(service_id, "delete_service", ROOT + SERVICE);
+        Response response = new Response(service_id, "delete_service", ROOT + service_id);
         try {
             if (!ServiceManager.deleteService(service_id)) {
                 response.setDescription("Info - service deleted correctly");
@@ -106,11 +106,11 @@ public class ServiceManagerApi {
         return response;
     }
 
-    @RequestMapping(method = RequestMethod.PUT, path = QOS + CHECK, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.PUT, path = QOS + SERVICE, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     Response check(@PathVariable String service_id) {
 
-        Response response = new Response(service_id, "check_QoS", QOS + CHECK);
+        Response response = new Response(service_id, "check_QoS", ROOT + QOS + service_id);
         try {
             if (ServiceManager.getServices().containsKey(service_id)) {
                 Resources resources = ServiceManager.getQosProvider().checkRequirements(ServiceManager.getServices().get(service_id));
