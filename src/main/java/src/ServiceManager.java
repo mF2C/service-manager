@@ -53,13 +53,13 @@ public class ServiceManager {
 
     public static boolean submitService(Service service) {
 
-        log.info("Service received service @id-" + service.getId());
+        log.info("Service received @id-" + service.getId());
         if (services.containsKey(service.getId())) {
             log.error("Service already exist @id-" + service.getId());
             return true;
         } else {
             services.put(service.getId(), service);
-            log.info("Service submitted correctly @id-" + service.getId());
+            log.info("Service submitted @id-" + service.getId());
             return false;
         }
     }
@@ -70,13 +70,13 @@ public class ServiceManager {
 
     public static boolean deleteService(String serviceId) {
 
-        log.info("Service received service @id-" + serviceId);
+        log.info("Service received @id-" + serviceId);
         if (!services.containsKey(serviceId)) {
             log.error("Service does not exist @id-" + serviceId);
             return true;
         } else {
             services.remove(serviceId);
-            log.info("Service deleted correctly @id-" + serviceId);
+            log.info("Service deleted @id-" + serviceId);
             return false;
         }
     }

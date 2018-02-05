@@ -24,7 +24,7 @@ public class QosProvider {
     }
 
     public Resources checkRequirements(Service service) {
-        log.info("Checking QoS requirements for service @id-" + service.getId());
+        log.info("Checking QoS requirements @id-" + service.getId());
         Resources admittedResources = new Resources();
 
         //1. Get the user sharing model

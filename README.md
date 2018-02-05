@@ -7,7 +7,7 @@ The Service Management module is a component of the European Project mF2C.
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
 ### Prerequisites
 
@@ -33,7 +33,7 @@ Java HotSpot(TM) 64-Bit Server VM (build 25.65-b01, mixed mode)
 
 #### Step 2: Install Apache Maven
 
-Install Apache Maven 3.5.2:
+Install Apache Maven:
 ```
 $ sudo apt-get install maven
 ```
@@ -70,7 +70,7 @@ Output:
 ....... . . .
 ```
 
-If you open a web browser to `http://localhost:8080/api/v1/service-management/` you should see the following output:
+If you open a web browser to `http://localhost:46200/api/v1/service-management/` you should see the following output:
 ```
 Info - Welcome to the mF2C Service Manager!
 ```
@@ -106,9 +106,9 @@ $ mvn install dockerfile:build
 ```
 Run the local tagged image using:
 ```
-$ docker run -p 8080:8080 -t mf2c/service-manager
+$ docker run -p 46200:46200 -t mf2c/service-manager
 ```
-Finally, if the service is running correctly, typing `http://localhost:8080/api/v1/service-management/` on your web browser, the output should be:
+Finally, if the service is running correctly, typing `http://localhost:46200/api/v1/service-management/` on your web browser, the output should be:
 ```
 Info - Welcome to the mF2C Service Manager!
 ```
@@ -140,28 +140,34 @@ Representation of the used resources by the Service Manager
 
 ### Get endpoints
 Returns the list of available endpoints in the Service Manager:
--	URI: `http://localhost:8080/api/v1/service-management/endpoints/`
+-	URI: `http://localhost:46200/api/v1/service-management/endpoints/`
 -	Method: GET
 -	Params: none
 
-### Submit a service
-Interface to submit a service to the Service Manager:
--	URI: `http://localhost:8080/api/v1/service-management/mapping/submit/`
+### Submit service
+Submit a service to the Service Manager:
+-	URI: `http://localhost:46200/api/v1/service-management/`
 -	Method: POST
 -	Params: none
 - Body: service - JSON object representing a service.
 
-### Service operation
-Start, stop, restart or delete a service from the Service Manager: 
--	URI: `http://localhost:8080/api/v1/service-management/mapping/<service_id>/<options>` 
--	Method: PUT
+### Get service
+Returns a specific service from the Service Manager: 
+-	URI: `http://localhost:46200/api/v1/service-management/<service_id>` 
+-	Method: GET
 - Params
   - `<service_id>`: id of the service
-  - `<options>`: type of operation {START, STOP, RESTART, DELETE}
+  
+### Delete service
+Delete a specific service from the Service Manager: 
+-	URI: `http://localhost:46200/api/v1/service-management/<service_id>` 
+-	Method: DELETE
+- Params
+  - `<service_id>`: id of the service
 
 ### Check QoS 
-Interface to check the QoS: 
--	URI: `http://localhost:8080/api/v1/service-management/qos/check/<service_id>` 
+Check if a specific service can be used or not: 
+-	URI: `http://localhost:46200/api/v1/service-management/qos/<service_id>` 
 -	Method: PUT
 - Params
   - `<service_id>`: id of the service

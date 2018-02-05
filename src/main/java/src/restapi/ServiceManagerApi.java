@@ -51,7 +51,7 @@ public class ServiceManagerApi {
         Response response = new Response(service.getId(), "submit_service", ROOT);
         try {
             if (!ServiceManager.submitService(service)) {
-                response.setDescription("Info - service submitted correctly");
+                response.setDescription("Info - service submitted");
                 response.setStatus(HttpStatus.CREATED.value());
             } else {
                 response.setDescription("Error - a service with the same id already exists!");
@@ -72,10 +72,10 @@ public class ServiceManagerApi {
         try {
             if (ServiceManager.getServices().containsKey(service_id)) {
                 response.setService(ServiceManager.getService(service_id));
-                response.setDescription("Info - service submitted correctly");
+                response.setDescription("Info - service retrieved");
                 response.setStatus(HttpStatus.OK.value());
             } else {
-                response.setDescription("Error - the service does not exist!");
+                response.setDescription("Error - service does not exist!");
                 response.setStatus(HttpStatus.NOT_FOUND.value());
             }
         } catch (Exception e) {
@@ -92,11 +92,11 @@ public class ServiceManagerApi {
         Response response = new Response(service_id, "delete_service", ROOT + service_id);
         try {
             if (!ServiceManager.deleteService(service_id)) {
-                response.setDescription("Info - service deleted correctly");
+                response.setDescription("Info - service deleted");
                 response.setStatus(HttpStatus.OK.value());
                 response.setService(ServiceManager.getService(service_id));
             } else {
-                response.setDescription("Error - the service does not exist!");
+                response.setDescription("Error - service does not exist!");
                 response.setStatus(HttpStatus.NOT_FOUND.value());
             }
         } catch (Exception e) {
@@ -114,11 +114,11 @@ public class ServiceManagerApi {
         try {
             if (ServiceManager.getServices().containsKey(service_id)) {
                 Resources resources = ServiceManager.getQosProvider().checkRequirements(ServiceManager.getServices().get(service_id));
-                response.setDescription("Info - Checked QoS requirements correctly");
+                response.setDescription("Info - Checked QoS requirements");
                 response.setAdmittedResources(resources);
                 response.setStatus(HttpStatus.OK.value());
             } else {
-                response.setDescription("Error - the service does not exist!");
+                response.setDescription("Error - service does not exist!");
                 response.setStatus(HttpStatus.NOT_FOUND.value());
             }
         } catch (Exception e) {
