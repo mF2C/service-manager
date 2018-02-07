@@ -28,5 +28,17 @@ public class Categorizer {
 
         return category;
     }
+
+    private boolean checkDB(String serviceId) {
+        log.info("Checking if service already exist in DB @id-" + serviceId);
+        //TODO
+        return false;
+    }
+
+    private Service getFromDB(String serviceId) {
+        log.info("Getting the service from the DB @id-" + serviceId);
+        //TODO
+        return new Service();
+    }
 }
 

@@ -52,7 +52,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>src.restapi.ServiceManagerApi</mainClass>
+                            <mainClass>src.ServiceManager</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -81,7 +81,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>src.restapi.ServiceManagerApi</mainClass>
+                    <mainClass>src.ServiceManager</mainClass>
                 </configuration>
             </plugin>
             <plugin>

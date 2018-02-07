@@ -31,6 +31,9 @@ public class Parameters {
     // QoS providing
     public static final String QOS = "qos/";
 
+    // Categorize
+    public static final String CATEGORIZE = "categorize/";
+
     // User Management
     public static final String UM = "api/v1/user-management/";
     public static final String GET_SHARING_MODEL = "sharingmodel/";

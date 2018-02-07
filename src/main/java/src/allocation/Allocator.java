@@ -6,6 +6,7 @@
  *
  * @author Francisco Carpio - TUBS
  */
+
 package src.allocation;
 
 import org.slf4j.Logger;
@@ -19,11 +20,4 @@ public class Allocator {
         //TODO
     }
 
-    public boolean reserveResources(String serviceId) {
-        log.info("Reserving resources for service @id-" + serviceId);
-
-        //TODO
-
-        return true;
-    }
 }

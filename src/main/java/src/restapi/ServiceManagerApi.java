@@ -9,35 +9,18 @@
 
 package src.restapi;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.web.bind.annotation.*;
 import src.Service;
 import src.ServiceManager;
-import src.qosprovisioning.Resources;
 import src.restapi.elements.Response;
 
-import static src.restapi.Parameters.*;
+import static src.restapi.Parameters.ROOT;
+import static src.restapi.Parameters.SERVICE;
 
 @RestController
-@EnableAutoConfiguration
 public class ServiceManagerApi {
-
-    public static void main(String[] args) {
-        new ServiceManager();
-        SpringApplication.run(ServiceManagerApi.class, args);
-    }
-
-    @Bean
-    public Jackson2ObjectMapperBuilder jacksonBuilder() {
-        Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
-        builder.indentOutput(true);
-        return builder;
-    }
 
     @RequestMapping(method = RequestMethod.GET)
     public String home() {
@@ -85,7 +68,7 @@ public class ServiceManagerApi {
         return response;
     }
 
-    @RequestMapping(method = RequestMethod.DELETE, path = SERVICE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.DELETE, value = SERVICE, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     Response delete(@PathVariable String service_id) {
 
@@ -106,25 +89,25 @@ public class ServiceManagerApi {
         return response;
     }
 
-    @RequestMapping(method = RequestMethod.PUT, path = QOS + SERVICE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody
-    Response check(@PathVariable String service_id) {
-
-        Response response = new Response(service_id, "check_QoS", ROOT + QOS + service_id);
-        try {
-            if (ServiceManager.getServices().containsKey(service_id)) {
-                Resources resources = ServiceManager.getQosProvider().checkRequirements(ServiceManager.getServices().get(service_id));
-                response.setDescription("Info - Checked QoS requirements");
-                response.setAdmittedResources(resources);
-                response.setStatus(HttpStatus.OK.value());
-            } else {
-                response.setDescription("Error - service does not exist!");
-                response.setStatus(HttpStatus.NOT_FOUND.value());
-            }
-        } catch (Exception e) {
-            response.setDescription("Error - invalid request!");
-            response.setStatus(HttpStatus.BAD_REQUEST.value());
-        }
-        return response;
-    }
+//    @RequestMapping(method = RequestMethod.PUT, path = QOS + SERVICE, produces = MediaType.APPLICATION_JSON_VALUE)
+//    public @ResponseBody
+//    Response check(@PathVariable String service_id) {
+//
+//        Response response = new Response(service_id, "check_QoS", ROOT + QOS + service_id);
+//        try {
+//            if (ServiceManager.getServices().containsKey(service_id)) {
+//                Resources resources = ServiceManager.getQosProvider().checkRequirements(ServiceManager.getServices().get(service_id));
+//                response.setDescription("Info - Checked QoS requirements");
+//                response.setAdmittedResources(resources);
+//                response.setStatus(HttpStatus.OK.value());
+//            } else {
+//                response.setDescription("Error - service does not exist!");
+//                response.setStatus(HttpStatus.NOT_FOUND.value());
+//            }
+//        } catch (Exception e) {
+//            response.setDescription("Error - invalid request!");
+//            response.setStatus(HttpStatus.BAD_REQUEST.value());
+//        }
+//        return response;
+//    }
 }
