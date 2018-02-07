@@ -13,48 +13,79 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Category {
 
-    // Time limit for a service to be executed
-    private double timeLimit;
-    // Physical location from where the request is coming from {cloud layer 0, Fog layer 1, fog layer 2, ..., fog layer N}
-    private String location;
-    // Priority level of a specific service {1:max, 2, 3, ..., N:min}
-    private int priority;
-    // Physical resources
-    private double cpu;
-    private double memory;
-    private double storage;
-    private double network;
+    private String cpu;
+    private String memory;
+    private String storage;
+    private String network;
+    private boolean inclinometer;
+    private boolean temperature;
+    private boolean jammer;
+    private boolean location;
 
     public Category() {
     }
 
-    public String getLocation() {
-        return location;
-    }
-
-    public double getTimeLimit() {
-
-        return timeLimit;
-    }
-
-    public int getPriority() {
-
-        return priority;
-    }
-
-    public double getCpu() {
+    public String getCpu() {
         return cpu;
     }
 
-    public double getMemory() {
+    public void setCpu(String cpu) {
+        this.cpu = cpu;
+    }
+
+    public String getMemory() {
         return memory;
     }
 
-    public double getStorage() {
+    public void setMemory(String memory) {
+        this.memory = memory;
+    }
+
+    public String getStorage() {
         return storage;
     }
 
-    public double getNetwork() {
+    public void setStorage(String storage) {
+        this.storage = storage;
+    }
+
+    public String getNetwork() {
         return network;
+    }
+
+    public void setNetwork(String network) {
+        this.network = network;
+    }
+
+    public boolean isInclinometer() {
+        return inclinometer;
+    }
+
+    public void setInclinometer(boolean inclinometer) {
+        this.inclinometer = inclinometer;
+    }
+
+    public boolean isTemperature() {
+        return temperature;
+    }
+
+    public void setTemperature(boolean temperature) {
+        this.temperature = temperature;
+    }
+
+    public boolean isJammer() {
+        return jammer;
+    }
+
+    public void setJammer(boolean jammer) {
+        this.jammer = jammer;
+    }
+
+    public boolean isLocation() {
+        return location;
+    }
+
+    public void setLocation(boolean location) {
+        this.location = location;
     }
 }

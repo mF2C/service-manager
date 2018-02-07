@@ -17,13 +17,13 @@ import src.restapi.elements.Response;
 
 import static src.restapi.Parameters.QOS;
 import static src.restapi.Parameters.ROOT;
-import static src.restapi.Parameters.SERVICE;
+import static src.restapi.Parameters.SERVICE_ID;
 
 @RestController
 @RequestMapping(QOS)
 public class QosProviderApi {
 
-    @RequestMapping(method = RequestMethod.PUT, value = SERVICE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.PUT, value = SERVICE_ID, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     Response check(@PathVariable String service_id) {
 

@@ -26,7 +26,8 @@ public class Parameters {
 
     // Service Manager
     public static final String ROOT = "/api/v1/service-management/";
-    public static final String SERVICE = "{service_id}";
+    public static final String SERVICE_ID = "{service_id}";
+    public static final String SERVICE_NAME = "{service_name}";
 
     // QoS providing
     public static final String QOS = "qos/";

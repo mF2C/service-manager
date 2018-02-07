@@ -17,7 +17,7 @@ import src.ServiceManager;
 import src.restapi.elements.Response;
 
 import static src.restapi.Parameters.ROOT;
-import static src.restapi.Parameters.SERVICE;
+import static src.restapi.Parameters.SERVICE_ID;
 
 @RestController
 public class ServiceManagerApi {
@@ -47,7 +47,7 @@ public class ServiceManagerApi {
         return response;
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = SERVICE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.GET, value = SERVICE_ID, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     Response get(@PathVariable String service_id) {
 
@@ -68,7 +68,7 @@ public class ServiceManagerApi {
         return response;
     }
 
-    @RequestMapping(method = RequestMethod.DELETE, value = SERVICE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.DELETE, value = SERVICE_ID, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     Response delete(@PathVariable String service_id) {
 
@@ -88,26 +88,4 @@ public class ServiceManagerApi {
         }
         return response;
     }
-
-//    @RequestMapping(method = RequestMethod.PUT, path = QOS + SERVICE, produces = MediaType.APPLICATION_JSON_VALUE)
-//    public @ResponseBody
-//    Response check(@PathVariable String service_id) {
-//
-//        Response response = new Response(service_id, "check_QoS", ROOT + QOS + service_id);
-//        try {
-//            if (ServiceManager.getServices().containsKey(service_id)) {
-//                Resources resources = ServiceManager.getQosProvider().checkRequirements(ServiceManager.getServices().get(service_id));
-//                response.setDescription("Info - Checked QoS requirements");
-//                response.setAdmittedResources(resources);
-//                response.setStatus(HttpStatus.OK.value());
-//            } else {
-//                response.setDescription("Error - service does not exist!");
-//                response.setStatus(HttpStatus.NOT_FOUND.value());
-//            }
-//        } catch (Exception e) {
-//            response.setDescription("Error - invalid request!");
-//            response.setStatus(HttpStatus.BAD_REQUEST.value());
-//        }
-//        return response;
-//    }
 }
