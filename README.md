@@ -114,28 +114,9 @@ Info - Welcome to the mF2C Service Manager!
 ```
 ## Resources
 
-Representation of the used resources by the Service Manager
+### Service
+Use `categorize service` interface specifying a `service_id` with value 1, 2 or 3 to retrieve one of the available service resources.
 
-#### Service
-  ```
-{
-    "id":"1",
-    "name":"GPS",
-    "description":"get the GPS location",
-    "created" : "15.01.18",
-    "updated" : "18.01.18",
-    "resourceURI" : "...",
-        "category": {
-            "timeLimit":"10",
-            "location":"cloud",
-            "priority":"1",
-            "cpu":"1",
-            "memory":"200",
-            "storage":"20",
-            "network":"100"
-            }
-}
-  ```
 ## Interfaces
 
 ### Get endpoints
@@ -168,6 +149,13 @@ Delete a specific service from the Service Manager:
 ### Check QoS 
 Check if a specific service can be used or not: 
 -	URI: `http://localhost:46200/api/v1/service-management/qos/<service_id>` 
+-	Method: PUT
+- Params
+  - `<service_id>`: id of the service
+  
+### Categorize service
+Check if a specific service can be used or not: 
+-	URI: `http://localhost:46200/api/v1/service-management/categorize/<service_id>` 
 -	Method: PUT
 - Params
   - `<service_id>`: id of the service

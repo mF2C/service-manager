@@ -1,8 +1,8 @@
 [
   {
-    "id": "",
-    "name": "wos",
-    "description": "WOS use case",
+    "id": "1",
+    "name": "EMS",
+    "description": "Emergency Management System",
     "created": "15.01.18",
     "updated": "15.01.18",
     "resourceURI": "",
@@ -13,6 +13,40 @@
       "inclinometer": true,
       "temperature": true,
       "jammer": true,
+      "location": true
+    }
+  },
+  {
+    "id": "2",
+    "name": "boats",
+    "description": "Smart Boats",
+    "created": "15.01.18",
+    "updated": "15.01.18",
+    "resourceURI": "",
+    "category": {
+      "cpu": "low",
+      "memory": "low",
+      "storage": "low",
+      "inclinometer": false,
+      "temperature": true,
+      "jammer": false,
+      "location": true
+    }
+  },
+  {
+    "id": "3",
+    "name": "airport",
+    "description": "Airport location system",
+    "created": "15.01.18",
+    "updated": "15.01.18",
+    "resourceURI": "",
+    "category": {
+      "cpu": "low",
+      "memory": "low",
+      "storage": "low",
+      "inclinometer": false,
+      "temperature": false,
+      "jammer": false,
       "location": true
     }
   }

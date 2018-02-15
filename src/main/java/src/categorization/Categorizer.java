@@ -36,35 +36,39 @@ public class Categorizer {
             log.info("Reading service definition from JSON file");
             List<Service> services = mapper.readValue(inputStream, typeReference);
             for (Service s : services)
-                servicesMap.put(s.getName(), s);
+                servicesMap.put(s.getId(), s);
         } catch (IOException e) {
             log.error("The service definition in the JSON file is wrong");
             e.printStackTrace();
         }
     }
 
-    public Service categorise(String name) {
-        log.info("Service received to be categorized @name-" + name);
-        Service service;
+    public Service categorise(String serviceId) {
+        log.info("Service received to be categorized @id-" + serviceId);
+        Service service = null;
 
-        if (!checkIfServiceIsCategorized(name)) {
-            service = servicesMap.get(name);
-            log.info("Service categorized correctly @name-" + name);
+        if (!checkIfServiceIsCategorized(serviceId)) {
+            if (!servicesMap.containsKey(serviceId))
+                log.info("Service is not recognized @id-" + serviceId);
+            else {
+                service = servicesMap.get(serviceId);
+                log.info("Service categorized correctly @id-" + serviceId);
+            }
         } else {
-            log.info("The service was already categorized previously @name-" + name);
-            service = getServiceAlreadyCategorized(name);
+            log.info("The service was already categorized previously @id-" + serviceId);
+            service = getServiceAlreadyCategorized(serviceId);
         }
         return service;
     }
 
-    private boolean checkIfServiceIsCategorized(String name) {
-        log.info("Checking if service is already categorized in the database @name-" + name);
+    private boolean checkIfServiceIsCategorized(String serviceId) {
+        log.info("Checking if service is already categorized in the database @id-" + serviceId);
         //TODO
         return false;
     }
 
-    private Service getServiceAlreadyCategorized(String name) {
-        log.info("Retrieving the service already categorized in the database @name-" + name);
+    private Service getServiceAlreadyCategorized(String serviceId) {
+        log.info("Retrieving the service already categorized in the database @id-" + serviceId);
         //TODO
         return new Service();
     }
