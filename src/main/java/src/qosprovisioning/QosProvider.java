@@ -41,13 +41,13 @@ public class QosProvider {
 
     private SharingModel getSharingModel() {
         RestTemplate restTemplate = new RestTemplate();
+        SharingModel sharingModel = null;
         try {
-            return restTemplate.getForObject(EXTERNAL_URL + UM + GET_SHARING_MODEL, SharingModel.class);
+            sharingModel = restTemplate.getForObject(CIMI_IP + CIMI_PORT + CIMI_ROOT + USER_MANAGEMENT + GET_SHARING_MODEL, SharingModel.class);
         } catch (Exception e) {
-            log.error("Error getting the sharing model");
-            return null;
+            log.error("Getting sharing model from CIMI");
         }
-
+        return sharingModel;
     }
 
     private boolean checkSharingModel(Service service, SharingModel sharingModel) {

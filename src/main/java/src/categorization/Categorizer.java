@@ -12,7 +12,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.client.RestTemplate;
 import src.Service;
+import src.restapi.elements.Response;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,23 +22,31 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static src.restapi.Parameters.*;
+
 public class Categorizer {
 
     private static Logger log = LoggerFactory.getLogger(Categorizer.class);
     private static Map<String, Service> servicesMap;
 
     public Categorizer() {
+        servicesMap = new HashMap<>();
+        this.readServicesFromJSON();
+    }
+
+    private void readServicesFromJSON() {
         TypeReference<List<Service>> typeReference = new TypeReference<List<Service>>() {
         };
         InputStream inputStream = TypeReference.class.getResourceAsStream("/json/services.json");
         ObjectMapper mapper = new ObjectMapper();
-        servicesMap = new HashMap<>();
 
         try {
             log.info("Reading service definition from JSON file");
             List<Service> services = mapper.readValue(inputStream, typeReference);
-            for (Service s : services)
+            for (Service s : services) {
                 servicesMap.put(s.getId(), s);
+                postServiceCIMI(s);
+            }
         } catch (IOException e) {
             log.error("The service definition in the JSON file is wrong");
             e.printStackTrace();
@@ -45,33 +55,42 @@ public class Categorizer {
 
     public Service categorise(String serviceId) {
         log.info("Service received to be categorized @id-" + serviceId);
+        Service service = getServiceCIMI(serviceId);
+        // To be removed when CIMI works
+        if(service==null)
+            servicesMap.get(serviceId);
+
+        if (service == null)
+            log.info("Service is not recognized @id-" + serviceId);
+        else
+            log.info("The service was already categorized @id-" + serviceId);
+
+        return service;
+    }
+
+    private Service getServiceCIMI(String serviceId) {
+        log.info("Get service from CIMI @id-" + serviceId);
+        RestTemplate restTemplate = new RestTemplate();
         Service service = null;
 
-        if (!checkIfServiceIsCategorized(serviceId)) {
-            if (!servicesMap.containsKey(serviceId))
-                log.info("Service is not recognized @id-" + serviceId);
-            else {
-                service = servicesMap.get(serviceId);
-                log.info("Service categorized correctly @id-" + serviceId);
-            }
-        } else {
-            log.info("The service was already categorized previously @id-" + serviceId);
-            service = getServiceAlreadyCategorized(serviceId);
+        try {
+            service = restTemplate.getForObject(CIMI_IP + CIMI_PORT + CIMI_ROOT + SERVICES + serviceId, Service.class);
+        } catch (Exception e) {
+            log.error("Getting service from CIMI");
         }
         return service;
     }
 
-    private boolean checkIfServiceIsCategorized(String serviceId) {
-        log.info("Checking if service is already categorized in the database @id-" + serviceId);
-        //TODO
-        return false;
-    }
+    private boolean postServiceCIMI(Service service) {
 
-    private Service getServiceAlreadyCategorized(String serviceId) {
-        log.info("Retrieving the service already categorized in the database @id-" + serviceId);
-        //TODO
-        return new Service();
+        RestTemplate restTemplate = new RestTemplate();
+        Response response = null;
+        try {
+            response = restTemplate.postForObject(CIMI_IP + CIMI_PORT + CIMI_ROOT + SERVICES, service, Response.class);
+        } catch (Exception e) {
+            log.error("Posting service to CIMI");
+        }
+        return response != null;
     }
-
 }
 

@@ -16,7 +16,7 @@ import src.Service;
 import src.ServiceManager;
 import src.restapi.elements.Response;
 
-import static src.restapi.Parameters.ROOT;
+import static src.restapi.Parameters.SERVICE_MANAGEMENT;
 import static src.restapi.Parameters.SERVICE_ID;
 
 @RestController
@@ -31,7 +31,7 @@ public class ServiceManagerApi {
     public @ResponseBody
     Response submit(@RequestBody Service service) {
 
-        Response response = new Response(service.getId(), "submit_service", ROOT);
+        Response response = new Response(service.getId(), "submit_service", SERVICE_MANAGEMENT);
         try {
             if (!ServiceManager.submitService(service)) {
                 response.setDescription("Info - service submitted");
@@ -51,7 +51,7 @@ public class ServiceManagerApi {
     public @ResponseBody
     Response get(@PathVariable String service_id) {
 
-        Response response = new Response(service_id, "get_service", ROOT + service_id);
+        Response response = new Response(service_id, "get_service", SERVICE_MANAGEMENT + service_id);
         try {
             if (ServiceManager.getServices().containsKey(service_id)) {
                 response.setService(ServiceManager.getService(service_id));
@@ -72,7 +72,7 @@ public class ServiceManagerApi {
     public @ResponseBody
     Response delete(@PathVariable String service_id) {
 
-        Response response = new Response(service_id, "delete_service", ROOT + service_id);
+        Response response = new Response(service_id, "delete_service", SERVICE_MANAGEMENT + service_id);
         try {
             if (!ServiceManager.deleteService(service_id)) {
                 response.setDescription("Info - service deleted");

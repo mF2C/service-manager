@@ -16,7 +16,7 @@ import src.qosprovisioning.Resources;
 import src.restapi.elements.Response;
 
 import static src.restapi.Parameters.QOS;
-import static src.restapi.Parameters.ROOT;
+import static src.restapi.Parameters.SERVICE_MANAGEMENT;
 import static src.restapi.Parameters.SERVICE_ID;
 
 @RestController
@@ -27,7 +27,7 @@ public class QosProviderApi {
     public @ResponseBody
     Response check(@PathVariable String service_id) {
 
-        Response response = new Response(service_id, "check_QoS", ROOT + QOS + service_id);
+        Response response = new Response(service_id, "check_QoS", SERVICE_MANAGEMENT + QOS + service_id);
         try {
             if (ServiceManager.getServices().containsKey(service_id)) {
                 Resources resources = ServiceManager.qosProvider.checkRequirements(ServiceManager.getServices().get(service_id));

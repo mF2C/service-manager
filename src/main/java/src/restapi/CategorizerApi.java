@@ -25,7 +25,7 @@ public class CategorizerApi {
     public @ResponseBody
     Response categorize(@PathVariable String service_id) {
 
-        Response response = new Response(service_id, "categorize_Service", ROOT + CATEGORIZE + service_id);
+        Response response = new Response(service_id, "categorize_Service", SERVICE_MANAGEMENT + CATEGORIZE + service_id);
         try {
             Service service = ServiceManager.categorizer.categorise(service_id);
             if (service != null) {
