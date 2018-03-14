@@ -14,12 +14,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
-import sm.ServiceManager;
 import sm.elements.Response;
 import sm.elements.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import static sm.utils.Parameters.*;
@@ -27,8 +27,10 @@ import static sm.utils.Parameters.*;
 public class Categorizer {
 
     private static Logger log = LoggerFactory.getLogger(Categorizer.class);
+    public static LinkedHashMap<String, Service> services;
 
     public Categorizer() {
+        services = new LinkedHashMap<>();
         this.readServicesFromJSON();
     }
 
@@ -40,9 +42,9 @@ public class Categorizer {
 
         try {
             log.info("Reading service definition from JSON file");
-            List<Service> services = mapper.readValue(inputStream, typeReference);
-            for (Service s : services) {
-                ServiceManager.services.put(s.getId(), s);
+            List<Service> rServices = mapper.readValue(inputStream, typeReference);
+            for (Service s : rServices) {
+                services.put(s.getId(), s);
                 if (!postServiceCIMI(s))
                     log.error("The service could not be submitted to CIMI");
             }
@@ -53,11 +55,11 @@ public class Categorizer {
 
     public Service categorise(Service service) {
         Service serviceCategorized;
-        if (ServiceManager.services.containsKey(service.getId())) {
+        if (services.containsKey(service.getId())) {
             log.info("The service was already categorized @id-" + service.getId());
-            serviceCategorized = ServiceManager.getService(service.getId());
+            serviceCategorized = services.get(service.getId());
         } else if ((serviceCategorized = getServiceCIMI(service.getId())) != null) {
-            ServiceManager.services.put(serviceCategorized.getId(), serviceCategorized);
+            services.put(serviceCategorized.getId(), serviceCategorized);
             log.info("The service was already categorized @id-" + service.getId());
         } else
             log.info("Service is not recognized @id-" + service.getId());

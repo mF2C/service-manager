@@ -25,12 +25,12 @@ public class QosProviderInterface {
 
     @RequestMapping(method = RequestMethod.PUT, value = SERVICE_ID, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
-    Response check(@PathVariable String service_id) {
+    Response check(@PathVariable String service_instance_id) {
 
-        Response response = new Response(service_id, SERVICE_MANAGEMENT_ROOT + QOS + service_id);
+        Response response = new Response(service_instance_id, SERVICE_MANAGEMENT_ROOT + QOS + service_instance_id);
         try {
-            if (ServiceManager.services.containsKey(service_id)) {
-                List<Resource> resources = ServiceManager.qosProvider.check(ServiceManager.services.get(service_id));
+            if (ServiceManager.serviceInstances.containsKey(service_instance_id)) {
+                List<Resource> resources = ServiceManager.qosProvider.check(ServiceManager.serviceInstances.get(service_instance_id));
                 response.setMessage("Info - Checked QoS requirements");
                 response.setResources(resources);
                 response.setStatus(HttpStatus.OK.value());

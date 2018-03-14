@@ -26,6 +26,7 @@ public class Response {
     private int status;
     private List<Resource> resources;
     private Service service;
+    private ServiceInstance serviceInstance;
 
     public Response() {
     }
@@ -97,5 +98,13 @@ public class Response {
 
     public void setService(Service service) {
         this.service = service;
+    }
+
+    public ServiceInstance getServiceInstance() {
+        return serviceInstance;
+    }
+
+    public void setServiceInstance(ServiceInstance serviceInstance) {
+        this.serviceInstance = serviceInstance;
     }
 }
