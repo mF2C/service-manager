@@ -6,15 +6,19 @@
  *
  * @author Francisco Carpio - TUBS
  */
-package src.qosprovisioning;
+package sm.qos;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestTemplate;
-import src.Service;
-import src.qosprovisioning.auxiliary.SharingModel;
+import sm.elements.Service;
+import sm.qos.elements.Resource;
+import sm.qos.elements.SharingModel;
 
-import static src.restapi.Parameters.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import static sm.utils.Parameters.*;
 
 public class QosProvider {
     private static Logger log = LoggerFactory.getLogger(QosProvider.class);
@@ -23,20 +27,23 @@ public class QosProvider {
         //TODO
     }
 
-    public Resources checkRequirements(Service service) {
+    public List<Resource> check(Service service) {
         log.info("Checking QoS requirements @id-" + service.getId());
-        Resources admittedResources = new Resources();
+        List<Resource> resources = new ArrayList<>();
 
-        //1. Get the user sharing model
-        //SharingModel sharingModel = getSharingModel();
+        // 1. Get the user sharing model
+        // SharingModel sharingModel = getSharingModel();
 
-        //1.1 Check if the service accomplishes the sharing model
+        // 1.1 Check if the service accomplishes the sharing model
 
-        //2. Check sharing violation history from the SLA for that service
+        // 2. Get the SLA violation history
 
-
-        // 3. Return the admitted resources that the service can use.
-        return admittedResources;
+        // 3. Run the algorithm to accept or reject resources
+        resources.add(new Resource("id_1", "device_1", true));
+        resources.add(new Resource("id_2", "device_2", true));
+        resources.add(new Resource("id_3", "device_3", false));
+        // 4. Return the admitted resources that the service can use.
+        return resources;
     }
 
     private SharingModel getSharingModel() {

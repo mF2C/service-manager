@@ -6,38 +6,38 @@
  *
  * @author Francisco Carpio - TUBS
  */
-package src.restapi;
+package sm.categorization;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import src.Service;
-import src.ServiceManager;
-import src.restapi.elements.Response;
+import sm.elements.Service;
+import sm.ServiceManager;
+import sm.elements.Response;
 
-import static src.restapi.Parameters.*;
+import static sm.utils.Parameters.*;
 
 @RestController
 @RequestMapping(CATEGORIZE)
-public class CategorizerApi {
+public class CategorizerInterface {
 
     @RequestMapping(method = RequestMethod.PUT, value = SERVICE_ID, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
-    Response categorize(@PathVariable String service_id) {
+    Response categorize(@RequestBody Service service) {
 
-        Response response = new Response(service_id, "categorize_Service", SERVICE_MANAGEMENT + CATEGORIZE + service_id);
+        Response response = new Response(service.getId(), SERVICE_MANAGEMENT_ROOT + CATEGORIZE + service.getId());
         try {
-            Service service = ServiceManager.categorizer.categorise(service_id);
-            if (service != null) {
-                response.setDescription("Info - Service categorized");
-                response.setService(service);
+            Service serviceCategorized = ServiceManager.categorizer.categorise(service);
+            if (serviceCategorized != null) {
+                response.setMessage("Info - Service categorized");
+                response.setService(serviceCategorized);
                 response.setStatus(HttpStatus.OK.value());
             } else {
-                response.setDescription("Info - Service is not recognized");
+                response.setMessage("Info - Service is not recognized");
                 response.setStatus(HttpStatus.NOT_FOUND.value());
             }
         } catch (Exception e) {
-            response.setDescription("Error - invalid request!");
+            response.setMessage("Error - invalid request!");
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         }
         return response;

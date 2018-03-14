@@ -6,10 +6,10 @@
  *
  * @author Francisco Carpio - TUBS
  */
-package src;
+package sm.elements;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import src.categorization.Category;
+import sm.categorization.elements.Category;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Service {
@@ -25,31 +25,64 @@ public class Service {
     public Service() {
     }
 
+    public Service(String id) {
+        this.id = id;
+        this.category = new Category();
+    }
+
     public String getId() {
         return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getDescription() {
         return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getCreated() {
         return created;
     }
 
+    public void setCreated(String created) {
+        this.created = created;
+    }
+
     public String getUpdated() {
         return updated;
+    }
+
+    public void setUpdated(String updated) {
+        this.updated = updated;
     }
 
     public String getResourceURI() {
         return resourceURI;
     }
 
+    public void setResourceURI(String resourceURI) {
+        this.resourceURI = resourceURI;
+    }
+
     public Category getCategory() {
         return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 }

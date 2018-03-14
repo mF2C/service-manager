@@ -6,27 +6,42 @@
  *
  * @author Francisco Carpio - TUBS
  */
-package src;
+package sm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import src.allocation.Allocator;
-import src.categorization.Categorizer;
-import src.mapping.Mapper;
-import src.qosprovisioning.QosProvider;
+import sm.categorization.Categorizer;
+import sm.elements.Service;
+import sm.qos.QosProvider;
 
 import java.util.LinkedHashMap;
 
 @SpringBootApplication
+//@Configuration
+//@Import({
+//        DispatcherServletAutoConfiguration.class,
+//        EmbeddedServletContainerAutoConfiguration.class,
+//        ErrorMvcAutoConfiguration.class,
+//        HttpEncodingAutoConfiguration.class,
+//        HttpMessageConvertersAutoConfiguration.class,
+//        JacksonAutoConfiguration.class,
+//        JmxAutoConfiguration.class,
+//        MultipartAutoConfiguration.class,
+//        PropertyPlaceholderAutoConfiguration.class,
+//        ServerPropertiesAutoConfiguration.class,
+//        WebMvcAutoConfiguration.class,
+//        WebSocketAutoConfiguration.class,
+//        ServiceManagerInterface.class,
+//        QosProviderInterface.class,
+//        CategorizerInterface.class
+//})
 public class ServiceManager {
 
     private static Logger log = LoggerFactory.getLogger(ServiceManager.class);
-    private static LinkedHashMap<String, Service> services;
-    public static Mapper mapper;
+    public static LinkedHashMap<String, Service> services;
     public static Categorizer categorizer;
-    public static Allocator allocator;
     public static QosProvider qosProvider;
 
     /**
@@ -34,9 +49,7 @@ public class ServiceManager {
      */
     public ServiceManager() {
         services = new LinkedHashMap<>();
-        mapper = new Mapper();
         categorizer = new Categorizer();
-        allocator = new Allocator();
         qosProvider = new QosProvider();
     }
 
@@ -73,10 +86,5 @@ public class ServiceManager {
             return false;
         }
     }
-
-    public static LinkedHashMap<String, Service> getServices() {
-        return services;
-    }
-
 }
 

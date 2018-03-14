@@ -6,7 +6,7 @@
  *
  * @author Francisco Carpio - TUBS
  */
-package src.qosprovisioning.auxiliary;
+package sm.qos.elements;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

@@ -6,28 +6,32 @@
  *
  * @author Francisco Carpio - TUBS
  */
-package src.restapi.elements;
+package sm.elements;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import src.Service;
-import src.qosprovisioning.Resources;
+import sm.qos.elements.Resource;
 
+import java.util.List;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Response {
 
     private String id;
-    private String name;
-    private String description;
+    private String message;
     private String created;
     private String updated;
     private String resourceURI;
     private int status;
-    private Resources admittedResources;
+    private List<Resource> resources;
     private Service service;
 
-    public Response(String id, String name, String resourceURI) {
+    public Response() {
+    }
+
+    public Response(String id, String resourceURI) {
         this.id = id;
-        this.name = name;
         this.resourceURI = resourceURI;
     }
 
@@ -35,16 +39,16 @@ public class Response {
         return id;
     }
 
-    public String getName() {
-        return name;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public String getDescription() {
-        return description;
+    public String getMessage() {
+        return message;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public String getCreated() {
@@ -67,6 +71,10 @@ public class Response {
         return resourceURI;
     }
 
+    public void setResourceURI(String resourceURI) {
+        this.resourceURI = resourceURI;
+    }
+
     public int getStatus() {
         return status;
     }
@@ -75,12 +83,12 @@ public class Response {
         this.status = status;
     }
 
-    public Resources getAdmittedResources() {
-        return admittedResources;
+    public List<Resource> getResources() {
+        return resources;
     }
 
-    public void setAdmittedResources(Resources admittedResources) {
-        this.admittedResources = admittedResources;
+    public void setResources(List<Resource> resources) {
+        this.resources = resources;
     }
 
     public Service getService() {

@@ -7,20 +7,19 @@
  * @author Francisco Carpio - TUBS
  */
 
-package src.restapi;
+package sm;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import src.Service;
-import src.ServiceManager;
-import src.restapi.elements.Response;
+import sm.elements.Response;
+import sm.elements.Service;
 
-import static src.restapi.Parameters.SERVICE_MANAGEMENT;
-import static src.restapi.Parameters.SERVICE_ID;
+import static sm.utils.Parameters.SERVICE_ID;
+import static sm.utils.Parameters.SERVICE_MANAGEMENT_ROOT;
 
 @RestController
-public class ServiceManagerApi {
+public class ServiceManagerInterface {
 
     @RequestMapping(method = RequestMethod.GET)
     public String home() {
@@ -31,17 +30,17 @@ public class ServiceManagerApi {
     public @ResponseBody
     Response submit(@RequestBody Service service) {
 
-        Response response = new Response(service.getId(), "submit_service", SERVICE_MANAGEMENT);
+        Response response = new Response(service.getId(), SERVICE_MANAGEMENT_ROOT);
         try {
             if (!ServiceManager.submitService(service)) {
-                response.setDescription("Info - service submitted");
+                response.setMessage("Info - service submitted");
                 response.setStatus(HttpStatus.CREATED.value());
             } else {
-                response.setDescription("Error - a service with the same id already exists!");
+                response.setMessage("Error - a service with the same id already exists!");
                 response.setStatus(HttpStatus.CONFLICT.value());
             }
         } catch (Exception e) {
-            response.setDescription("Error - invalid request!");
+            response.setMessage("Error - invalid request!");
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         }
         return response;
@@ -51,18 +50,18 @@ public class ServiceManagerApi {
     public @ResponseBody
     Response get(@PathVariable String service_id) {
 
-        Response response = new Response(service_id, "get_service", SERVICE_MANAGEMENT + service_id);
+        Response response = new Response(service_id, SERVICE_MANAGEMENT_ROOT + service_id);
         try {
-            if (ServiceManager.getServices().containsKey(service_id)) {
+            if (ServiceManager.services.containsKey(service_id)) {
                 response.setService(ServiceManager.getService(service_id));
-                response.setDescription("Info - service retrieved");
+                response.setMessage("Info - service retrieved");
                 response.setStatus(HttpStatus.OK.value());
             } else {
-                response.setDescription("Error - service does not exist!");
+                response.setMessage("Error - service does not exist!");
                 response.setStatus(HttpStatus.NOT_FOUND.value());
             }
         } catch (Exception e) {
-            response.setDescription("Error - invalid request!");
+            response.setMessage("Error - invalid request!");
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         }
         return response;
@@ -72,18 +71,18 @@ public class ServiceManagerApi {
     public @ResponseBody
     Response delete(@PathVariable String service_id) {
 
-        Response response = new Response(service_id, "delete_service", SERVICE_MANAGEMENT + service_id);
+        Response response = new Response(service_id, SERVICE_MANAGEMENT_ROOT + service_id);
         try {
             if (!ServiceManager.deleteService(service_id)) {
-                response.setDescription("Info - service deleted");
+                response.setMessage("Info - service deleted");
                 response.setStatus(HttpStatus.OK.value());
                 response.setService(ServiceManager.getService(service_id));
             } else {
-                response.setDescription("Error - service does not exist!");
+                response.setMessage("Error - service does not exist!");
                 response.setStatus(HttpStatus.NOT_FOUND.value());
             }
         } catch (Exception e) {
-            response.setDescription("Error - invalid request!");
+            response.setMessage("Error - invalid request!");
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         }
         return response;
