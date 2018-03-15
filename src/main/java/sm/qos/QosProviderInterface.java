@@ -23,7 +23,7 @@ import static sm.utils.Parameters.*;
 @RequestMapping(QOS)
 public class QosProviderInterface {
 
-    @RequestMapping(method = RequestMethod.PUT, value = SERVICE_ID, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.PUT, value = SERVICE_INSTANCE_ID, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     Response check(@PathVariable String service_instance_id) {
 

@@ -1,8 +1,6 @@
 package sm;
 
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,10 +10,9 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringRunner;
 import sm.elements.Response;
-import sm.elements.Service;
+import sm.elements.ServiceInstance;
+import sm.qos.elements.Resource;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -31,91 +28,70 @@ import static sm.utils.Parameters.SERVICE_MANAGEMENT_URL;
 public class ServiceManagerInterfaceTest {
 
     private TestRestTemplate restTemplate;
-    private Service serviceTest;
-    private List<Service> services;
+    private ServiceInstance serviceInstanceTest;
+    private String idTest;
+    private String url;
 
     public ServiceManagerInterfaceTest() {
+        url = SERVICE_MANAGEMENT_URL + SERVICE_MANAGEMENT_ROOT;
         restTemplate = new TestRestTemplate();
-        TypeReference<List<Service>> typeReference = new TypeReference<List<Service>>() {
-        };
-        InputStream inputStream = TypeReference.class.getResourceAsStream("/json/services.json");
-        ObjectMapper mapper = new ObjectMapper();
-        services = new ArrayList<>();
-        try {
-            services = mapper.readValue(inputStream, typeReference);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        serviceTest = services.get(0);
+        serviceInstanceTest = new ServiceInstance();
+        idTest = "0";
+        serviceInstanceTest.setInstanceId(idTest);
     }
 
     @Before
     public void setUp() {
-        restTemplate.postForObject(SERVICE_MANAGEMENT_URL + SERVICE_MANAGEMENT_ROOT, serviceTest, Response.class);
+        restTemplate.postForObject(url, serviceInstanceTest, Response.class);
     }
 
     @After
     public void tearDown() {
-        restTemplate.delete(SERVICE_MANAGEMENT_URL + SERVICE_MANAGEMENT_ROOT + serviceTest.getId());
+        restTemplate.delete(url + serviceInstanceTest.getInstanceId());
     }
 
     @Test
-    public void submitService() {
+    public void submitServiceInstance() {
         Random random = new Random();
         String idTest = String.valueOf(random.nextInt() & Integer.MAX_VALUE);
-        Service servicePostTest = services.get(1);
-        servicePostTest.setId(idTest);
-        restTemplate.postForObject(SERVICE_MANAGEMENT_URL + SERVICE_MANAGEMENT_ROOT, servicePostTest, Response.class);
+        serviceInstanceTest.setInstanceId(idTest);
+        serviceInstanceTest.setState("waiting");
+        List<Resource> resources = new ArrayList<>();
+        resources.add(new Resource("resource_id", "resource_name", true));
+        serviceInstanceTest.setResources(resources);
 
-        Response response = restTemplate.getForObject(SERVICE_MANAGEMENT_URL + SERVICE_MANAGEMENT_ROOT + idTest, Response.class);
+        Response response = restTemplate.postForObject(url, serviceInstanceTest, Response.class);
+
+        assertThat(response, hasProperty("status", is(HttpStatus.CREATED.value())));
+
+        response = restTemplate.getForObject(url + idTest, Response.class);
 
         assertThat(response, hasProperty("status", is(HttpStatus.OK.value())));
-        assertThat(response, hasProperty("id", is(idTest)));
-        assertThat(response.getService(), hasProperty("name", is(servicePostTest.getName())));
-        assertThat(response.getService(), hasProperty("description", is(servicePostTest.getDescription())));
-        assertThat(response.getService(), hasProperty("created", is(servicePostTest.getCreated())));
-        assertThat(response.getService(), hasProperty("updated", is(servicePostTest.getUpdated())));
-        assertThat(response.getService(), hasProperty("resourceURI", is(servicePostTest.getResourceURI())));
-        assertThat(response.getService().getCategory(), hasProperty("cpu", is(servicePostTest.getCategory().getCpu())));
-        assertThat(response.getService().getCategory(), hasProperty("memory", is(servicePostTest.getCategory().getMemory())));
-        assertThat(response.getService().getCategory(), hasProperty("storage", is(servicePostTest.getCategory().getStorage())));
-        assertThat(response.getService().getCategory(), hasProperty("inclinometer", is(servicePostTest.getCategory().isInclinometer())));
-        assertThat(response.getService().getCategory(), hasProperty("temperature", is(servicePostTest.getCategory().isTemperature())));
-        assertThat(response.getService().getCategory(), hasProperty("jammer", is(servicePostTest.getCategory().isJammer())));
-        assertThat(response.getService().getCategory(), hasProperty("location", is(servicePostTest.getCategory().isLocation())));
-
-        restTemplate.delete(SERVICE_MANAGEMENT_URL + SERVICE_MANAGEMENT_ROOT + servicePostTest.getId());
+        assertThat(response.getServiceInstance(), hasProperty("instanceId", is(idTest)));
+        assertThat(response.getServiceInstance(), hasProperty("state", is("waiting")));
+        assertThat(response.getServiceInstance().getResources().get(0), hasProperty("id", is("resource_id")));
+        assertThat(response.getServiceInstance().getResources().get(0), hasProperty("name", is("resource_name")));
+        assertThat(response.getServiceInstance().getResources().get(0), hasProperty("allow", is(true)));
+        restTemplate.delete(url + idTest);
     }
 
     @Test
-    public void getService() {
+    public void getServiceInstance() {
 
-        Response response = restTemplate.getForObject(SERVICE_MANAGEMENT_URL + SERVICE_MANAGEMENT_ROOT + serviceTest.getId(), Response.class);
+        Response response = restTemplate.getForObject(url + idTest, Response.class);
 
         assertThat(response, hasProperty("status", is(HttpStatus.OK.value())));
-        assertThat(response, hasProperty("id", is(serviceTest.getId())));
-        assertThat(response.getService(), hasProperty("name", is(serviceTest.getName())));
-        assertThat(response.getService(), hasProperty("description", is(serviceTest.getDescription())));
-        assertThat(response.getService(), hasProperty("created", is(serviceTest.getCreated())));
-        assertThat(response.getService(), hasProperty("updated", is(serviceTest.getUpdated())));
-        assertThat(response.getService(), hasProperty("resourceURI", is(serviceTest.getResourceURI())));
-        assertThat(response.getService().getCategory(), hasProperty("cpu", is(serviceTest.getCategory().getCpu())));
-        assertThat(response.getService().getCategory(), hasProperty("memory", is(serviceTest.getCategory().getMemory())));
-        assertThat(response.getService().getCategory(), hasProperty("storage", is(serviceTest.getCategory().getStorage())));
-        assertThat(response.getService().getCategory(), hasProperty("inclinometer", is(serviceTest.getCategory().isInclinometer())));
-        assertThat(response.getService().getCategory(), hasProperty("temperature", is(serviceTest.getCategory().isTemperature())));
-        assertThat(response.getService().getCategory(), hasProperty("jammer", is(serviceTest.getCategory().isJammer())));
-        assertThat(response.getService().getCategory(), hasProperty("location", is(serviceTest.getCategory().isLocation())));
+        assertThat(response.getServiceInstance(), hasProperty("instanceId", is(idTest)));
 
-        restTemplate.delete(SERVICE_MANAGEMENT_URL + SERVICE_MANAGEMENT_ROOT + serviceTest.getId());
+        restTemplate.delete(url + idTest);
     }
 
     @Test
-    public void deleteService() {
+    public void deleteServiceInstance() {
 
-        restTemplate.delete(SERVICE_MANAGEMENT_URL + SERVICE_MANAGEMENT_ROOT + serviceTest.getId());
+        restTemplate.delete(url + idTest);
 
-        Response response = restTemplate.getForObject(SERVICE_MANAGEMENT_URL + SERVICE_MANAGEMENT_ROOT + serviceTest.getId(), Response.class);
+        Response response = restTemplate.getForObject(url + idTest, Response.class);
 
         assertThat(response, hasProperty("status", is(HttpStatus.NOT_FOUND.value())));
     }

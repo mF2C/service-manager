@@ -20,10 +20,11 @@ import sm.categorization.Categorizer;
 import sm.elements.Response;
 import sm.elements.ServiceInstance;
 import sm.qos.QosProvider;
+import sm.utils.CimiInterface;
 
 import java.util.LinkedHashMap;
 
-import static sm.utils.Parameters.SERVICE_ID;
+import static sm.utils.Parameters.SERVICE_INSTANCE_ID;
 import static sm.utils.Parameters.SERVICE_MANAGEMENT_ROOT;
 
 @SpringBootApplication
@@ -52,11 +53,14 @@ public class ServiceManager {
     public static Categorizer categorizer;
     public static QosProvider qosProvider;
     public static LinkedHashMap<String, ServiceInstance> serviceInstances;
+    private final String URL = SERVICE_MANAGEMENT_ROOT;
 
     public static void main(String[] args) {
         SpringApplication.run(ServiceManager.class, args);
+        serviceInstances = new LinkedHashMap<>();
         categorizer = new Categorizer();
         qosProvider = new QosProvider();
+        new CimiInterface();
     }
 
     @RequestMapping(method = RequestMethod.GET)
@@ -68,15 +72,14 @@ public class ServiceManager {
     public @ResponseBody
     Response submit(@RequestBody ServiceInstance serviceInstance) {
 
-        Response response = new Response(serviceInstance.getInstanceId(), SERVICE_MANAGEMENT_ROOT);
+        Response response = new Response(serviceInstance.getInstanceId(), URL);
         try {
             if (!serviceInstances.containsKey(serviceInstance.getInstanceId())) {
                 serviceInstances.put(serviceInstance.getInstanceId(), serviceInstance);
-                log.info("Service instance submitted @id-" + serviceInstance.getId());
+                log.info("Service instance submitted @id-" + serviceInstance.getInstanceId());
                 response.setMessage("Info - service instance submitted");
                 response.setStatus(HttpStatus.CREATED.value());
             } else {
-                log.error("Service already exist @id-" + serviceInstance.getInstanceId());
                 response.setMessage("Error - a service instance with the same id already exists");
                 response.setStatus(HttpStatus.CONFLICT.value());
             }
@@ -87,11 +90,11 @@ public class ServiceManager {
         return response;
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = SERVICE_ID, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.GET, value = SERVICE_INSTANCE_ID, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     Response get(@PathVariable String service_instance_id) {
 
-        Response response = new Response(service_instance_id, SERVICE_MANAGEMENT_ROOT + service_instance_id);
+        Response response = new Response(service_instance_id, URL + service_instance_id);
         try {
             if (serviceInstances.containsKey(service_instance_id)) {
                 response.setServiceInstance(serviceInstances.get(service_instance_id));
@@ -108,11 +111,11 @@ public class ServiceManager {
         return response;
     }
 
-    @RequestMapping(method = RequestMethod.DELETE, value = SERVICE_ID, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.DELETE, value = SERVICE_INSTANCE_ID, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     Response delete(@PathVariable String service_instance_id) {
 
-        Response response = new Response(service_instance_id, SERVICE_MANAGEMENT_ROOT + service_instance_id);
+        Response response = new Response(service_instance_id, URL + service_instance_id);
         try {
             if (serviceInstances.containsKey(service_instance_id)) {
                 serviceInstances.remove(service_instance_id);

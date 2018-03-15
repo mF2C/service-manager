@@ -8,14 +8,19 @@
  */
 package sm.qos.elements;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Resource {
 
     private String id;
     private String name;
     private boolean allow;
+
+    public Resource() {
+    }
 
     public Resource(String id, String name, boolean allow) {
         this.id = id;

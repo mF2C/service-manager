@@ -12,17 +12,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.*;
-import org.springframework.web.client.RestTemplate;
-import sm.elements.Response;
 import sm.elements.Service;
+import sm.utils.CimiInterface;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.List;
-
-import static sm.utils.Parameters.*;
 
 public class Categorizer {
 
@@ -45,7 +41,7 @@ public class Categorizer {
             List<Service> rServices = mapper.readValue(inputStream, typeReference);
             for (Service s : rServices) {
                 services.put(s.getId(), s);
-                if (!postServiceCIMI(s))
+                if (!CimiInterface.postService(s))
                     log.error("The service could not be submitted to CIMI");
             }
         } catch (IOException e) {
@@ -53,46 +49,29 @@ public class Categorizer {
         }
     }
 
-    public Service categorise(Service service) {
+    public Service submit(Service service) {
         Service serviceCategorized;
         if (services.containsKey(service.getId())) {
             log.info("The service was already categorized @id-" + service.getId());
             serviceCategorized = services.get(service.getId());
-        } else if ((serviceCategorized = getServiceCIMI(service.getId())) != null) {
+        } else if ((serviceCategorized = CimiInterface.getService(service.getId())) != null) {
             services.put(serviceCategorized.getId(), serviceCategorized);
+            serviceCategorized = service;
             log.info("The service was already categorized @id-" + service.getId());
-        } else
-            log.info("Service is not recognized @id-" + service.getId());
+        } else if (checkService(service)) {
+            serviceCategorized = service;
+            services.put(serviceCategorized.getId(), serviceCategorized);
+            log.info("Service submitted @id-" + service.getId());
+        } else {
+            log.info("Service is not defined @id-" + service.getId());
+        }
         return serviceCategorized;
     }
 
-    private Service getServiceCIMI(String serviceId) {
-
-        HttpHeaders headers = new HttpHeaders();
-        RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        try {
-            ResponseEntity<Service> serviceResponseEntity = restTemplate.exchange(CIMI_IP + CIMI_PORT + CIMI_ROOT + SERVICE + serviceId, HttpMethod.GET, entity, Service.class);
-            return serviceResponseEntity.getBody();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    private boolean checkService(Service service) {
+        return service.getId() != null && service.getCategory() != null;
     }
 
-    private boolean postServiceCIMI(Service service) {
 
-        RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<Service> entity = new HttpEntity<>(service);
-
-        try {
-            ResponseEntity<Response> responseEntity = restTemplate.exchange(CIMI_IP + CIMI_PORT + CIMI_ROOT + SERVICE, HttpMethod.POST, entity, Response.class);
-            return responseEntity.getStatusCodeValue() == HttpStatus.OK.value();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
 }
 
