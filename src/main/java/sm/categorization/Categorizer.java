@@ -41,8 +41,7 @@ public class Categorizer {
             List<Service> rServices = mapper.readValue(inputStream, typeReference);
             for (Service s : rServices) {
                 services.put(s.getId(), s);
-                if (!CimiInterface.postService(s))
-                    log.error("The service could not be submitted to CIMI");
+                CimiInterface.postService(s);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -50,14 +49,10 @@ public class Categorizer {
     }
 
     public Service submit(Service service) {
-        Service serviceCategorized;
+        Service serviceCategorized = null;
         if (services.containsKey(service.getId())) {
             log.info("The service was already categorized @id-" + service.getId());
             serviceCategorized = services.get(service.getId());
-        } else if ((serviceCategorized = CimiInterface.getService(service.getId())) != null) {
-            services.put(serviceCategorized.getId(), serviceCategorized);
-            serviceCategorized = service;
-            log.info("The service was already categorized @id-" + service.getId());
         } else if (checkService(service)) {
             serviceCategorized = service;
             services.put(serviceCategorized.getId(), serviceCategorized);

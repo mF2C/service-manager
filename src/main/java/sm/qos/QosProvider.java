@@ -12,24 +12,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestTemplate;
 import sm.elements.Service;
-import sm.qos.elements.Resource;
+import sm.elements.ServiceInstance;
 import sm.qos.elements.SharingModel;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static sm.utils.Parameters.*;
 
 public class QosProvider {
     private static Logger log = LoggerFactory.getLogger(QosProvider.class);
 
-    public QosProvider() {
-        //TODO
-    }
-
-    public List<Resource> check(Service service) {
-        log.info("Checking QoS requirements @id-" + service.getId());
-        List<Resource> resources = new ArrayList<>();
+    public ServiceInstance check(ServiceInstance serviceInstance) {
+        log.info("Checking QoS requirements @id-" + serviceInstance.getInstanceId());
 
         // 1. Get the user sharing model
         // SharingModel sharingModel = getSharingModel();
@@ -39,11 +31,9 @@ public class QosProvider {
         // 2. Get the SLA violation history
 
         // 3. Run the algorithm to accept or reject resources
-        resources.add(new Resource("id_1", "device_1", true));
-        resources.add(new Resource("id_2", "device_2", true));
-        resources.add(new Resource("id_3", "device_3", false));
+
         // 4. Return the admitted resources that the service can use.
-        return resources;
+        return serviceInstance;
     }
 
     private SharingModel getSharingModel() {

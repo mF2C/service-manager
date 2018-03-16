@@ -14,7 +14,7 @@ public class Parameters {
      ******** CIMI resources ***********
      ***********************************/
 
-    public static final String CIMI_IP = "http://localhost";
+    public static final String CIMI_IP = "https://localhost";
     public static final String CIMI_PORT = "";
     public static final String CIMI_ROOT = "/api";
     public static final String USER = "/user";

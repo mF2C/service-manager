@@ -13,9 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import sm.ServiceManager;
 import sm.elements.Response;
-import sm.qos.elements.Resource;
-
-import java.util.List;
+import sm.elements.ServiceInstance;
 
 import static sm.utils.Parameters.*;
 
@@ -23,16 +21,16 @@ import static sm.utils.Parameters.*;
 @RequestMapping(QOS)
 public class QosProviderInterface {
 
-    @RequestMapping(method = RequestMethod.PUT, value = SERVICE_INSTANCE_ID, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.GET, value = SERVICE_INSTANCE_ID, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     Response check(@PathVariable String service_instance_id) {
 
         Response response = new Response(service_instance_id, SERVICE_MANAGEMENT_ROOT + QOS + service_instance_id);
         try {
             if (ServiceManager.serviceInstances.containsKey(service_instance_id)) {
-                List<Resource> resources = ServiceManager.qosProvider.check(ServiceManager.serviceInstances.get(service_instance_id));
+                ServiceInstance serviceInstance = ServiceManager.qosProvider.check(ServiceManager.serviceInstances.get(service_instance_id));
                 response.setMessage("Info - Checked QoS requirements");
-                response.setResources(resources);
+                response.setServiceInstance(serviceInstance);
                 response.setStatus(HttpStatus.OK.value());
             } else {
                 response.setMessage("Error - service does not exist!");

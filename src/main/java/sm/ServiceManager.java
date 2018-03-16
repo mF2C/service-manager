@@ -57,10 +57,10 @@ public class ServiceManager {
 
     public static void main(String[] args) {
         SpringApplication.run(ServiceManager.class, args);
+        new CimiInterface();
         serviceInstances = new LinkedHashMap<>();
         categorizer = new Categorizer();
         qosProvider = new QosProvider();
-        new CimiInterface();
     }
 
     @RequestMapping(method = RequestMethod.GET)

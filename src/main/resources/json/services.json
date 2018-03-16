@@ -5,7 +5,7 @@
     "description": "Emergency Management System",
     "created": "15.01.18",
     "updated": "15.01.18",
-    "resourceURI": "",
+    "resourceURI": "/service",
     "category": {
       "cpu": "low",
       "memory": "low",
@@ -22,7 +22,7 @@
     "description": "Smart Boats",
     "created": "15.01.18",
     "updated": "15.01.18",
-    "resourceURI": "",
+    "resourceURI": "/service",
     "category": {
       "cpu": "low",
       "memory": "low",
@@ -39,7 +39,7 @@
     "description": "Airport location system",
     "created": "15.01.18",
     "updated": "15.01.18",
-    "resourceURI": "",
+    "resourceURI": "/service",
     "category": {
       "cpu": "low",
       "memory": "low",

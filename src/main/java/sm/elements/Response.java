@@ -10,9 +10,6 @@ package sm.elements;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import sm.qos.elements.Resource;
-
-import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -24,7 +21,6 @@ public class Response {
     private String updated;
     private String resourceURI;
     private int status;
-    private List<Resource> resources;
     private Service service;
     private ServiceInstance serviceInstance;
 
@@ -82,14 +78,6 @@ public class Response {
 
     public void setStatus(int status) {
         this.status = status;
-    }
-
-    public List<Resource> getResources() {
-        return resources;
-    }
-
-    public void setResources(List<Resource> resources) {
-        this.resources = resources;
     }
 
     public Service getService() {

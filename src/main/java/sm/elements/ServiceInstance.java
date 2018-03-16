@@ -11,7 +11,8 @@ package sm.elements;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import sm.qos.elements.Resource;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import sm.qos.elements.Agent;
 
 import java.util.List;
 
@@ -19,11 +20,15 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ServiceInstance extends Service {
 
+    @JsonProperty("id")
     private String instanceId;
+    @JsonProperty("status")
     private String state;
-    private List<Resource> resources;
+    @JsonProperty("agents")
+    private List<Agent> agents;
 
     public ServiceInstance (){
+        super();
     }
 
     public String getInstanceId() {
@@ -42,11 +47,11 @@ public class ServiceInstance extends Service {
         this.state = state;
     }
 
-    public List<Resource> getResources() {
-        return resources;
+    public List<Agent> getAgents() {
+        return agents;
     }
 
-    public void setResources(List<Resource> resources) {
-        this.resources = resources;
+    public void setAgents(List<Agent> agents) {
+        this.agents = agents;
     }
 }
