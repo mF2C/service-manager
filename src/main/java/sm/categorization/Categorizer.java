@@ -41,7 +41,8 @@ public class Categorizer {
             List<Service> rServices = mapper.readValue(inputStream, typeReference);
             for (Service s : rServices) {
                 services.put(s.getId(), s);
-                CimiInterface.postService(s);
+                if (CimiInterface.isIsConnected())
+                    CimiInterface.postService(s);
             }
         } catch (IOException e) {
             e.printStackTrace();

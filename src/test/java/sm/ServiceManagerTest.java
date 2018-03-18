@@ -26,13 +26,13 @@ import static sm.utils.Parameters.SERVICE_MANAGEMENT_URL;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ServiceManager.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class ServiceManagerInterfaceTest {
+public class ServiceManagerTest {
 
     private TestRestTemplate restTemplate;
     private ServiceInstance serviceInstanceTest;
     private String url;
 
-    public ServiceManagerInterfaceTest() {
+    public ServiceManagerTest() {
         url = SERVICE_MANAGEMENT_URL + SERVICE_MANAGEMENT_ROOT;
         restTemplate = new TestRestTemplate();
         TypeReference<ServiceInstance> typeReference = new TypeReference<ServiceInstance>() {

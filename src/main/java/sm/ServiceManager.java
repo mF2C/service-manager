@@ -11,15 +11,23 @@ package sm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
+import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
+import org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.*;
+import org.springframework.boot.autoconfigure.websocket.WebSocketAutoConfiguration;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import sm.categorization.Categorizer;
+import sm.categorization.CategorizerInterface;
 import sm.elements.Response;
 import sm.elements.ServiceInstance;
 import sm.qos.QosProvider;
+import sm.qos.QosProviderInterface;
 import sm.utils.CimiInterface;
 
 import java.util.LinkedHashMap;
@@ -27,25 +35,24 @@ import java.util.LinkedHashMap;
 import static sm.utils.Parameters.SERVICE_INSTANCE_ID;
 import static sm.utils.Parameters.SERVICE_MANAGEMENT_ROOT;
 
-@SpringBootApplication
-//@Configuration
-//@Import({
-//        DispatcherServletAutoConfiguration.class,
-//        EmbeddedServletContainerAutoConfiguration.class,
-//        ErrorMvcAutoConfiguration.class,
-//        HttpEncodingAutoConfiguration.class,
-//        HttpMessageConvertersAutoConfiguration.class,
-//        JacksonAutoConfiguration.class,
-//        JmxAutoConfiguration.class,
-//        MultipartAutoConfiguration.class,
-//        PropertyPlaceholderAutoConfiguration.class,
-//        ServerPropertiesAutoConfiguration.class,
-//        WebMvcAutoConfiguration.class,
-//        WebSocketAutoConfiguration.class,
-//        ServiceManagerInterface.class,
-//        QosProviderInterface.class,
-//        CategorizerInterface.class
-//})
+//@SpringBootApplication
+@Configuration
+@Import({
+        DispatcherServletAutoConfiguration.class,
+        EmbeddedServletContainerAutoConfiguration.class,
+        HttpEncodingAutoConfiguration.class,
+        HttpMessageConvertersAutoConfiguration.class,
+        JacksonAutoConfiguration.class,
+        JmxAutoConfiguration.class,
+        MultipartAutoConfiguration.class,
+        PropertyPlaceholderAutoConfiguration.class,
+        ServerPropertiesAutoConfiguration.class,
+        WebMvcAutoConfiguration.class,
+        WebSocketAutoConfiguration.class,
+        QosProviderInterface.class,
+        CategorizerInterface.class,
+        CimiInterface.class
+})
 @Controller
 public class ServiceManager {
 
@@ -57,7 +64,6 @@ public class ServiceManager {
 
     public static void main(String[] args) {
         SpringApplication.run(ServiceManager.class, args);
-        new CimiInterface();
         serviceInstances = new LinkedHashMap<>();
         categorizer = new Categorizer();
         qosProvider = new QosProvider();

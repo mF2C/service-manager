@@ -31,11 +31,44 @@ public class CimiInterface {
     private static RestTemplate restTemplate = new RestTemplate();
     private static String rootUrl = CIMI_IP + CIMI_PORT + CIMI_ROOT;
     private static String cookie;
+    private static boolean isConnected;
 
     public CimiInterface() {
-        if (checkUser() != HttpStatus.OK.value())
-            registerUser();
-        startSession();
+        if(checkCimiConnection()) {
+            if (checkUser() != HttpStatus.OK.value())
+                registerUser();
+            startSession();
+        }
+    }
+
+    public boolean checkCimiConnection(){
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        try {
+            restTemplate.exchange(rootUrl + CIMI_ENDPOINTS, HttpMethod.GET, entity, String.class);
+            isConnected = true;
+            return true;
+        } catch (Exception e) {
+            log.error("No connection to CIMI");
+            return false;
+        }
+    }
+
+    public static int checkUser() {
+
+        headers = new HttpHeaders();
+        headers.add("Cookie", cookie);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        try {
+            ResponseEntity<String> responseEntity = restTemplate.exchange(rootUrl + USER, HttpMethod.GET, entity, String.class);
+            if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value())
+                log.info("user already registered");
+            else
+                log.error("user is not registered");
+            return responseEntity.getStatusCodeValue();
+        } catch (Exception e) {
+            log.error("No connection to CIMI");
+            return -1;
+        }
     }
 
     public static int registerUser() {
@@ -56,10 +89,10 @@ public class CimiInterface {
             if (responseEntity.getStatusCodeValue() == HttpStatus.CREATED.value())
                 log.info("user registered in CIMI");
             else
-                log.error("user could not be registered in CIMI");
+                log.error("user could not be registered");
             return responseEntity.getStatusCodeValue();
         } catch (Exception e) {
-            log.error("Error registering user");
+            log.error("No connection to CIMI");
             return -1;
         }
     }
@@ -83,28 +116,10 @@ public class CimiInterface {
                 cookie = responseEntity.getHeaders().getFirst(HttpHeaders.SET_COOKIE);
                 log.info("Cookie: " + cookie);
             } else
-                log.error("session could not be started in CIMI");
+                log.error("session could not be started");
             return responseEntity.getStatusCodeValue();
         } catch (Exception e) {
-            log.error("Error starting session");
-            return -1;
-        }
-    }
-
-    public static int checkUser() {
-
-        headers = new HttpHeaders();
-        headers.add("Cookie", cookie);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        try {
-            ResponseEntity<String> responseEntity = restTemplate.exchange(rootUrl + USER, HttpMethod.GET, entity, String.class);
-            if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value())
-                log.info("user already registered in CIMI");
-            else
-                log.error("user is not registered in CIMI");
-            return responseEntity.getStatusCodeValue();
-        } catch (Exception e) {
-            log.error("Error registering user");
+            log.error("No connection to CIMI");
             return -1;
         }
     }
@@ -119,10 +134,10 @@ public class CimiInterface {
         try {
             ResponseEntity<String> responseEntity = restTemplate.exchange(rootUrl + SERVICE, HttpMethod.POST, entity, String.class);
             if (responseEntity.getStatusCodeValue() == HttpStatus.CREATED.value())
-                log.info("service submitted to CIMI");
+                log.info("service submitted");
             return responseEntity.getStatusCodeValue();
         } catch (Exception e) {
-            log.error("Error submitting service to CIMI");
+            log.error("No connection to CIMI");
             return -1;
         }
     }
@@ -142,10 +157,12 @@ public class CimiInterface {
             }
             return services;
         } catch (Exception e) {
-            log.error("Error retrieving services from CIMI");
+            log.error("No connection to CIMI");
             return null;
         }
     }
 
-
+    public static boolean isIsConnected() {
+        return isConnected;
+    }
 }

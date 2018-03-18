@@ -10,15 +10,22 @@ package sm.qos;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.client.RestTemplate;
-import sm.elements.Service;
+import sm.ServiceManager;
 import sm.elements.ServiceInstance;
-import sm.qos.elements.SharingModel;
+import sm.qos.learning.ServiceQosProvider;
 
-import static sm.utils.Parameters.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class QosProvider {
     private static Logger log = LoggerFactory.getLogger(QosProvider.class);
+    private Map<ServiceInstance, ServiceQosProvider> qosProviderMap;
+
+    public QosProvider() {
+        qosProviderMap = new HashMap<>();
+        for (ServiceInstance serviceInstance : ServiceManager.serviceInstances.values())
+            qosProviderMap.put(serviceInstance, new ServiceQosProvider(serviceInstance.getAgents().size()));
+    }
 
     public ServiceInstance check(ServiceInstance serviceInstance) {
         log.info("Checking QoS requirements @id-" + serviceInstance.getInstanceId());
@@ -34,22 +41,6 @@ public class QosProvider {
 
         // 4. Return the admitted resources that the service can use.
         return serviceInstance;
-    }
-
-    private SharingModel getSharingModel() {
-        RestTemplate restTemplate = new RestTemplate();
-        SharingModel sharingModel = null;
-        try {
-            sharingModel = restTemplate.getForObject(CIMI_IP + CIMI_PORT + CIMI_ROOT + USER_MANAGEMENT + GET_SHARING_MODEL, SharingModel.class);
-        } catch (Exception e) {
-            log.error("Getting sharing model from CIMI");
-        }
-        return sharingModel;
-    }
-
-    private boolean checkSharingModel(Service service, SharingModel sharingModel) {
-
-        return true;
     }
 
 }
