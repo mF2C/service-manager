@@ -54,10 +54,10 @@ public class ServiceManagerTest {
 
         assertThat(response, hasProperty("status", is(HttpStatus.CREATED.value())));
 
-        response = restTemplate.getForObject(url + serviceInstanceTest.getInstanceId(), Response.class);
+        response = restTemplate.getForObject(url + serviceInstanceTest.getId(), Response.class);
 
         assertThat(response, hasProperty("status", is(HttpStatus.OK.value())));
-        assertThat(response.getServiceInstance(), hasProperty("instanceId", is(serviceInstanceTest.getInstanceId())));
+        assertThat(response.getServiceInstance(), hasProperty("instanceId", is(serviceInstanceTest.getId())));
         assertThat(response.getServiceInstance(), hasProperty("state", is(serviceInstanceTest.getState())));
         assertThat(response.getServiceInstance().getAgents().get(0), hasProperty("id", is(serviceInstanceTest.getAgents().get(0).getId())));
         assertThat(response.getServiceInstance().getAgents().get(0), hasProperty("allow", is(serviceInstanceTest.getAgents().get(0).isAllow())));
@@ -66,19 +66,19 @@ public class ServiceManagerTest {
     @Test
     public void _2_getServiceInstance() {
 
-        Response response = restTemplate.getForObject(url + serviceInstanceTest.getInstanceId(), Response.class);
+        Response response = restTemplate.getForObject(url + serviceInstanceTest.getId(), Response.class);
 
         assertThat(response, hasProperty("status", is(HttpStatus.OK.value())));
-        assertThat(response.getServiceInstance(), hasProperty("instanceId", is(serviceInstanceTest.getInstanceId())));
+        assertThat(response.getServiceInstance(), hasProperty("instanceId", is(serviceInstanceTest.getId())));
 
     }
 
     @Test
     public void _3_deleteServiceInstance() {
 
-        restTemplate.delete(url + serviceInstanceTest.getInstanceId());
+        restTemplate.delete(url + serviceInstanceTest.getId());
 
-        Response response = restTemplate.getForObject(url + serviceInstanceTest.getInstanceId(), Response.class);
+        Response response = restTemplate.getForObject(url + serviceInstanceTest.getId(), Response.class);
 
         assertThat(response, hasProperty("status", is(HttpStatus.NOT_FOUND.value())));
     }

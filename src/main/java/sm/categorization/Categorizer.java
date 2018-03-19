@@ -17,16 +17,17 @@ import sm.utils.CimiInterface;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Categorizer {
 
     private static Logger log = LoggerFactory.getLogger(Categorizer.class);
-    public static LinkedHashMap<String, Service> services;
+    public static Map<String, Service> services;
 
     public Categorizer() {
-        services = new LinkedHashMap<>();
+        services = new HashMap<>();
         this.readServicesFromJSON();
     }
 

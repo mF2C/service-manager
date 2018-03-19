@@ -78,11 +78,11 @@ public class ServiceManager {
     public @ResponseBody
     Response submit(@RequestBody ServiceInstance serviceInstance) {
 
-        Response response = new Response(serviceInstance.getInstanceId(), URL);
+        Response response = new Response(serviceInstance.getId(), URL);
         try {
-            if (!serviceInstances.containsKey(serviceInstance.getInstanceId())) {
-                serviceInstances.put(serviceInstance.getInstanceId(), serviceInstance);
-                log.info("Service instance submitted @id-" + serviceInstance.getInstanceId());
+            if (!serviceInstances.containsKey(serviceInstance.getId())) {
+                serviceInstances.put(serviceInstance.getId(), serviceInstance);
+                log.info("Service instance submitted @id-" + serviceInstance.getId());
                 response.setMessage("Info - service instance submitted");
                 response.setStatus(HttpStatus.CREATED.value());
             } else {

@@ -8,9 +8,13 @@
  */
 package sm.elements;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import sm.categorization.elements.Category;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -23,13 +27,20 @@ public class Service {
     private String updated;
     private String resourceURI;
     private Category category;
+    @JsonIgnore
+    private Map<String, Double> agentSlaHistoryRatio;
+    @JsonIgnore
+    private Map<String, Integer> agentServiceExecutionCounter;
 
     public Service() {
+        this.agentSlaHistoryRatio = new HashMap<>();
+        this.agentServiceExecutionCounter = new HashMap<>();
     }
 
     public Service(String id) {
         this.id = id;
         this.category = new Category();
+        this.agentSlaHistoryRatio = new HashMap<>();
     }
 
     public String getId() {
@@ -86,5 +97,13 @@ public class Service {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    public Map<String, Double> getAgentSlaHistoryRatio() {
+        return agentSlaHistoryRatio;
+    }
+
+    public Map<String, Integer> getAgentServiceExecutionCounter() {
+        return agentServiceExecutionCounter;
     }
 }

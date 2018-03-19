@@ -12,31 +12,46 @@ package sm.elements;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import sm.categorization.Categorizer;
 import sm.qos.elements.Agent;
 
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ServiceInstance extends Service {
+public class ServiceInstance {
 
-    @JsonProperty("id")
-    private String instanceId;
+    private String id;
+    @JsonProperty("service_id")
+    private String serviceId;
     @JsonProperty("status")
     private String state;
     @JsonProperty("agents")
     private List<Agent> agents;
+    @JsonProperty("agreement_id")
+    private String agreementId;
 
-    public ServiceInstance (){
-        super();
+    public ServiceInstance() {
+        Service service = Categorizer.services.get(serviceId);
+        for (Agent agent : agents)
+            if (!service.getAgentSlaHistoryRatio().containsKey(agent.getId()))
+                service.getAgentSlaHistoryRatio().put(agent.getId(), 0.0);
     }
 
-    public String getInstanceId() {
-        return instanceId;
+    public String getId() {
+        return id;
     }
 
-    public void setInstanceId(String instanceId) {
-        this.instanceId = instanceId;
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getServiceId() {
+        return serviceId;
+    }
+
+    public void setServiceId(String serviceId) {
+        this.serviceId = serviceId;
     }
 
     public String getState() {
@@ -53,5 +68,13 @@ public class ServiceInstance extends Service {
 
     public void setAgents(List<Agent> agents) {
         this.agents = agents;
+    }
+
+    public String getAgreementId() {
+        return agreementId;
+    }
+
+    public void setAgreementId(String agreementId) {
+        this.agreementId = agreementId;
     }
 }

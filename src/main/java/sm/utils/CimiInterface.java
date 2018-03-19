@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import sm.elements.Service;
+import sm.qos.elements.SharingModel;
+import sm.qos.elements.SlaViolation;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,14 +36,14 @@ public class CimiInterface {
     private static boolean isConnected;
 
     public CimiInterface() {
-        if(checkCimiConnection()) {
+        if (checkCimiConnection()) {
             if (checkUser() != HttpStatus.OK.value())
                 registerUser();
             startSession();
         }
     }
 
-    public boolean checkCimiConnection(){
+    public boolean checkCimiConnection() {
         HttpEntity<String> entity = new HttpEntity<>(headers);
         try {
             restTemplate.exchange(rootUrl + CIMI_ENDPOINTS, HttpMethod.GET, entity, String.class);
@@ -156,6 +158,46 @@ public class CimiInterface {
                 services = (List<Service>) objects.get("services");
             }
             return services;
+        } catch (Exception e) {
+            log.error("No connection to CIMI");
+            return null;
+        }
+    }
+
+    public static SharingModel getSharingModel(String userID) {
+
+        headers = new HttpHeaders();
+        headers.add("Cookie", cookie);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        SharingModel sharingModel = null;
+        try {
+            ResponseEntity<Map> responseEntity = restTemplate.exchange(rootUrl + USER_MANAGEMENT + SHARING_MODEL + userID, HttpMethod.GET, entity, Map.class);
+            if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
+                log.info("sharing model retrieved from CIMI");
+                Map<String, Object> objects = responseEntity.getBody();
+                sharingModel = (SharingModel) objects.get("sharing_model");
+            }
+            return sharingModel;
+        } catch (Exception e) {
+            log.error("No connection to CIMI");
+            return null;
+        }
+    }
+
+    public static List<SlaViolation> getSlaViolations(String agreementId) {
+
+        headers = new HttpHeaders();
+        headers.add("Cookie", cookie);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        List<SlaViolation> slaViolations = new ArrayList<>();
+        try {
+            ResponseEntity<Map> responseEntity = restTemplate.exchange(rootUrl + SLA_MANAGEMENT + AGREEMENTS + agreementId, HttpMethod.GET, entity, Map.class);
+            if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
+                log.info("sla violations retrieved from CIMI");
+                Map<String, Object> objects = responseEntity.getBody();
+                slaViolations = (List<SlaViolation>) objects.get("sla_violations");
+            }
+            return slaViolations;
         } catch (Exception e) {
             log.error("No connection to CIMI");
             return null;

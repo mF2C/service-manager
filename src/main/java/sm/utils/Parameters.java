@@ -22,7 +22,10 @@ public class Parameters {
     public static final String SESSION = "/session";
 
     public static final String USER_MANAGEMENT = "user-management/";
-    public static final String GET_SHARING_MODEL = "sharingmodel/";
+    public static final String SHARING_MODEL = "sharingmodel/";
+
+    public static final String SLA_MANAGEMENT = "sla-management/";
+    public static final String AGREEMENTS = "agreements/";
 
     public static final String SERVICE = "/service";
 

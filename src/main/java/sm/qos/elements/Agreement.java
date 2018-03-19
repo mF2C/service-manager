@@ -1,5 +1,5 @@
 /**
- * Agent class.
+ * Agreement class.
  * Part of the mF2C Project: http://www.mf2c-project.eu/
  * <p>
  * This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
@@ -9,38 +9,29 @@
 package sm.qos.elements;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class Agent {
+public class Agreement {
 
-    @JsonProperty("agent_id")
     private String id;
-    private boolean allow;
+    private String client;
 
-    public Agent() {
-    }
-
-    public Agent(String id, boolean allow) {
-        this.id = id;
-        this.allow = allow;
+    public Agreement(){
     }
 
     public String getId() {
         return id;
     }
 
-    public boolean isAllow() {
-        return allow;
-    }
-
     public void setId(String id) {
         this.id = id;
     }
 
-    public void setAllow(boolean allow) {
-        this.allow = allow;
+    public String getClient() {
+        return client;
+    }
+
+    public void setClient(String client) {
+        this.client = client;
     }
 }

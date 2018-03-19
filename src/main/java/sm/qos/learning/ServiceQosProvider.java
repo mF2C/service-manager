@@ -25,11 +25,17 @@ import java.util.Arrays;
 public class ServiceQosProvider {
 
     private DeepQ network;
+    private float[] slaViolationRatio;
+    private boolean[] allowedAgents;
 
-    public ServiceQosProvider(int numOfAgents){
+    public ServiceQosProvider(int numOfAgents) {
+
+        slaViolationRatio = new float[numOfAgents];
+        Arrays.fill(slaViolationRatio, 0f);
+        allowedAgents = new boolean[numOfAgents];
+        Arrays.fill(allowedAgents, true);
 
         int hiddenLayerOut = 150;
-
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(123)
                 .iterations(1)
@@ -57,7 +63,7 @@ public class ServiceQosProvider {
 
     }
 
-    public INDArray createINDArray(int timeStep, float frameBuffer[]) {
+    private INDArray createINDArray(int timeStep, float frameBuffer[]) {
         float convertedInput[] = new float[frameBuffer.length + 1];
 
         System.arraycopy(frameBuffer, 0, convertedInput, 0, frameBuffer.length);
@@ -66,7 +72,7 @@ public class ServiceQosProvider {
         return Nd4j.create(convertedInput);
     }
 
-    public boolean[] getActionMask(boolean[] currentOutput) {
+    private boolean[] getActionMask(boolean[] currentOutput) {
         boolean[] actionMask = new boolean[currentOutput.length * 2];
         Arrays.fill(actionMask, true);
 
@@ -79,7 +85,7 @@ public class ServiceQosProvider {
         return actionMask;
     }
 
-    public boolean[] modifyOutput(boolean[] lastOutput, int action) {
+    private boolean[] modifyOutput(boolean[] lastOutput, int action) {
         boolean[] output = Arrays.copyOf(lastOutput, lastOutput.length);
 
         for (int i = 0; i < output.length; i++) {
@@ -91,7 +97,7 @@ public class ServiceQosProvider {
         return output;
     }
 
-    public float calculateReward(boolean[] output, float[] input) {
+    private float calculateReward(boolean[] output, float[] input) {
         float reward = 0;
 
         for (int a = 0; a < output.length; a++)
@@ -102,14 +108,11 @@ public class ServiceQosProvider {
         return reward;
     }
 
-    public float calculateMaxReward(float[] slaHistory) {
+    private float calculateMaxReward(float[] slaHistory) {
         float maxReward = 0;
 
         for (float aSlaHistory : slaHistory) maxReward += -2 * aSlaHistory + 1;
         return maxReward;
     }
 
-    public DeepQ getNetwork() {
-        return network;
-    }
 }

@@ -45,13 +45,13 @@ public class QosProviderInterfaceTest {
 
         assertThat(response, hasProperty("status", is(HttpStatus.CREATED.value())));
 
-        response = restTemplate.getForObject(url + serviceInstanceTest.getInstanceId(), Response.class);
+        response = restTemplate.getForObject(url + serviceInstanceTest.getId(), Response.class);
 
         assertThat(response, hasProperty("status", is(HttpStatus.OK.value())));
         assertThat(response.getServiceInstance(), hasProperty("agents"));
 
-        restTemplate.delete(rootUrl + serviceInstanceTest.getInstanceId(), Response.class);
-        response = restTemplate.getForObject(rootUrl + serviceInstanceTest.getInstanceId(), Response.class);
+        restTemplate.delete(rootUrl + serviceInstanceTest.getId(), Response.class);
+        response = restTemplate.getForObject(rootUrl + serviceInstanceTest.getId(), Response.class);
         assertThat(response, hasProperty("status", is(HttpStatus.NOT_FOUND.value())));
     }
 }
