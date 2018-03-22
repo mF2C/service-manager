@@ -70,7 +70,7 @@ Output:
 ....... . . .
 ```
 
-If you open a web browser to `http://localhost:46200/api/v1/service-management/` you should see the following output:
+If you open a web browser to `http://localhost:46200/api/service-management/` you should see the following output:
 ```
 Info - Welcome to the mF2C Service Manager!
 ```
@@ -108,54 +108,58 @@ Run the local tagged image using:
 ```
 $ docker run -p 46200:46200 -t mf2c/service-manager
 ```
-Finally, if the service is running correctly, typing `http://localhost:46200/api/v1/service-management/` on your web browser, the output should be:
+Finally, if the service is running correctly, typing `http://localhost:46200/api/service-management/` on your web browser, the output should be:
 ```
 Info - Welcome to the mF2C Service Manager!
 ```
 ## Resources
 
-### Service
-Use `categorize service` interface specifying a `service_id` with value 1, 2 or 3 to retrieve one of the available service resources.
-
+#### Service definition example
+```
+ {
+      "id": "0",
+      "name": "hello-world",
+      "description": "Hello World Service",
+      "resourceURI": "/hello-world",
+      "exec": "hello-world",
+      "exec_type": "docker",
+      "category": {
+        "cpu": "low",
+        "memory": "low",
+        "storage": "low",
+        "inclinometer": false,
+        "temperature": false,
+        "jammer": false,
+        "location": false
+      }
+    }
+```
 ## Interfaces
 
 ### Get endpoints
 Returns the list of available endpoints in the Service Manager:
--	URI: `http://localhost:46200/api/v1/service-management/endpoints/`
+-	URI: `http://localhost:46200/api/service-management/endpoints/`
 -	Method: GET
 -	Params: none
 
-### Submit service
-Submit a service to the Service Manager:
--	URI: `http://localhost:46200/api/v1/service-management/`
+### Categorize a new service
+Submit a new Service in JSON format: 
+-	URI: `http://localhost:46200/api/service-management/categorize/` 
 -	Method: POST
--	Params: none
-- Body: service - JSON object representing a service.
+-   Body: JSON object representing a service.
 
-### Get service
-Returns a specific service from the Service Manager: 
--	URI: `http://localhost:46200/api/v1/service-management/<service_id>` 
+### Submit a service instance
+Submit a new service instance to the service manager:
+-	URI: `http://localhost:46200/api/service-management/`
+-	Method: POST
+-   Body: JSON object representing a service instance.
+
+### Check QoS of a service instance
+Returns which agents can be used to execute a specific service: 
+-	URI: `http://localhost:46200/api/service-management/qos/<id>` 
 -	Method: GET
-- Params
-  - `<service_id>`: id of the service
+-   Params:
+    - `<id>`: id of the service instance
+-   Returns a copy of the service instance specifying the agents that can be used to execute that service
   
-### Delete service
-Delete a specific service from the Service Manager: 
--	URI: `http://localhost:46200/api/v1/service-management/<service_id>` 
--	Method: DELETE
-- Params
-  - `<service_id>`: id of the service
 
-### Check QoS 
-Check if a specific service can be used or not: 
--	URI: `http://localhost:46200/api/v1/service-management/qos/<service_id>` 
--	Method: PUT
-- Params
-  - `<service_id>`: id of the service
-  
-### Categorize service
-Check if a specific service can be used or not: 
--	URI: `http://localhost:46200/api/v1/service-management/categorize/<service_id>` 
--	Method: PUT
-- Params
-  - `<service_id>`: id of the service

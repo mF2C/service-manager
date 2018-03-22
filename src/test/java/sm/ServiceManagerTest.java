@@ -57,7 +57,7 @@ public class ServiceManagerTest {
         response = restTemplate.getForObject(url + serviceInstanceTest.getId(), Response.class);
 
         assertThat(response, hasProperty("status", is(HttpStatus.OK.value())));
-        assertThat(response.getServiceInstance(), hasProperty("instanceId", is(serviceInstanceTest.getId())));
+        assertThat(response.getServiceInstance(), hasProperty("id", is(serviceInstanceTest.getId())));
         assertThat(response.getServiceInstance(), hasProperty("state", is(serviceInstanceTest.getState())));
         assertThat(response.getServiceInstance().getAgents().get(0), hasProperty("id", is(serviceInstanceTest.getAgents().get(0).getId())));
         assertThat(response.getServiceInstance().getAgents().get(0), hasProperty("allow", is(serviceInstanceTest.getAgents().get(0).isAllow())));
@@ -69,7 +69,7 @@ public class ServiceManagerTest {
         Response response = restTemplate.getForObject(url + serviceInstanceTest.getId(), Response.class);
 
         assertThat(response, hasProperty("status", is(HttpStatus.OK.value())));
-        assertThat(response.getServiceInstance(), hasProperty("instanceId", is(serviceInstanceTest.getId())));
+        assertThat(response.getServiceInstance(), hasProperty("id", is(serviceInstanceTest.getId())));
 
     }
 

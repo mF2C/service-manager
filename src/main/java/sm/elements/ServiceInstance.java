@@ -12,7 +12,6 @@ package sm.elements;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import sm.categorization.Categorizer;
 import sm.qos.elements.Agent;
 
 import java.util.List;
@@ -32,10 +31,6 @@ public class ServiceInstance {
     private String agreementId;
 
     public ServiceInstance() {
-        Service service = Categorizer.services.get(serviceId);
-        for (Agent agent : agents)
-            if (!service.getAgentSlaHistoryRatio().containsKey(agent.getId()))
-                service.getAgentSlaHistoryRatio().put(agent.getId(), 0.0);
     }
 
     public String getId() {

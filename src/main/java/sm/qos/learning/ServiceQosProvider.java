@@ -30,8 +30,6 @@ public class ServiceQosProvider {
 
     public ServiceQosProvider(int numOfAgents) {
 
-        slaViolationRatio = new float[numOfAgents];
-        Arrays.fill(slaViolationRatio, 0f);
         allowedAgents = new boolean[numOfAgents];
         Arrays.fill(allowedAgents, true);
 
@@ -61,6 +59,41 @@ public class ServiceQosProvider {
 
         network = new DeepQ(conf, 100000, .99f, 1d, 1024, 500, 1024, numOfAgents + 1);
 
+    }
+
+    public boolean[] checkServiceInstance(float[] slaViolationRatio) {
+        this.slaViolationRatio = slaViolationRatio;
+
+
+        return this.allowedAgents;
+    }
+
+    private void trainNetwork(float[] slaViolationRatio) {
+
+        int timeStep = 0;
+        boolean[] outputBuffer = new boolean[]{};
+        System.arraycopy(allowedAgents, 0, outputBuffer, 0, allowedAgents.length);
+        float maxReward = calculateMaxReward(slaViolationRatio);
+
+        while (true) {
+            int action = network.getAction(createINDArray(timeStep, slaViolationRatio), getActionMask(outputBuffer));
+            boolean nextOutput[] = modifyOutput(outputBuffer, action);
+            float reward = calculateReward(nextOutput, slaViolationRatio);
+            timeStep++;
+            if (reward >= maxReward) {
+                network.observeReward(reward, null);
+                break;
+            } else
+                network.observeReward(reward, createINDArray(timeStep, slaViolationRatio));
+        }
+    }
+
+    private boolean[] evaluateNetwork(float[] slaViolationRatio){
+        boolean[] allowedAgents = new boolean[]{};
+        network.setEpsilon(0);
+
+
+        return allowedAgents;
     }
 
     private INDArray createINDArray(int timeStep, float frameBuffer[]) {
@@ -115,4 +148,11 @@ public class ServiceQosProvider {
         return maxReward;
     }
 
+    public void setSlaViolationRatio(float[] slaViolationRatio) {
+        this.slaViolationRatio = slaViolationRatio;
+    }
+
+    public DeepQ getNetwork() {
+        return network;
+    }
 }

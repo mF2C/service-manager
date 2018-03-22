@@ -11,6 +11,7 @@ package sm.elements;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import sm.categorization.elements.Category;
 
 import java.util.HashMap;
@@ -25,22 +26,25 @@ public class Service {
     private String description;
     private String created;
     private String updated;
+    private String exec;
+    @JsonProperty("exec_type")
+    private String execType;
     private String resourceURI;
     private Category category;
     @JsonIgnore
-    private Map<String, Double> agentSlaHistoryRatio;
+    private Map<String, Integer> agentSlaViolationsCounter;
     @JsonIgnore
     private Map<String, Integer> agentServiceExecutionCounter;
 
     public Service() {
-        this.agentSlaHistoryRatio = new HashMap<>();
+        this.agentSlaViolationsCounter = new HashMap<>();
         this.agentServiceExecutionCounter = new HashMap<>();
     }
 
     public Service(String id) {
         this.id = id;
         this.category = new Category();
-        this.agentSlaHistoryRatio = new HashMap<>();
+        this.agentSlaViolationsCounter = new HashMap<>();
     }
 
     public String getId() {
@@ -83,6 +87,22 @@ public class Service {
         this.updated = updated;
     }
 
+    public String getExec() {
+        return exec;
+    }
+
+    public void setExec(String exec) {
+        this.exec = exec;
+    }
+
+    public String getExecType() {
+        return execType;
+    }
+
+    public void setExecType(String execType) {
+        this.execType = execType;
+    }
+
     public String getResourceURI() {
         return resourceURI;
     }
@@ -99,8 +119,8 @@ public class Service {
         this.category = category;
     }
 
-    public Map<String, Double> getAgentSlaHistoryRatio() {
-        return agentSlaHistoryRatio;
+    public Map<String, Integer> getAgentSlaViolationsCounter() {
+        return agentSlaViolationsCounter;
     }
 
     public Map<String, Integer> getAgentServiceExecutionCounter() {

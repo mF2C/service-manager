@@ -1,19 +1,17 @@
 {
-  "id": "1",
-  "name": "EMS",
-  "description": "Emergency Management System",
-  "created": "15.01.18",
-  "updated": "15.01.18",
-  "resourceURI": "",
-  "service_id": "1",
-  "agreement_id": "1",
-  "user_id": "1",
+  "id": "id",
+  "name": "hello-world-instance",
+  "description": "creates a hello-world service instance",
+  "resourceURI": "/hello-world-instance",
+  "service_id": "0",
+  "agreement_id": "agreement-id",
+  "user_id": "user-id",
   "status": "active",
   "agents": [
     {
-      "agent_id": "1",
+      "agent_id": "agent1",
       "port": 2,
-      "container_id": "1",
+      "container_id": "container-id",
       "status": "active",
       "num_cpus": 2,
       "allow": true

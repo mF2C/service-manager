@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import sm.elements.Service;
-import sm.qos.elements.SharingModel;
 import sm.qos.elements.SlaViolation;
 
 import java.io.IOException;
@@ -158,26 +157,6 @@ public class CimiInterface {
                 services = (List<Service>) objects.get("services");
             }
             return services;
-        } catch (Exception e) {
-            log.error("No connection to CIMI");
-            return null;
-        }
-    }
-
-    public static SharingModel getSharingModel(String userID) {
-
-        headers = new HttpHeaders();
-        headers.add("Cookie", cookie);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        SharingModel sharingModel = null;
-        try {
-            ResponseEntity<Map> responseEntity = restTemplate.exchange(rootUrl + USER_MANAGEMENT + SHARING_MODEL + userID, HttpMethod.GET, entity, Map.class);
-            if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
-                log.info("sharing model retrieved from CIMI");
-                Map<String, Object> objects = responseEntity.getBody();
-                sharingModel = (SharingModel) objects.get("sharing_model");
-            }
-            return sharingModel;
         } catch (Exception e) {
             log.error("No connection to CIMI");
             return null;
