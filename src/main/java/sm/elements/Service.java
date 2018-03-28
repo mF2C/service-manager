@@ -14,9 +14,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import sm.categorization.elements.Category;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Service {
@@ -32,19 +29,20 @@ public class Service {
     private String resourceURI;
     private Category category;
     @JsonIgnore
-    private Map<String, Integer> agentSlaViolationsCounter;
+    private int slaViolationsCounter;
     @JsonIgnore
-    private Map<String, Integer> agentServiceExecutionCounter;
+    private int executionsCounter;
 
     public Service() {
-        this.agentSlaViolationsCounter = new HashMap<>();
-        this.agentServiceExecutionCounter = new HashMap<>();
     }
 
     public Service(String id) {
         this.id = id;
         this.category = new Category();
-        this.agentSlaViolationsCounter = new HashMap<>();
+    }
+
+    public void increaseExecutionsCounter() {
+        executionsCounter++;
     }
 
     public String getId() {
@@ -119,11 +117,15 @@ public class Service {
         this.category = category;
     }
 
-    public Map<String, Integer> getAgentSlaViolationsCounter() {
-        return agentSlaViolationsCounter;
+    public int getSlaViolationsCounter() {
+        return slaViolationsCounter;
     }
 
-    public Map<String, Integer> getAgentServiceExecutionCounter() {
-        return agentServiceExecutionCounter;
+    public int getExecutionsCounter() {
+        return executionsCounter;
+    }
+
+    public void setSlaViolationsCounter(int slaViolationsCounter) {
+        this.slaViolationsCounter = slaViolationsCounter;
     }
 }

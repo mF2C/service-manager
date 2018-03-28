@@ -40,4 +40,7 @@ public class Parameters {
     public static final String QOS = "qos/";
     public static final String CATEGORIZER = "categorizer/";
 
+    public static final int QOS_WARM_UP = 10;
+    public static final double EPSILON = 1.0;
+
 }

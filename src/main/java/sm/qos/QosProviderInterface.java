@@ -14,6 +14,10 @@ import org.springframework.web.bind.annotation.*;
 import sm.ServiceManager;
 import sm.elements.Response;
 import sm.elements.ServiceInstance;
+import sm.qos.elements.SlaViolation;
+import sm.utils.CimiInterface;
+
+import java.util.List;
 
 import static sm.utils.Parameters.*;
 
@@ -28,7 +32,9 @@ public class QosProviderInterface {
         Response response = new Response(service_instance_id, SERVICE_MANAGEMENT_ROOT + QOS + service_instance_id);
         try {
             if (ServiceManager.serviceInstances.containsKey(service_instance_id)) {
-                ServiceInstance serviceInstance = ServiceManager.qosProvider.check(ServiceManager.serviceInstances.get(service_instance_id));
+                ServiceInstance serviceInstance = ServiceManager.serviceInstances.get(service_instance_id);
+                List<SlaViolation> slaViolations = CimiInterface.getSlaViolations(serviceInstance.getAgreementId());
+                serviceInstance = ServiceManager.qosProvider.check(serviceInstance, slaViolations);
                 response.setMessage("Info - Checked QoS requirements");
                 response.setServiceInstance(serviceInstance);
                 response.setStatus(HttpStatus.OK.value());

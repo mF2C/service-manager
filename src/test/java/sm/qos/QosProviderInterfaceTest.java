@@ -39,7 +39,7 @@ public class QosProviderInterfaceTest {
     }
 
     @Test
-    public void checkQoS() {
+    public void checkQosInterface() {
         String rootUrl = SERVICE_MANAGEMENT_URL + SERVICE_MANAGEMENT_ROOT;
         Response response = restTemplate.postForObject(rootUrl, serviceInstanceTest, Response.class);
 

@@ -10,68 +10,55 @@ package sm.qos;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sm.ServiceManager;
 import sm.categorization.Categorizer;
 import sm.elements.Service;
 import sm.elements.ServiceInstance;
-import sm.qos.elements.Agent;
 import sm.qos.elements.Agreement;
 import sm.qos.elements.SlaViolation;
 import sm.qos.learning.ServiceQosProvider;
-import sm.utils.CimiInterface;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static sm.utils.Parameters.EPSILON;
+import static sm.utils.Parameters.QOS_WARM_UP;
+
 public class QosProvider {
     private static Logger log = LoggerFactory.getLogger(QosProvider.class);
-    private Map<ServiceInstance, ServiceQosProvider> qosProviderMap;
+    private Map<String, ServiceQosProvider> qosProviderMap;
     private Map<String, Agreement> agreementMap;
 
     public QosProvider() {
         qosProviderMap = new HashMap<>();
         agreementMap = new HashMap<>();
-        for (ServiceInstance serviceInstance : ServiceManager.serviceInstances.values())
-            qosProviderMap.put(serviceInstance, new ServiceQosProvider(serviceInstance.getAgents().size()));
     }
 
-    public ServiceInstance check(ServiceInstance serviceInstance) {
-        log.info("Checking QoS requirements @id-" + serviceInstance.getId());
+    public ServiceInstance check(ServiceInstance serviceInstance, List<SlaViolation> slaViolations) {
+        log.info("Checking QoS provisioning @id-" + serviceInstance.getId());
 
-        List<SlaViolation> slaViolations = CimiInterface.getSlaViolations(serviceInstance.getAgreementId());
-
+        if (!qosProviderMap.containsKey(serviceInstance.getId()))
+            qosProviderMap.put(serviceInstance.getId(), new ServiceQosProvider(serviceInstance.getAgents().size()));
         if (slaViolations != null) {
             Service service = Categorizer.services.get(serviceInstance.getServiceId());
-            increaseAgentServiceExecutionCounter(service, serviceInstance.getAgents());
-            increaseAgentSlaViolationCounter(service, slaViolations);
-            float[] slaViolationRatio = setViolationRatio(serviceInstance, service);
-            boolean[] acceptedAgents = qosProviderMap.get(serviceInstance).checkServiceInstance(slaViolationRatio);
+            service.increaseExecutionsCounter();
+            service.setSlaViolationsCounter(service.getSlaViolationsCounter() + slaViolations.size());
+            float slaViolationRatio = calculateSlaViolationRatio(service, serviceInstance);
+            boolean[] acceptedAgents;
+            if (service.getExecutionsCounter() < QOS_WARM_UP)
+                acceptedAgents = qosProviderMap.get(serviceInstance.getId()).checkServiceInstance(slaViolationRatio, true, 0);
+            else
+                acceptedAgents = qosProviderMap.get(serviceInstance.getId()).checkServiceInstance(slaViolationRatio, false, EPSILON);
             setAcceptedAgents(acceptedAgents, serviceInstance);
         }
 
         return serviceInstance;
     }
 
-    private void increaseAgentServiceExecutionCounter(Service service, List<Agent> agents) {
-        for (Agent agent : agents)
-            service.getAgentServiceExecutionCounter().merge(agent.getId(), 1, (oldValue, one) -> oldValue + one);
+    private float calculateSlaViolationRatio(Service service, ServiceInstance serviceInstance) {
+        return service.getSlaViolationsCounter() / (service.getExecutionsCounter() * serviceInstance.getAgents().size());
     }
 
-    private void increaseAgentSlaViolationCounter(Service service, List<SlaViolation> slaViolations) {
-        for (SlaViolation slaViolation : slaViolations) {
-            String agentId = agreementMap.get(slaViolation.getAgreementId()).getClient();
-            service.getAgentSlaViolationsCounter().merge(agentId, 1, (oldValue, one) -> oldValue + one);
-        }
-    }
-
-    private float[] setViolationRatio(ServiceInstance serviceInstance, Service service) {
-        float[] slaViolationRatio = new float[serviceInstance.getAgents().size()];
-        for (int i = 0; i < serviceInstance.getAgents().size(); i++)
-            slaViolationRatio[i] = (float) service.getAgentSlaViolationsCounter().get(serviceInstance.getAgents().get(i).getId())
-                    / service.getAgentServiceExecutionCounter().get(serviceInstance.getAgents().get(i).getId());
-        return slaViolationRatio;
-    }
 
     private void setAcceptedAgents(boolean acceptedAgents[], ServiceInstance serviceInstance) {
         for (int i = 0; i < serviceInstance.getAgents().size(); i++)

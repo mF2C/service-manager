@@ -25,11 +25,9 @@ import org.springframework.web.bind.annotation.*;
 import sm.categorization.Categorizer;
 import sm.categorization.CategorizerInterface;
 import sm.elements.Response;
-import sm.elements.Service;
 import sm.elements.ServiceInstance;
 import sm.qos.QosProvider;
 import sm.qos.QosProviderInterface;
-import sm.qos.elements.Agent;
 import sm.utils.CimiInterface;
 
 import java.util.LinkedHashMap;
@@ -64,17 +62,14 @@ public class ServiceManager {
     public static LinkedHashMap<String, ServiceInstance> serviceInstances;
     private final String URL = SERVICE_MANAGEMENT_ROOT;
 
-    public static void main(String[] args) {
-        SpringApplication.run(ServiceManager.class, args);
+    public ServiceManager(){
         serviceInstances = new LinkedHashMap<>();
         categorizer = new Categorizer();
         qosProvider = new QosProvider();
     }
 
-    private void initializeAgentSlaForService(Service service, ServiceInstance serviceInstance) {
-        for (Agent agent : serviceInstance.getAgents())
-            if (!service.getAgentSlaViolationsCounter().containsKey(agent.getId()))
-                service.getAgentSlaViolationsCounter().put(agent.getId(), 0);
+    public static void main(String[] args) {
+        SpringApplication.run(ServiceManager.class, args);
     }
 
     @RequestMapping(method = RequestMethod.GET)
@@ -93,7 +88,6 @@ public class ServiceManager {
                 log.info("Service instance submitted @id-" + serviceInstance.getId());
                 response.setMessage("Info - service instance submitted");
                 response.setStatus(HttpStatus.CREATED.value());
-                initializeAgentSlaForService(Categorizer.services.get(serviceInstance.getServiceId()), serviceInstance);
             } else {
                 response.setMessage("Error - a service instance with the same id already exists");
                 response.setStatus(HttpStatus.CONFLICT.value());
