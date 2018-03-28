@@ -43,6 +43,7 @@ public class CimiInterface {
     }
 
     public boolean checkCimiConnection() {
+        headers = new HttpHeaders();
         HttpEntity<String> entity = new HttpEntity<>(headers);
         try {
             restTemplate.exchange(rootUrl + CIMI_ENDPOINTS, HttpMethod.GET, entity, String.class);

@@ -1,15 +1,9 @@
 {
     "userTemplate": {
-        "href": "user-template/auto",
-        "password": "E9E633097AB9CEB3E48EC3F70EE2BEBA41D05D5420EFEE5DA85F97D97005727587FDA33EF4FF2322088F4C79E8133CC9CD9F3512F4D3A303CBDB5BC585415A00",
-        "emailAddress": "mf2c-developers@lists.atosresearch.eu",
-        "roles": "",
-        "username": "service_manager_user",
-        "firstName": "Test",
-        "state": "ACTIVE",
-        "organization": "mF2C",
-        "lastName": "User",
-        "resourceURI": "http://sixsq.com/slipstream/1/User",
-        "isSuperUser": false
+        "href": "user-template/self-registration",
+        "password": "testpassword",
+        "passwordRepeat" : "testpassword",
+        "emailAddress": "f.carpio@tu-bs.de",
+        "username": "testuser"
     }
 }

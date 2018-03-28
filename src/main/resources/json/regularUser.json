@@ -1,7 +1,7 @@
 {
 	"sessionTemplate": {
 		"href": "session-template/internal",
-		"username": "service_manager_user",
+		"username": "testuser",
 		"password": "testpassword"
 	}
 }

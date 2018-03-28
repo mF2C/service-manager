@@ -62,7 +62,7 @@ public class CategorizerInterfaceTest {
         assertThat(response.getService(), hasProperty("created", is(serviceTest.getCreated())));
         assertThat(response.getService(), hasProperty("updated", is(serviceTest.getUpdated())));
         assertThat(response.getService(), hasProperty("exec", is(serviceTest.getExec())));
-        assertThat(response.getService(), hasProperty("exec_type", is(serviceTest.getExecType())));
+        assertThat(response.getService(), hasProperty("execType", is(serviceTest.getExecType())));
         assertThat(response.getService(), hasProperty("resourceURI", is(serviceTest.getResourceURI())));
         assertThat(response.getService().getCategory(), hasProperty("cpu", is(serviceTest.getCategory().getCpu())));
         assertThat(response.getService().getCategory(), hasProperty("memory", is(serviceTest.getCategory().getMemory())));
