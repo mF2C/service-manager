@@ -19,7 +19,7 @@ import static org.hamcrest.CoreMatchers.is;
 public class QoSProviderTest {
 
     private ServiceInstance serviceInstanceTest;
-    private final int EXECUTIONS = 11;
+    private final int EXECUTIONS = 10;
 
     public QoSProviderTest() {
 
@@ -52,7 +52,14 @@ public class QoSProviderTest {
             slaViolations.add(slaViolation);
         }
 
-        // Check QoS provisioning
+        // Check QoS provisioning during training
+        for (int i = 0; i < EXECUTIONS - 1; i++) {
+            ServiceInstance serviceInstance = ServiceManager.qosProvider.check(serviceInstanceTest, slaViolations);
+            for (int a = 0; a < serviceInstance.getAgents().size(); a++)
+                assertThat(serviceInstance.getAgents().get(a).isAllow(), is(false));
+        }
+
+        // Check QoS provisioning during evaluation
         for (int i = 0; i < EXECUTIONS; i++) {
             ServiceInstance serviceInstance = ServiceManager.qosProvider.check(serviceInstanceTest, slaViolations);
             for (int a = 0; a < serviceInstance.getAgents().size(); a++)

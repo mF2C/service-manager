@@ -10,6 +10,14 @@
   "agents": [
     {
       "agent_id": "agent1",
+      "port": 1,
+      "container_id": "container-id",
+      "status": "active",
+      "num_cpus": 2,
+      "allow": true
+    },
+    {
+      "agent_id": "agent2",
       "port": 2,
       "container_id": "container-id",
       "status": "active",

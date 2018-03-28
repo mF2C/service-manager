@@ -95,15 +95,13 @@ public class ServiceQosProvider {
 
     private boolean[] evaluateNetwork(float slaViolationRatio, double epsilon){
 
-        boolean[] allowedAgents = new boolean[]{};
+        boolean[] output = new boolean[allowedAgents.length];
         network.setEpsilon(epsilon);
-        boolean[] outputBuffer = new boolean[]{};
-        System.arraycopy(allowedAgents, 0, outputBuffer, 0, allowedAgents.length);
 
-        int action = network.getAction(createINDArray(timeStep, slaViolationRatio), getActionMask(outputBuffer));
-        allowedAgents = modifyOutput(outputBuffer, action);
+        int action = network.getAction(createINDArray(timeStep, slaViolationRatio), getActionMask(output));
+        output = modifyOutput(output, action);
 
-        return allowedAgents;
+        return output;
     }
 
     private INDArray createINDArray(int timeStep, float inputBuffer) {

@@ -21,9 +21,6 @@ public class Parameters {
     public static final String USER = "/user";
     public static final String SESSION = "/session";
 
-    public static final String USER_MANAGEMENT = "user-management/";
-    public static final String SHARING_MODEL = "sharingmodel/";
-
     public static final String SLA_MANAGEMENT = "sla-management/";
     public static final String AGREEMENTS = "agreements/";
 
@@ -40,7 +37,7 @@ public class Parameters {
     public static final String QOS = "qos/";
     public static final String CATEGORIZER = "categorizer/";
 
-    public static final int QOS_WARM_UP = 10;
+    public static final int QOS_WARM_UP = 100;
     public static final double EPSILON = 1.0;
 
 }

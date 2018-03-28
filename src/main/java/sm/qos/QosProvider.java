@@ -56,7 +56,10 @@ public class QosProvider {
     }
 
     private float calculateSlaViolationRatio(Service service, ServiceInstance serviceInstance) {
-        return service.getSlaViolationsCounter() / (service.getExecutionsCounter() * serviceInstance.getAgents().size());
+        float ratio = service.getSlaViolationsCounter() / (service.getExecutionsCounter() * serviceInstance.getAgents().size());
+        if (ratio > 1)
+            ratio = 1;
+        return ratio;
     }
 
 
