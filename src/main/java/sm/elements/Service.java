@@ -18,6 +18,7 @@ import sm.categorization.elements.Category;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Service {
 
+    @JsonIgnore
     private String id;
     private String name;
     private String description;
@@ -34,11 +35,6 @@ public class Service {
     private int executionsCounter;
 
     public Service() {
-    }
-
-    public Service(String id) {
-        this.id = id;
-        this.category = new Category();
     }
 
     public void increaseExecutionsCounter() {

@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import sm.categorization.Categorizer;
 import sm.elements.Service;
 import sm.elements.ServiceInstance;
-import sm.qos.elements.Agreement;
 import sm.qos.elements.SlaViolation;
 import sm.qos.learning.ServiceQosProvider;
 
@@ -27,15 +26,12 @@ import static sm.utils.Parameters.QOS_WARM_UP;
 public class QosProvider {
     private static Logger log = LoggerFactory.getLogger(QosProvider.class);
     private Map<String, ServiceQosProvider> qosProviderMap;
-    private Map<String, Agreement> agreementMap;
 
     public QosProvider() {
         qosProviderMap = new HashMap<>();
-        agreementMap = new HashMap<>();
     }
 
     public ServiceInstance check(ServiceInstance serviceInstance, List<SlaViolation> slaViolations) {
-        log.info("Checking QoS provisioning @id-" + serviceInstance.getId());
 
         if (!qosProviderMap.containsKey(serviceInstance.getId()))
             qosProviderMap.put(serviceInstance.getId(), new ServiceQosProvider(serviceInstance.getAgents().size()));

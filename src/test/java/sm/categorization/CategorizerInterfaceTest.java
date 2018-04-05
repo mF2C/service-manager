@@ -53,10 +53,9 @@ public class CategorizerInterfaceTest {
     @Test
     public void _2_getService() {
 
-        Response response = restTemplate.getForObject(url + serviceTest.getId(), Response.class);
+        Response response = restTemplate.getForObject(url + serviceTest.getName(), Response.class);
 
         assertThat(response, hasProperty("status", is(HttpStatus.OK.value())));
-        assertThat(response, hasProperty("id", is(serviceTest.getId())));
         assertThat(response.getService(), hasProperty("name", is(serviceTest.getName())));
         assertThat(response.getService(), hasProperty("description", is(serviceTest.getDescription())));
         assertThat(response.getService(), hasProperty("created", is(serviceTest.getCreated())));
@@ -77,9 +76,9 @@ public class CategorizerInterfaceTest {
     @Test
     public void _3_deleteService() {
 
-        restTemplate.delete(url + serviceTest.getId());
+        restTemplate.delete(url + serviceTest.getName());
 
-        Response response = restTemplate.getForObject(url + serviceTest.getId(), Response.class);
+        Response response = restTemplate.getForObject(url + serviceTest.getName(), Response.class);
 
         assertThat(response, hasProperty("status", is(HttpStatus.NOT_FOUND.value())));
     }

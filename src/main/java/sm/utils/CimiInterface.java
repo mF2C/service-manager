@@ -126,22 +126,24 @@ public class CimiInterface {
         }
     }
 
-    public static int postService(Service service) {
+    public static String postService(Service service) {
 
         headers = new HttpHeaders();
         headers.add("Cookie", cookie);
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<Service> entity = new HttpEntity<>(service, headers);
-
+        String id = null;
         try {
-            ResponseEntity<String> responseEntity = restTemplate.exchange(rootUrl + SERVICE, HttpMethod.POST, entity, String.class);
-            if (responseEntity.getStatusCodeValue() == HttpStatus.CREATED.value())
+            ResponseEntity<Map> responseEntity = restTemplate.exchange(rootUrl + SERVICE, HttpMethod.POST, entity, Map.class);
+            if (responseEntity.getStatusCodeValue() == HttpStatus.CREATED.value()) {
                 log.info("service submitted");
-            return responseEntity.getStatusCodeValue();
+                Map<String, String> body = responseEntity.getBody();
+                id = body.get("resource-id");
+            }
         } catch (Exception e) {
             log.error("No connection to CIMI");
-            return -1;
         }
+        return id;
     }
 
     public static List<Service> getServices() {

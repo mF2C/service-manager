@@ -30,11 +30,11 @@ public class CategorizerInterface {
     public @ResponseBody
     Response submit(@RequestBody Service service) {
 
-        Response response = new Response(service.getId(), URL + service.getId());
+        Response response = new Response(service.getName(), URL + service.getName());
         try {
             Service serviceCategorized = ServiceManager.categorizer.submit(service);
             if (serviceCategorized != null) {
-                log.info("Service submitted @id-" + serviceCategorized.getId());
+                log.info("Service submitted: " + serviceCategorized.getName());
                 response.setMessage("Info - Service categorized");
                 response.setService(serviceCategorized);
                 response.setStatus(HttpStatus.CREATED.value());
@@ -78,7 +78,7 @@ public class CategorizerInterface {
         try {
             if (Categorizer.services.containsKey(service_id)) {
                 Categorizer.services.remove(service_id);
-                log.info("Service deleted @id-" + service_id);
+                log.info("Service deleted: " + service_id);
                 response.setMessage("Info - service instance deleted");
                 response.setStatus(HttpStatus.OK.value());
             } else {

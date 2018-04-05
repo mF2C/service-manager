@@ -1,6 +1,5 @@
 [
   {
-    "id": "0",
     "name": "hello-world",
     "description": "Hello World Service",
     "resourceURI": "/hello-world",
@@ -17,7 +16,6 @@
     }
   },
   {
-    "id": "1",
     "name": "use-case-1",
     "description": "Emergency Management System",
     "resourceURI": "/uc1",
@@ -34,7 +32,6 @@
     }
   },
   {
-    "id": "2",
     "name": "use-case-2",
     "description": "Smart Boats",
     "resourceURI": "/uc2",
@@ -51,7 +48,6 @@
     }
   },
   {
-    "id": "3",
     "name": "use-case-3",
     "description": "Airport Location System",
     "resourceURI": "/uc3",

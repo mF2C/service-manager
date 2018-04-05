@@ -36,14 +36,16 @@ public class Categorizer {
         };
         InputStream inputStream = TypeReference.class.getResourceAsStream("/json/services.json");
         ObjectMapper mapper = new ObjectMapper();
-
+        String id;
         try {
             log.info("Reading service definition from JSON file");
             List<Service> rServices = mapper.readValue(inputStream, typeReference);
             for (Service s : rServices) {
-                services.put(s.getId(), s);
-                if (CimiInterface.isIsConnected())
-                    CimiInterface.postService(s);
+                services.put(s.getName(), s);
+                if (CimiInterface.isIsConnected()) {
+                    id = CimiInterface.postService(s);
+                    s.setId(id);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -52,21 +54,19 @@ public class Categorizer {
 
     public Service submit(Service service) {
         Service serviceCategorized = null;
-        if (services.containsKey(service.getId())) {
-            log.info("The service was already categorized @id-" + service.getId());
-            serviceCategorized = services.get(service.getId());
+        if (services.containsKey(service.getName())) {
+            log.info("The service was already categorized: " + service.getName());
+            serviceCategorized = services.get(service.getName());
         } else if (checkService(service)) {
             serviceCategorized = service;
-            services.put(serviceCategorized.getId(), serviceCategorized);
-            log.info("Service submitted @id-" + service.getId());
-        } else {
-            log.info("Service is not defined @id-" + service.getId());
+            services.put(serviceCategorized.getName(), serviceCategorized);
+            log.info("Service submitted: " + service.getName());
         }
         return serviceCategorized;
     }
 
     private boolean checkService(Service service) {
-        return service.getId() != null && service.getCategory() != null;
+        return service.getName() != null && service.getCategory() != null;
     }
 
 

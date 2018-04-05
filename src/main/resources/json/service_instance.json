@@ -1,9 +1,9 @@
 {
-  "id": "id",
+  "id":"",
   "name": "hello-world-instance",
   "description": "creates a hello-world service instance",
   "resourceURI": "/hello-world-instance",
-  "service_id": "0",
+  "service_id": "",
   "agreement_id": "agreement-id",
   "user_id": "user-id",
   "status": "active",

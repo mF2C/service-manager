@@ -25,7 +25,6 @@ import java.util.Arrays;
 public class ServiceQosProvider {
 
     private DeepQ network;
-    private float slaViolationRatio;
     private boolean[] allowedAgents;
     private int timeStep;
 
@@ -64,8 +63,6 @@ public class ServiceQosProvider {
     }
 
     public boolean[] checkServiceInstance(float slaViolationRatio, boolean isWarmUp, double epsilon) {
-        this.slaViolationRatio = slaViolationRatio;
-
         if (isWarmUp)
             trainNetwork(slaViolationRatio);
         else

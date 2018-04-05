@@ -85,7 +85,7 @@ public class ServiceManager {
         try {
             if (!serviceInstances.containsKey(serviceInstance.getId())) {
                 serviceInstances.put(serviceInstance.getId(), serviceInstance);
-                log.info("Service instance submitted @id-" + serviceInstance.getId());
+                log.info("Service instance submitted: " + serviceInstance.getId());
                 response.setMessage("Info - service instance submitted");
                 response.setStatus(HttpStatus.CREATED.value());
             } else {
@@ -128,7 +128,7 @@ public class ServiceManager {
         try {
             if (serviceInstances.containsKey(service_instance_id)) {
                 serviceInstances.remove(service_instance_id);
-                log.info("Service instance deleted @id-" + service_instance_id);
+                log.info("Service instance deleted: " + service_instance_id);
                 response.setMessage("Info - service instance deleted");
                 response.setStatus(HttpStatus.OK.value());
             } else {
