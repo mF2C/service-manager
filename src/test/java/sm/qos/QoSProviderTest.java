@@ -5,6 +5,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import sm.ServiceManager;
+import sm.categorization.Categorizer;
+import sm.elements.Service;
 import sm.elements.ServiceInstance;
 import sm.qos.elements.SlaViolation;
 
@@ -13,8 +15,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class QoSProviderTest {
 
@@ -38,7 +40,11 @@ public class QoSProviderTest {
 
     @Test
     public void checkQos() {
+
         // Submit the service instance
+        List<Service> services = new ArrayList<>(Categorizer.services.values());
+        String serviceId = services.get(0).getId();
+        serviceInstanceTest.setServiceId(serviceId);
         ServiceManager.serviceInstances.put(serviceInstanceTest.getId(), serviceInstanceTest);
 
         // Create Sla Violations

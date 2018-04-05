@@ -1,5 +1,5 @@
 {
-  "id":"",
+  "id":"id",
   "name": "hello-world-instance",
   "description": "creates a hello-world service instance",
   "resourceURI": "/hello-world-instance",

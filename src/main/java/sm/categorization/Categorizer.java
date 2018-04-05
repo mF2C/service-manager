@@ -25,6 +25,7 @@ public class Categorizer {
 
     private static Logger log = LoggerFactory.getLogger(Categorizer.class);
     public static Map<String, Service> services;
+    private int idGenerator;
 
     public Categorizer() {
         services = new HashMap<>();
@@ -41,11 +42,14 @@ public class Categorizer {
             log.info("Reading service definition from JSON file");
             List<Service> rServices = mapper.readValue(inputStream, typeReference);
             for (Service s : rServices) {
-                services.put(s.getName(), s);
                 if (CimiInterface.isIsConnected()) {
                     id = CimiInterface.postService(s);
                     s.setId(id);
+                } else {
+                    idGenerator++;
+                    s.setId(String.valueOf(idGenerator));
                 }
+                services.put(s.getId(), s);
             }
         } catch (IOException e) {
             e.printStackTrace();

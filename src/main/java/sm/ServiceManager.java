@@ -64,6 +64,7 @@ public class ServiceManager {
 
     public ServiceManager(){
         serviceInstances = new LinkedHashMap<>();
+        new CimiInterface();
         categorizer = new Categorizer();
         qosProvider = new QosProvider();
     }
