@@ -27,6 +27,8 @@ public class Service {
     private String exec;
     @JsonProperty("exec_type")
     private String execType;
+    @JsonProperty("exec_ports")
+    private String[] execPorts;
     private String resourceURI;
     private Category category;
     @JsonIgnore
@@ -95,6 +97,14 @@ public class Service {
 
     public void setExecType(String execType) {
         this.execType = execType;
+    }
+
+    public String[] getExecPorts() {
+        return execPorts;
+    }
+
+    public void setExecPorts(String[] execPorts) {
+        this.execPorts = execPorts;
     }
 
     public String getResourceURI() {

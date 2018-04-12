@@ -62,6 +62,7 @@ public class CategorizerInterfaceTest {
         assertThat(response.getService(), hasProperty("updated", is(serviceTest.getUpdated())));
         assertThat(response.getService(), hasProperty("exec", is(serviceTest.getExec())));
         assertThat(response.getService(), hasProperty("execType", is(serviceTest.getExecType())));
+        assertThat(response.getService(), hasProperty("execPorts", is(serviceTest.getExecPorts())));
         assertThat(response.getService(), hasProperty("resourceURI", is(serviceTest.getResourceURI())));
         assertThat(response.getService().getCategory(), hasProperty("cpu", is(serviceTest.getCategory().getCpu())));
         assertThat(response.getService().getCategory(), hasProperty("memory", is(serviceTest.getCategory().getMemory())));
@@ -70,7 +71,13 @@ public class CategorizerInterfaceTest {
         assertThat(response.getService().getCategory(), hasProperty("temperature", is(serviceTest.getCategory().isTemperature())));
         assertThat(response.getService().getCategory(), hasProperty("jammer", is(serviceTest.getCategory().isJammer())));
         assertThat(response.getService().getCategory(), hasProperty("location", is(serviceTest.getCategory().isLocation())));
-
+        assertThat(response.getService().getCategory(), hasProperty("batteryLevel", is(serviceTest.getCategory().isBatteryLevel())));
+        assertThat(response.getService().getCategory(), hasProperty("doorSensor", is(serviceTest.getCategory().isDoorSensor())));
+        assertThat(response.getService().getCategory(), hasProperty("pumpSensor", is(serviceTest.getCategory().isPumpSensor())));
+        assertThat(response.getService().getCategory(), hasProperty("accelerometer", is(serviceTest.getCategory().isAccelerometer())));
+        assertThat(response.getService().getCategory(), hasProperty("humidity", is(serviceTest.getCategory().isHumidity())));
+        assertThat(response.getService().getCategory(), hasProperty("airPressure", is(serviceTest.getCategory().isAirPressure())));
+        assertThat(response.getService().getCategory(), hasProperty("irMotion", is(serviceTest.getCategory().isIrMotion())));
     }
 
     @Test

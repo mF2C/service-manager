@@ -10,6 +10,7 @@ package sm.categorization.elements;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -22,6 +23,18 @@ public class Category {
     private boolean temperature;
     private boolean jammer;
     private boolean location;
+    @JsonProperty("battery_level")
+    private boolean batteryLevel;
+    @JsonProperty("door_sensor")
+    private boolean doorSensor;
+    @JsonProperty("pump_sensor")
+    private boolean pumpSensor;
+    private boolean accelerometer;
+    private boolean humidity;
+    @JsonProperty("air_pressure")
+    private boolean airPressure;
+    @JsonProperty("ir_motion")
+    private boolean irMotion;
 
     public Category() {
     }
@@ -80,5 +93,61 @@ public class Category {
 
     public void setLocation(boolean location) {
         this.location = location;
+    }
+
+    public boolean isBatteryLevel() {
+        return batteryLevel;
+    }
+
+    public void setBatteryLevel(boolean batteryLevel) {
+        this.batteryLevel = batteryLevel;
+    }
+
+    public boolean isDoorSensor() {
+        return doorSensor;
+    }
+
+    public void setDoorSensor(boolean doorSensor) {
+        this.doorSensor = doorSensor;
+    }
+
+    public boolean isPumpSensor() {
+        return pumpSensor;
+    }
+
+    public void setPumpSensor(boolean pumpSensor) {
+        this.pumpSensor = pumpSensor;
+    }
+
+    public boolean isAccelerometer() {
+        return accelerometer;
+    }
+
+    public void setAccelerometer(boolean accelerometer) {
+        this.accelerometer = accelerometer;
+    }
+
+    public boolean isHumidity() {
+        return humidity;
+    }
+
+    public void setHumidity(boolean humidity) {
+        this.humidity = humidity;
+    }
+
+    public boolean isAirPressure() {
+        return airPressure;
+    }
+
+    public void setAirPressure(boolean airPressure) {
+        this.airPressure = airPressure;
+    }
+
+    public boolean isIrMotion() {
+        return irMotion;
+    }
+
+    public void setIrMotion(boolean irMotion) {
+        this.irMotion = irMotion;
     }
 }

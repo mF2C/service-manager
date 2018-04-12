@@ -117,12 +117,12 @@ Info - Welcome to the mF2C Service Manager!
 #### Service definition example
 ```
  {
-      "id": "0",
       "name": "hello-world",
       "description": "Hello World Service",
       "resourceURI": "/hello-world",
       "exec": "hello-world",
       "exec_type": "docker",
+      "exec_ports": ["8080", "8081"],
       "category": {
         "cpu": "low",
         "memory": "low",
@@ -130,7 +130,14 @@ Info - Welcome to the mF2C Service Manager!
         "inclinometer": false,
         "temperature": false,
         "jammer": false,
-        "location": false
+        "location": false,
+        "battery_level": false,
+        "door_sensor": false,
+        "pump_sensor": false,
+        "accelerometer": false,
+        "humidity": false,
+        "air_pressure": false,
+        "ir_motion": false
       }
     }
 ```
