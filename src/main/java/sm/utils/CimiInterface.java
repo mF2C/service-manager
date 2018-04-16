@@ -32,22 +32,23 @@ public class CimiInterface {
     private static RestTemplate restTemplate = new RestTemplate();
     private static String rootUrl = CIMI_IP + CIMI_PORT + CIMI_ROOT;
     private static String cookie;
-    private static boolean isConnected;
+    private static boolean connected;
 
-    public CimiInterface() {
-        if (checkCimiConnection()) {
+    public static boolean connectToCimi() {
+        if (checkCimiInterface()) {
             if (checkUser() != HttpStatus.OK.value())
                 registerUser();
             startSession();
-        }
+            return true;
+        } else return false;
     }
 
-    public boolean checkCimiConnection() {
+    private static boolean checkCimiInterface() {
         headers = new HttpHeaders();
         HttpEntity<String> entity = new HttpEntity<>(headers);
         try {
             restTemplate.exchange(rootUrl + CIMI_ENDPOINTS, HttpMethod.GET, entity, String.class);
-            isConnected = true;
+            connected = true;
             return true;
         } catch (Exception e) {
             log.error("No connection to CIMI");
@@ -186,7 +187,7 @@ public class CimiInterface {
         }
     }
 
-    public static boolean isIsConnected() {
-        return isConnected;
+    public static boolean isConnected() {
+        return connected;
     }
 }

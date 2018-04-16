@@ -39,7 +39,7 @@ public class CategorizerInterface {
                 response.setService(serviceCategorized);
                 response.setStatus(HttpStatus.CREATED.value());
             } else {
-                response.setMessage("Info - Service has a wrong format");
+                response.setMessage("Info - Service has a wrong format or CIMI is not running");
                 response.setStatus(HttpStatus.NOT_FOUND.value());
             }
         } catch (Exception e) {

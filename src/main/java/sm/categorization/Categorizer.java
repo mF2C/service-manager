@@ -25,54 +25,83 @@ public class Categorizer {
 
     private static Logger log = LoggerFactory.getLogger(Categorizer.class);
     public static Map<String, Service> services;
-    private int idGenerator;
 
     public Categorizer() {
         services = new HashMap<>();
-        this.readServicesFromJSON();
     }
 
-    private void readServicesFromJSON() {
+    // To be removed
+    public void postOfflineServicesToCimi() {
+
+        List<Service> rServices = readServicesFromJSON();
+        if (rServices != null)
+            for (Service service : rServices) {
+                String id = CimiInterface.postService(service);
+                service.setId(id);
+                services.put(service.getId(), service);
+            }
+    }
+
+    // To be removed
+    private List<Service> readServicesFromJSON() {
         TypeReference<List<Service>> typeReference = new TypeReference<List<Service>>() {
         };
         InputStream inputStream = TypeReference.class.getResourceAsStream("/json/services.json");
         ObjectMapper mapper = new ObjectMapper();
-        String id;
+        List<Service> rServices = null;
         try {
             log.info("Reading service definition from JSON file");
-            List<Service> rServices = mapper.readValue(inputStream, typeReference);
-            for (Service s : rServices) {
-                if (CimiInterface.isIsConnected()) {
-                    id = CimiInterface.postService(s);
-                    s.setId(id);
-                } else {
-                    idGenerator++;
-                    s.setId(String.valueOf(idGenerator));
-                }
-                services.put(s.getId(), s);
-            }
+            rServices = mapper.readValue(inputStream, typeReference);
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return rServices;
+    }
+
+    public void getServicesFromCimi() {
+        List<Service> cimiServices = CimiInterface.getServices();
+        if (cimiServices != null)
+            for (Service s : cimiServices)
+                if (!services.containsKey(s.getId()))
+                    services.put(s.getId(), s);
+    }
+
+    private void postServiceToCimi(Service service) {
+        String id = CimiInterface.postService(service);
+        service.setId(id);
+        services.put(id, service);
     }
 
     public Service submit(Service service) {
-        Service serviceCategorized = null;
-        if (services.containsKey(service.getName())) {
-            log.info("The service was already categorized: " + service.getName());
-            serviceCategorized = services.get(service.getName());
+
+        if (services.containsKey(service.getId())) {
+            log.info("The service was already categorized: " + service.getId());
+            return services.get(service.getId());
         } else if (checkService(service)) {
-            serviceCategorized = service;
-            services.put(serviceCategorized.getName(), serviceCategorized);
-            log.info("Service submitted: " + service.getName());
-        }
-        return serviceCategorized;
+            if (CimiInterface.isConnected()) {
+                postServiceToCimi(service);
+                log.info("Service submitted: " + service.getId());
+                return service;
+            } else return null;
+        } else
+            return null;
     }
 
     private boolean checkService(Service service) {
-        return service.getName() != null && service.getCategory() != null;
-    }
 
+        if (service.getName() == null)
+            return false;
+        if (service.getDescription() == null)
+            return false;
+        if (service.getExec() == null)
+            return false;
+        if (service.getExecPorts() == null)
+            return false;
+        if (service.getCategory() == null)
+            return false;
+
+        return true;
+    }
 
 }
 

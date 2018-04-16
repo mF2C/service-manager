@@ -13,7 +13,7 @@ public class Parameters {
     /***********************************
      ******** CIMI resources ***********
      ***********************************/
-
+    public static final int CIMI_RECONNECTION_TIME = 10;
     public static final String CIMI_IP = "https://localhost";
     public static final String CIMI_PORT = "";
     public static final String CIMI_ENDPOINTS = "/cloud-entry-point";

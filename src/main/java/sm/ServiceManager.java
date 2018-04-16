@@ -31,7 +31,11 @@ import sm.qos.QosProviderInterface;
 import sm.utils.CimiInterface;
 
 import java.util.LinkedHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
+import static sm.utils.Parameters.CIMI_RECONNECTION_TIME;
 import static sm.utils.Parameters.SERVICE_INSTANCE_ID;
 import static sm.utils.Parameters.SERVICE_MANAGEMENT_ROOT;
 
@@ -64,9 +68,19 @@ public class ServiceManager {
 
     public ServiceManager(){
         serviceInstances = new LinkedHashMap<>();
-        new CimiInterface();
+        CimiInterface.connectToCimi();
         categorizer = new Categorizer();
         qosProvider = new QosProvider();
+        if(!CimiInterface.isConnected()){
+            ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+            executor.scheduleWithFixedDelay(CimiInterface::connectToCimi, 1, CIMI_RECONNECTION_TIME, TimeUnit.SECONDS);
+            if (CimiInterface.isConnected()){
+                Executors.newScheduledThreadPool(0);
+                executor.shutdown();
+                categorizer.postOfflineServicesToCimi(); // To be removed
+                categorizer.getServicesFromCimi();
+            }
+        }
     }
 
     public static void main(String[] args) {
