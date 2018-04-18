@@ -18,7 +18,7 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.Assert.assertThat;
-import static sm.utils.Parameters.*;
+import static sm.Parameters.*;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CategorizerInterfaceTest {

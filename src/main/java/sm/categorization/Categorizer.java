@@ -12,11 +12,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sm.cimi.CimiInterface;
 import sm.elements.Service;
-import sm.utils.CimiInterface;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,8 +39,16 @@ public class Categorizer {
             for (Service service : rServices) {
                 String id = CimiInterface.postService(service);
                 service.setId(id);
-                services.put(service.getId(), service);
+                services.put(service.getName(), service);
             }
+    }
+
+    public static Service getServiceById(String id) {
+        List<Service> servicesList = new ArrayList<>(services.values());
+        for (Service service : servicesList)
+            if (service.getId().equals(id))
+                return service;
+        return null;
     }
 
     // To be removed
@@ -62,25 +71,25 @@ public class Categorizer {
         List<Service> cimiServices = CimiInterface.getServices();
         if (cimiServices != null)
             for (Service s : cimiServices)
-                if (!services.containsKey(s.getId()))
-                    services.put(s.getId(), s);
+                if (!services.containsKey(s.getName()))
+                    services.put(s.getName(), s);
     }
 
     private void postServiceToCimi(Service service) {
         String id = CimiInterface.postService(service);
         service.setId(id);
-        services.put(id, service);
+        services.put(service.getName(), service);
     }
 
     public Service submit(Service service) {
 
-        if (services.containsKey(service.getId())) {
-            log.info("The service was already categorized: " + service.getId());
-            return services.get(service.getId());
+        if (services.containsKey(service.getName())) {
+            log.info("The service was already categorized: " + service.getName());
+            return services.get(service.getName());
         } else if (checkService(service)) {
-            if (CimiInterface.isConnected()) {
+            if (CimiInterface.isSessionStarted()) {
                 postServiceToCimi(service);
-                log.info("Service submitted: " + service.getId());
+                log.info("Service submitted: " + service.getName());
                 return service;
             } else return null;
         } else

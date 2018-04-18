@@ -20,8 +20,8 @@ import java.io.InputStream;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.Assert.assertThat;
-import static sm.utils.Parameters.SERVICE_MANAGEMENT_ROOT;
-import static sm.utils.Parameters.SERVICE_MANAGEMENT_URL;
+import static sm.Parameters.SERVICE_MANAGEMENT_ROOT;
+import static sm.Parameters.SERVICE_MANAGEMENT_URL;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ServiceManager.class)

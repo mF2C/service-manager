@@ -14,7 +14,7 @@ import java.io.InputStream;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.Assert.assertThat;
-import static sm.utils.Parameters.*;
+import static sm.Parameters.*;
 
 public class QosProviderInterfaceTest {
 

@@ -17,7 +17,7 @@ import sm.elements.Service;
 import sm.ServiceManager;
 import sm.elements.Response;
 
-import static sm.utils.Parameters.*;
+import static sm.Parameters.*;
 
 @RestController
 @RequestMapping(CATEGORIZER)

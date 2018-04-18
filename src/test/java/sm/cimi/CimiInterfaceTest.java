@@ -1,4 +1,4 @@
-package sm.utils;
+package sm.cimi;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,7 +13,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -21,24 +21,19 @@ import static org.junit.Assert.assertTrue;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CimiInterfaceTest {
 
-    @Test
-    public void _1_registerUser() {
-        assertThat(CimiInterface.registerUser(), is(HttpStatus.CREATED.value()));
-    }
+    private final String KEY = "credential/582b5671-ed0c-45fe-b042-8cc3d33f50fe";
+    private final String SECRET = "yGmksA.9W6UWV.xYugWG.jbjd7D.Cxb6ih";
+
 
     @Test
-    public void _2_checkUser() {
-        assertThat(CimiInterface.checkUser(), is(HttpStatus.OK.value()));
-    }
-
-    @Test
-    public void _3_startSession() {
+    public void _1_connectToCimi() {
+        SessionTemplate sessionTemplate = new SessionTemplate(KEY, SECRET);
+        new CimiInterface(new CimiSession(sessionTemplate));
         assertThat(CimiInterface.startSession(), is(HttpStatus.CREATED.value()));
     }
 
     @Test
-    public void _4_postService() {
-        assertThat(CimiInterface.startSession(), is(HttpStatus.CREATED.value()));
+    public void _2_postService() {
 
         TypeReference<List<Service>> typeReference = new TypeReference<List<Service>>() {
         };
@@ -55,8 +50,7 @@ public class CimiInterfaceTest {
     }
 
     @Test
-    public void _5_getServices() {
-        assertThat(CimiInterface.startSession(), is(HttpStatus.CREATED.value()));
+    public void _3_getServices() {
         List<Service> services = CimiInterface.getServices();
         assertTrue(services.size() > 0);
     }

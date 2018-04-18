@@ -15,11 +15,11 @@ import sm.ServiceManager;
 import sm.elements.Response;
 import sm.elements.ServiceInstance;
 import sm.qos.elements.SlaViolation;
-import sm.utils.CimiInterface;
+import sm.cimi.CimiInterface;
 
 import java.util.List;
 
-import static sm.utils.Parameters.*;
+import static sm.Parameters.*;
 
 @RestController
 @RequestMapping(QOS)

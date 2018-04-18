@@ -6,7 +6,7 @@
  *
  * @author Francisco Carpio - TUBS
  */
-package sm.utils;
+package sm;
 
 public class Parameters {
 
@@ -16,9 +16,7 @@ public class Parameters {
     public static final int CIMI_RECONNECTION_TIME = 10;
     public static final String CIMI_IP = "https://localhost";
     public static final String CIMI_PORT = "";
-    public static final String CIMI_ENDPOINTS = "/cloud-entry-point";
     public static final String CIMI_ROOT = "/api";
-    public static final String USER = "/user";
     public static final String SESSION = "/session";
 
     public static final String SLA_MANAGEMENT = "sla-management/";

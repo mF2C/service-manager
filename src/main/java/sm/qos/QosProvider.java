@@ -20,8 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static sm.utils.Parameters.EPSILON;
-import static sm.utils.Parameters.QOS_WARM_UP;
+import static sm.Parameters.EPSILON;
+import static sm.Parameters.QOS_WARM_UP;
 
 public class QosProvider {
     private static Logger log = LoggerFactory.getLogger(QosProvider.class);
@@ -33,21 +33,22 @@ public class QosProvider {
 
     public ServiceInstance check(ServiceInstance serviceInstance, List<SlaViolation> slaViolations) {
 
-        if (!qosProviderMap.containsKey(serviceInstance.getId()))
-            qosProviderMap.put(serviceInstance.getId(), new ServiceQosProvider(serviceInstance.getAgents().size()));
-        if (slaViolations != null) {
-            Service service = Categorizer.services.get(serviceInstance.getServiceId());
-            service.increaseExecutionsCounter();
-            service.setSlaViolationsCounter(service.getSlaViolationsCounter() + slaViolations.size());
-            float slaViolationRatio = calculateSlaViolationRatio(service, serviceInstance);
-            boolean[] acceptedAgents;
-            if (service.getExecutionsCounter() < QOS_WARM_UP)
-                acceptedAgents = qosProviderMap.get(serviceInstance.getId()).checkServiceInstance(slaViolationRatio, true, 0);
-            else
-                acceptedAgents = qosProviderMap.get(serviceInstance.getId()).checkServiceInstance(slaViolationRatio, false, EPSILON);
-            setAcceptedAgents(acceptedAgents, serviceInstance);
+        if (Categorizer.getServiceById(serviceInstance.getServiceId()) != null) {
+            if (!qosProviderMap.containsKey(serviceInstance.getId()))
+                qosProviderMap.put(serviceInstance.getId(), new ServiceQosProvider(serviceInstance.getAgents().size()));
+            if (slaViolations != null) {
+                Service service = Categorizer.services.get(serviceInstance.getServiceId());
+                service.increaseExecutionsCounter();
+                service.setSlaViolationsCounter(service.getSlaViolationsCounter() + slaViolations.size());
+                float slaViolationRatio = calculateSlaViolationRatio(service, serviceInstance);
+                boolean[] acceptedAgents;
+                if (service.getExecutionsCounter() < QOS_WARM_UP)
+                    acceptedAgents = qosProviderMap.get(serviceInstance.getId()).checkServiceInstance(slaViolationRatio, true, 0);
+                else
+                    acceptedAgents = qosProviderMap.get(serviceInstance.getId()).checkServiceInstance(slaViolationRatio, false, EPSILON);
+                setAcceptedAgents(acceptedAgents, serviceInstance);
+            }
         }
-
         return serviceInstance;
     }
 

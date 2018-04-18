@@ -1,7 +1,0 @@
-{
-	"sessionTemplate": {
-		"href": "session-template/internal",
-		"username": "testuser",
-		"password": "testpassword"
-	}
-}

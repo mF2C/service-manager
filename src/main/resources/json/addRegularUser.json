@@ -1,9 +1,0 @@
-{
-    "userTemplate": {
-        "href": "user-template/self-registration",
-        "password": "testpassword",
-        "passwordRepeat" : "testpassword",
-        "emailAddress": "f.carpio@tu-bs.de",
-        "username": "testuser"
-    }
-}

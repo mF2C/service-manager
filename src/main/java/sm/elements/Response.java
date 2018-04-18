@@ -11,6 +11,9 @@ package sm.elements;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Response {
@@ -23,8 +26,10 @@ public class Response {
     private int status;
     private Service service;
     private ServiceInstance serviceInstance;
+    private List<Service> services;
 
     public Response() {
+        services = new ArrayList<>();
     }
 
     public Response(String id, String resourceURI) {
@@ -94,5 +99,13 @@ public class Response {
 
     public void setServiceInstance(ServiceInstance serviceInstance) {
         this.serviceInstance = serviceInstance;
+    }
+
+    public List<Service> getServices() {
+        return services;
+    }
+
+    public void setServices(List<Service> services) {
+        this.services = services;
     }
 }

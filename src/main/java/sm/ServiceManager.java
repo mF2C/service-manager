@@ -10,6 +10,8 @@ package sm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
@@ -24,20 +26,18 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import sm.categorization.Categorizer;
 import sm.categorization.CategorizerInterface;
+import sm.cimi.CimiInterface;
+import sm.cimi.CimiSession;
+import sm.cimi.SessionTemplate;
 import sm.elements.Response;
 import sm.elements.ServiceInstance;
 import sm.qos.QosProvider;
 import sm.qos.QosProviderInterface;
-import sm.utils.CimiInterface;
 
 import java.util.LinkedHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
-import static sm.utils.Parameters.CIMI_RECONNECTION_TIME;
-import static sm.utils.Parameters.SERVICE_INSTANCE_ID;
-import static sm.utils.Parameters.SERVICE_MANAGEMENT_ROOT;
+import static sm.Parameters.*;
 
 //@SpringBootApplication
 @Configuration
@@ -55,10 +55,12 @@ import static sm.utils.Parameters.SERVICE_MANAGEMENT_ROOT;
         WebSocketAutoConfiguration.class,
         QosProviderInterface.class,
         CategorizerInterface.class,
-        CimiInterface.class
+        CimiInterface.class,
+        SessionTemplate.class,
+        CimiSession.class
 })
 @Controller
-public class ServiceManager {
+public class ServiceManager implements ApplicationRunner {
 
     private static Logger log = LoggerFactory.getLogger(ServiceManager.class);
     public static Categorizer categorizer;
@@ -66,25 +68,50 @@ public class ServiceManager {
     public static LinkedHashMap<String, ServiceInstance> serviceInstances;
     private final String URL = SERVICE_MANAGEMENT_ROOT;
 
-    public ServiceManager(){
+    public ServiceManager() {
         serviceInstances = new LinkedHashMap<>();
-        CimiInterface.connectToCimi();
         categorizer = new Categorizer();
         qosProvider = new QosProvider();
-        if(!CimiInterface.isConnected()){
-            ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-            executor.scheduleWithFixedDelay(CimiInterface::connectToCimi, 1, CIMI_RECONNECTION_TIME, TimeUnit.SECONDS);
-            if (CimiInterface.isConnected()){
-                Executors.newScheduledThreadPool(0);
-                executor.shutdown();
-                categorizer.postOfflineServicesToCimi(); // To be removed
-                categorizer.getServicesFromCimi();
-            }
-        }
     }
 
     public static void main(String[] args) {
         SpringApplication.run(ServiceManager.class, args);
+    }
+
+    @Override
+    public void run(ApplicationArguments applicationArguments) {
+        String cimiKey = null, cimiSecret = null;
+        for (String name : applicationArguments.getOptionNames()) {
+            if (name.equals("cimi.api.key"))
+                cimiKey = applicationArguments.getOptionValues(name).get(0);
+            if (name.equals("cimi.api.secret"))
+                cimiSecret = applicationArguments.getOptionValues(name).get(0);
+        }
+        initializeCimiInterface(cimiKey, cimiSecret);
+    }
+
+    private void initializeCimiInterface(String key, String secret) {
+        SessionTemplate sessionTemplate = new SessionTemplate(key, secret);
+        new CimiInterface(new CimiSession(sessionTemplate));
+        ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+        Callable<Boolean> callable = new Callable<Boolean>() {
+            @Override
+            public Boolean call() {
+                if (CimiInterface.connectToCimi())
+                    return true;
+                else {
+                    scheduledExecutorService.schedule(this, CIMI_RECONNECTION_TIME, TimeUnit.SECONDS);
+                    return false;
+                }
+            }
+        };
+        Future<Boolean> connected = scheduledExecutorService.schedule(callable, CIMI_RECONNECTION_TIME, TimeUnit.SECONDS);
+        try {
+            if (connected.get())
+                scheduledExecutorService.shutdown();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
     }
 
     @RequestMapping(method = RequestMethod.GET)
