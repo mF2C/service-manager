@@ -1,6 +1,6 @@
 FROM openjdk:8-jdk-alpine
-ENV CIMI_URL=cimi:8902
+ENV CIMI_URL=http://cimi:8201
 VOLUME /tmp
 ARG JAR_FILE
 ADD ${JAR_FILE} app.jar
-ENTRYPOINT exec java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app.jar --cimi.url=${CIMI_URL}
+CMD exec java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app.jar --cimi.url=${CIMI_URL}
