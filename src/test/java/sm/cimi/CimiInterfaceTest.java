@@ -29,7 +29,7 @@ public class CimiInterfaceTest {
     public void _1_connectToCimi() {
         SessionTemplate sessionTemplate = new SessionTemplate(KEY, SECRET);
         new CimiInterface(new CimiSession(sessionTemplate));
-        assertThat(CimiInterface.startSession(), is(HttpStatus.CREATED.value()));
+        assertThat(CimiInterface.requestSession(), is(HttpStatus.CREATED.value()));
     }
 
     @Test

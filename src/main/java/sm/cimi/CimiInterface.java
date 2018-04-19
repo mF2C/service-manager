@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
-import sm.ServiceManager;
 import sm.elements.Response;
 import sm.elements.Service;
 import sm.qos.elements.SlaViolation;
@@ -28,28 +27,44 @@ public class CimiInterface {
     private static final Logger log = LoggerFactory.getLogger(CimiInterface.class);
     private static HttpHeaders headers;
     private static RestTemplate restTemplate = new RestTemplate();
-    private static String rootUrl = CIMI_IP + CIMI_PORT + CIMI_ROOT;
+    private static String rootUrl;
     private static String cookie;
     private static boolean sessionStarted;
     private static CimiSession cimiSession;
 
-    public CimiInterface(CimiSession cimiSession) {
-        CimiInterface.cimiSession = cimiSession;
+    public CimiInterface(){
+        rootUrl = cimiUrl + CIMI_ROOT;
     }
 
-    public static Boolean connectToCimi() {
+    public CimiInterface(CimiSession cimiSession) {
+        CimiInterface.cimiSession = cimiSession;
+        rootUrl = cimiUrl + CIMI_ROOT;
+    }
+
+    public static boolean checkCimiInterface() {
+        headers = new HttpHeaders();
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        try {
+            restTemplate.exchange(rootUrl + CIMI_ENDPOINTS, HttpMethod.GET, entity, String.class);
+            sessionStarted = true;
+            return true;
+        } catch (Exception e) {
+            log.error("No connection to CIMI");
+            return false;
+        }
+    }
+
+    public static Boolean startSession() {
 
         if (!sessionStarted)
-            if (startSession() == HttpStatus.CREATED.value()) {
-                ServiceManager.categorizer.postOfflineServicesToCimi(); // To be removed
-                ServiceManager.categorizer.getServicesFromCimi();
+            if (requestSession() == HttpStatus.CREATED.value())
                 sessionStarted = true;
-            }
         return sessionStarted;
     }
 
-    public static int startSession() {
+    public static int requestSession() {
         headers = new HttpHeaders();
+        headers.set("slipstream-authn-info", "super ADMIN");
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<CimiSession> entity = new HttpEntity<>(cimiSession, headers);
 
@@ -71,6 +86,7 @@ public class CimiInterface {
     public static String postService(Service service) {
 
         headers = new HttpHeaders();
+        headers.set("slipstream-authn-info", "super ADMIN");
         headers.add("Cookie", cookie);
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<Service> entity = new HttpEntity<>(service, headers);
@@ -91,6 +107,7 @@ public class CimiInterface {
     public static List<Service> getServices() {
 
         headers = new HttpHeaders();
+        headers.set("slipstream-authn-info", "super ADMIN");
         headers.add("Cookie", cookie);
         HttpEntity<String> entity = new HttpEntity<>(headers);
         List<Service> services = new ArrayList<>();
@@ -111,6 +128,7 @@ public class CimiInterface {
     public static List<SlaViolation> getSlaViolations(String agreementId) {
 
         headers = new HttpHeaders();
+        headers.set("slipstream-authn-info", "super ADMIN");
         headers.add("Cookie", cookie);
         HttpEntity<String> entity = new HttpEntity<>(headers);
         List<SlaViolation> slaViolations = new ArrayList<>();

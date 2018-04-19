@@ -80,26 +80,37 @@ public class ServiceManager implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments applicationArguments) {
-        String cimiKey = null, cimiSecret = null;
+        String cimiKey = null;
+        String cimiSecret = null;
+        String cimiUrl = null;
         for (String name : applicationArguments.getOptionNames()) {
             if (name.equals("cimi.api.key"))
                 cimiKey = applicationArguments.getOptionValues(name).get(0);
             if (name.equals("cimi.api.secret"))
                 cimiSecret = applicationArguments.getOptionValues(name).get(0);
+            if (name.equals("cimi.url"))
+                cimiUrl = applicationArguments.getOptionValues(name).get(0);
         }
-        initializeCimiInterface(cimiKey, cimiSecret);
+        if (cimiUrl != null)
+            Parameters.cimiUrl = cimiUrl;
+
+        if (cimiKey != null && cimiSecret != null)
+            stablishSesionToCimi(cimiKey, cimiSecret);
+        else
+            checkConnectionToCimi();
     }
 
-    private void initializeCimiInterface(String key, String secret) {
+    private void stablishSesionToCimi(String key, String secret) {
         SessionTemplate sessionTemplate = new SessionTemplate(key, secret);
         new CimiInterface(new CimiSession(sessionTemplate));
         ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
         Callable<Boolean> callable = new Callable<Boolean>() {
             @Override
             public Boolean call() {
-                if (CimiInterface.connectToCimi())
+                if (CimiInterface.startSession()) {
+                    initializeComponents();
                     return true;
-                else {
+                } else {
                     scheduledExecutorService.schedule(this, CIMI_RECONNECTION_TIME, TimeUnit.SECONDS);
                     return false;
                 }
@@ -112,6 +123,35 @@ public class ServiceManager implements ApplicationRunner {
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
+    }
+
+    private void checkConnectionToCimi() {
+        new CimiInterface();
+        ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+        Callable<Boolean> callable = new Callable<Boolean>() {
+            @Override
+            public Boolean call() {
+                if (CimiInterface.checkCimiInterface()) {
+                    initializeComponents();
+                    return true;
+                } else {
+                    scheduledExecutorService.schedule(this, CIMI_RECONNECTION_TIME, TimeUnit.SECONDS);
+                    return false;
+                }
+            }
+        };
+        Future<Boolean> connected = scheduledExecutorService.schedule(callable, CIMI_RECONNECTION_TIME, TimeUnit.SECONDS);
+        try {
+            if (connected.get())
+                scheduledExecutorService.shutdown();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void initializeComponents() {
+        ServiceManager.categorizer.postOfflineServicesToCimi(); // To be removed
+        ServiceManager.categorizer.getServicesFromCimi();
     }
 
     @RequestMapping(method = RequestMethod.GET)
