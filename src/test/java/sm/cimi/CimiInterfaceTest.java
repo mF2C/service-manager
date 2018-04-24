@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.springframework.http.HttpStatus;
 import sm.elements.Service;
+import sm.elements.ServiceInstance;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,5 +56,9 @@ public class CimiInterfaceTest {
         assertTrue(services.size() > 0);
     }
 
-
+    @Test
+    public void _3_getServiceInstances() {
+        List<ServiceInstance> serviceInstances = CimiInterface.getServiceInstances();
+        assertTrue(serviceInstances.size() > 0);
+    }
 }

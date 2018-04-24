@@ -24,6 +24,7 @@ public class Parameters {
     public static final String AGREEMENTS = "agreements/";
 
     public static final String SERVICE = "/service";
+    public static final String SERVICE_INSTANCE = "/service-instance";
 
     /***********************************
      ********* Local resources *********

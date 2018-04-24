@@ -35,6 +35,7 @@ import sm.qos.QosProvider;
 import sm.qos.QosProviderInterface;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.concurrent.*;
 
 import static sm.Parameters.*;
@@ -65,7 +66,7 @@ public class ServiceManager implements ApplicationRunner {
     private static Logger log = LoggerFactory.getLogger(ServiceManager.class);
     public static Categorizer categorizer;
     public static QosProvider qosProvider;
-    public static LinkedHashMap<String, ServiceInstance> serviceInstances;
+    private static LinkedHashMap<String, ServiceInstance> serviceInstances;
     private final String URL = SERVICE_MANAGEMENT_ROOT;
 
     public ServiceManager() {
@@ -152,6 +153,21 @@ public class ServiceManager implements ApplicationRunner {
     private void initializeComponents() {
         ServiceManager.categorizer.postOfflineServicesToCimi(); // To be removed
         ServiceManager.categorizer.getServicesFromCimi();
+    }
+
+    public static ServiceInstance getServiceInstance(String id) {
+        getServiceInstancesFromCimi();
+        if (ServiceManager.serviceInstances.containsKey(id))
+            return ServiceManager.serviceInstances.get(id);
+        return null;
+    }
+
+    private static void getServiceInstancesFromCimi() {
+        List<ServiceInstance> cimiServiceInstances = CimiInterface.getServiceInstances();
+        if (cimiServiceInstances != null)
+            for (ServiceInstance s : cimiServiceInstances)
+                if (!serviceInstances.containsKey(s.getId()))
+                    serviceInstances.put(s.getId(), s);
     }
 
     @RequestMapping(method = RequestMethod.GET)

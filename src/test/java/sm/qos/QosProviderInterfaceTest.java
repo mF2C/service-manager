@@ -52,14 +52,4 @@ public class QosProviderInterfaceTest {
         response = restTemplate.getForObject(ROOT_URL + serviceInstanceTest.getId(), Response.class);
         assertThat(response, hasProperty("status", is(HttpStatus.NOT_FOUND.value())));
     }
-
-    @Test
-    public void checkQosInterface2() {
-
-        Response response = restTemplate.postForObject(ROOT_URL + QOS, serviceInstanceTest, Response.class);
-
-        assertThat(response, hasProperty("status", is(HttpStatus.CREATED.value())));
-        assertThat(response.getServiceInstance(), hasProperty("agents"));
-
-    }
 }

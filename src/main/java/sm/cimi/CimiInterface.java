@@ -14,6 +14,7 @@ import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import sm.elements.Response;
 import sm.elements.Service;
+import sm.elements.ServiceInstance;
 import sm.qos.elements.SlaViolation;
 
 import java.util.ArrayList;
@@ -121,6 +122,27 @@ public class CimiInterface {
             return services;
         } catch (Exception e) {
             log.error("Error retrieving services");
+            return null;
+        }
+    }
+
+    public static List<ServiceInstance> getServiceInstances() {
+
+        headers = new HttpHeaders();
+        headers.set("slipstream-authn-info", "super ADMIN");
+        headers.add("Cookie", cookie);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        List<ServiceInstance> serviceInstances = new ArrayList<>();
+        try {
+            ResponseEntity<Response> responseEntity = restTemplate.exchange(rootUrl + SERVICE_INSTANCE, HttpMethod.GET, entity, Response.class);
+            if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
+                log.info("service instances retrieved");
+                Response response = responseEntity.getBody();
+                serviceInstances = response.getServiceInstances();
+            }
+            return serviceInstances;
+        } catch (Exception e) {
+            log.error("Error retrieving service instances");
             return null;
         }
     }

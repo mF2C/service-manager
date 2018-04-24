@@ -4,7 +4,10 @@ package sm.qos;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpStatus;
 import sm.ServiceManager;
+import sm.elements.Response;
 import sm.elements.Service;
 import sm.elements.ServiceInstance;
 import sm.qos.elements.SlaViolation;
@@ -15,7 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.Assert.assertThat;
+import static sm.Parameters.SERVICE_MANAGEMENT_ROOT;
+import static sm.Parameters.SERVICE_MANAGEMENT_URL;
 
 public class QoSProviderTest {
 
@@ -44,7 +50,9 @@ public class QoSProviderTest {
         List<Service> services = readServicesFromJSON();
         String serviceId = services.get(0).getId();
         serviceInstanceTest.setServiceId(serviceId);
-        ServiceManager.serviceInstances.put(serviceInstanceTest.getId(), serviceInstanceTest);
+        TestRestTemplate restTemplate = new TestRestTemplate();
+        Response response = restTemplate.postForObject(SERVICE_MANAGEMENT_URL + SERVICE_MANAGEMENT_ROOT, serviceInstanceTest, Response.class);
+        assertThat(response, hasProperty("status", is(HttpStatus.CREATED.value())));
 
         // Create Sla Violations
         int numOfSlaViolations = 2;

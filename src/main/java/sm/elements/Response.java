@@ -27,9 +27,11 @@ public class Response {
     private Service service;
     private ServiceInstance serviceInstance;
     private List<Service> services;
+    private List<ServiceInstance> serviceInstances;
 
     public Response() {
         services = new ArrayList<>();
+        serviceInstances = new ArrayList<>();
     }
 
     public Response(String id, String resourceURI) {
@@ -107,5 +109,13 @@ public class Response {
 
     public void setServices(List<Service> services) {
         this.services = services;
+    }
+
+    public List<ServiceInstance> getServiceInstances() {
+        return serviceInstances;
+    }
+
+    public void setServiceInstances(List<ServiceInstance> serviceInstances) {
+        this.serviceInstances = serviceInstances;
     }
 }
