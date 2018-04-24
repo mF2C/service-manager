@@ -35,7 +35,6 @@ import sm.qos.QosProvider;
 import sm.qos.QosProviderInterface;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.concurrent.*;
 
 import static sm.Parameters.*;
@@ -156,18 +155,11 @@ public class ServiceManager implements ApplicationRunner {
     }
 
     public static ServiceInstance getServiceInstance(String id) {
-        getServiceInstancesFromCimi();
-        if (ServiceManager.serviceInstances.containsKey(id))
-            return ServiceManager.serviceInstances.get(id);
-        return null;
-    }
 
-    private static void getServiceInstancesFromCimi() {
-        List<ServiceInstance> cimiServiceInstances = CimiInterface.getServiceInstances();
-        if (cimiServiceInstances != null)
-            for (ServiceInstance s : cimiServiceInstances)
-                if (!serviceInstances.containsKey(s.getId()))
-                    serviceInstances.put(s.getId(), s);
+        ServiceInstance serviceInstance = CimiInterface.getServiceInstance(id);
+        if (serviceInstance != null)
+            serviceInstances.put(serviceInstance.getId(), serviceInstance);
+        return serviceInstance;
     }
 
     @RequestMapping(method = RequestMethod.GET)

@@ -19,9 +19,8 @@ public class Parameters {
     public static final String SESSION = "/session";
     public static final String CIMI_ENDPOINTS = "/cloud-entry-point";
 
-
-    public static final String SLA_MANAGEMENT = "sla-management/";
-    public static final String AGREEMENTS = "agreements/";
+    public static final String SLA_MANAGEMENT = "/sla-management";
+    public static final String AGREEMENTS = "/agreements";
 
     public static final String SERVICE = "/service";
     public static final String SERVICE_INSTANCE = "/service-instance";

@@ -33,7 +33,7 @@ public class CimiInterface {
     private static boolean sessionStarted;
     private static CimiSession cimiSession;
 
-    public CimiInterface(){
+    public CimiInterface() {
         rootUrl = cimiUrl + CIMI_ROOT;
     }
 
@@ -126,23 +126,23 @@ public class CimiInterface {
         }
     }
 
-    public static List<ServiceInstance> getServiceInstances() {
+    public static ServiceInstance getServiceInstance(String serviceInstanceId) {
 
         headers = new HttpHeaders();
         headers.set("slipstream-authn-info", "super ADMIN");
         headers.add("Cookie", cookie);
         HttpEntity<String> entity = new HttpEntity<>(headers);
-        List<ServiceInstance> serviceInstances = new ArrayList<>();
+        ServiceInstance serviceInstance = null;
         try {
-            ResponseEntity<Response> responseEntity = restTemplate.exchange(rootUrl + SERVICE_INSTANCE, HttpMethod.GET, entity, Response.class);
+            ResponseEntity<Response> responseEntity = restTemplate.exchange(rootUrl + SERVICE_INSTANCE + "/" + serviceInstanceId, HttpMethod.GET, entity, Response.class);
             if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
                 log.info("service instances retrieved");
                 Response response = responseEntity.getBody();
-                serviceInstances = response.getServiceInstances();
+                serviceInstance = response.getServiceInstance();
             }
-            return serviceInstances;
+            return serviceInstance;
         } catch (Exception e) {
-            log.error("Error retrieving service instances");
+            log.error("Error retrieving service instance");
             return null;
         }
     }
@@ -155,7 +155,7 @@ public class CimiInterface {
         HttpEntity<String> entity = new HttpEntity<>(headers);
         List<SlaViolation> slaViolations = new ArrayList<>();
         try {
-            ResponseEntity<Map> responseEntity = restTemplate.exchange(rootUrl + SLA_MANAGEMENT + AGREEMENTS + agreementId, HttpMethod.GET, entity, Map.class);
+            ResponseEntity<Map> responseEntity = restTemplate.exchange(rootUrl + SLA_MANAGEMENT + AGREEMENTS + "/" + agreementId, HttpMethod.GET, entity, Map.class);
             if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
                 log.info("sla violations retrieved");
                 Map<String, Object> objects = responseEntity.getBody();
