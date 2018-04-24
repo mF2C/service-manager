@@ -29,7 +29,7 @@ public class QosProviderInterface {
     public @ResponseBody
     Response check(@PathVariable String service_instance_id) {
 
-        Response response = new Response(service_instance_id, SERVICE_MANAGEMENT_ROOT + QOS + service_instance_id);
+        Response response = new Response(service_instance_id, SERVICE_MANAGEMENT_ROOT + QOS);
         try {
             if (ServiceManager.serviceInstances.containsKey(service_instance_id)) {
                 ServiceInstance serviceInstance = ServiceManager.serviceInstances.get(service_instance_id);
@@ -44,6 +44,30 @@ public class QosProviderInterface {
             }
         } catch (Exception e) {
             response.setMessage("Error - invalid request!");
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
+        }
+        return response;
+    }
+
+    @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody
+    Response check(@RequestBody ServiceInstance serviceInstance) {
+
+        Response response = new Response(serviceInstance.getId(), SERVICE_MANAGEMENT_ROOT + QOS);
+        try {
+            if (!ServiceManager.serviceInstances.containsKey(serviceInstance.getId())) {
+                ServiceManager.serviceInstances.put(serviceInstance.getId(), serviceInstance);
+                response.setStatus(HttpStatus.CREATED.value());
+            } else
+                response.setStatus(HttpStatus.OK.value());
+
+            List<SlaViolation> slaViolations = CimiInterface.getSlaViolations(serviceInstance.getAgreementId());
+            serviceInstance = ServiceManager.qosProvider.check(serviceInstance, slaViolations);
+            response.setMessage("Info - Checked QoS requirements");
+            response.setServiceInstance(serviceInstance);
+
+        } catch (Exception e) {
+            response.setMessage("Error - invalid request");
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         }
         return response;

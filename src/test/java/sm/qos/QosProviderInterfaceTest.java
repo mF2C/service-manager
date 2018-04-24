@@ -19,13 +19,12 @@ import static sm.Parameters.*;
 public class QosProviderInterfaceTest {
 
     private TestRestTemplate restTemplate;
-    private String url;
     private ServiceInstance serviceInstanceTest;
+    private final String ROOT_URL = SERVICE_MANAGEMENT_URL + SERVICE_MANAGEMENT_ROOT;
 
     public QosProviderInterfaceTest() {
-        url = SERVICE_MANAGEMENT_URL + SERVICE_MANAGEMENT_ROOT + QOS;
-        restTemplate = new TestRestTemplate();
 
+        restTemplate = new TestRestTemplate();
         TypeReference<ServiceInstance> typeReference = new TypeReference<ServiceInstance>() {
         };
         InputStream inputStream = TypeReference.class.getResourceAsStream("/json/service_instance.json");
@@ -40,18 +39,27 @@ public class QosProviderInterfaceTest {
 
     @Test
     public void checkQosInterface() {
-        String rootUrl = SERVICE_MANAGEMENT_URL + SERVICE_MANAGEMENT_ROOT;
-        Response response = restTemplate.postForObject(rootUrl, serviceInstanceTest, Response.class);
+        Response response = restTemplate.postForObject(ROOT_URL, serviceInstanceTest, Response.class);
 
         assertThat(response, hasProperty("status", is(HttpStatus.CREATED.value())));
 
-        response = restTemplate.getForObject(url + serviceInstanceTest.getId(), Response.class);
+        response = restTemplate.getForObject(ROOT_URL + QOS + serviceInstanceTest.getId(), Response.class);
 
         assertThat(response, hasProperty("status", is(HttpStatus.OK.value())));
         assertThat(response.getServiceInstance(), hasProperty("agents"));
 
-        restTemplate.delete(rootUrl + serviceInstanceTest.getId(), Response.class);
-        response = restTemplate.getForObject(rootUrl + serviceInstanceTest.getId(), Response.class);
+        restTemplate.delete(ROOT_URL + serviceInstanceTest.getId(), Response.class);
+        response = restTemplate.getForObject(ROOT_URL + serviceInstanceTest.getId(), Response.class);
         assertThat(response, hasProperty("status", is(HttpStatus.NOT_FOUND.value())));
+    }
+
+    @Test
+    public void checkQosInterface2() {
+
+        Response response = restTemplate.postForObject(ROOT_URL + QOS, serviceInstanceTest, Response.class);
+
+        assertThat(response, hasProperty("status", is(HttpStatus.CREATED.value())));
+        assertThat(response.getServiceInstance(), hasProperty("agents"));
+
     }
 }
