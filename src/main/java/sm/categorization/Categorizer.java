@@ -51,11 +51,10 @@ public class Categorizer {
         return null;
     }
 
-    // To be removed
     private List<Service> readServicesFromJSON() {
         TypeReference<List<Service>> typeReference = new TypeReference<List<Service>>() {
         };
-        InputStream inputStream = TypeReference.class.getResourceAsStream("/json/services.json");
+        InputStream inputStream = TypeReference.class.getResourceAsStream("/use-cases.json");
         ObjectMapper mapper = new ObjectMapper();
         List<Service> rServices = null;
         try {

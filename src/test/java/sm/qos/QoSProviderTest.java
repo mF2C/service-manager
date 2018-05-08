@@ -32,7 +32,7 @@ public class QoSProviderTest {
 
         TypeReference<ServiceInstance> typeReference = new TypeReference<ServiceInstance>() {
         };
-        InputStream inputStream = TypeReference.class.getResourceAsStream("/json/service_instance.json");
+        InputStream inputStream = TypeReference.class.getResourceAsStream("/service_instance_test.json");
         ObjectMapper mapper = new ObjectMapper();
         serviceInstanceTest = null;
         try {
@@ -83,7 +83,7 @@ public class QoSProviderTest {
     private List<Service> readServicesFromJSON() {
         TypeReference<List<Service>> typeReference = new TypeReference<List<Service>>() {
         };
-        InputStream inputStream = TypeReference.class.getResourceAsStream("/json/services.json");
+        InputStream inputStream = TypeReference.class.getResourceAsStream("/use-cases.json");
         ObjectMapper mapper = new ObjectMapper();
         List<Service> rServices = null;
         try {

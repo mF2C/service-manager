@@ -37,7 +37,7 @@ public class ServiceManagerTest {
         restTemplate = new TestRestTemplate();
         TypeReference<ServiceInstance> typeReference = new TypeReference<ServiceInstance>() {
         };
-        InputStream inputStream = TypeReference.class.getResourceAsStream("/json/service_instance.json");
+        InputStream inputStream = TypeReference.class.getResourceAsStream("/service_instance_test.json");
         ObjectMapper mapper = new ObjectMapper();
         serviceInstanceTest = null;
         try {
