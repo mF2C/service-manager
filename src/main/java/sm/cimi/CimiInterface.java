@@ -115,7 +115,7 @@ public class CimiInterface {
         try {
             ResponseEntity<Response> responseEntity = restTemplate.exchange(rootUrl + SERVICE, HttpMethod.GET, entity, Response.class);
             if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
-                log.info("services retrieved");
+                log.info("Services retrieved");
                 Response response = responseEntity.getBody();
                 services = response.getServices();
             }

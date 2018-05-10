@@ -27,7 +27,7 @@
     "description": "Emergency Management System",
     "exec": "docker-compose-gw.yml",
     "exec_type": "docker-compose",
-    "exec_ports": [5050,5051,5555,5556,8086,9092],
+    "exec_ports": [],
     "category": {
       "cpu": "low",
       "memory": "low",

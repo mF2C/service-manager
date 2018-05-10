@@ -126,13 +126,13 @@ public class ServiceManager implements ApplicationRunner {
     }
 
     private void checkConnectionToCimi() {
-        new CimiInterface();
         ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
         Callable<Boolean> callable = new Callable<Boolean>() {
             @Override
             public Boolean call() {
                 if (CimiInterface.checkCimiInterface()) {
                     initializeComponents();
+                    log.info("Connection to CIMI established");
                     return true;
                 } else {
                     scheduledExecutorService.schedule(this, CIMI_RECONNECTION_TIME, TimeUnit.SECONDS);
@@ -150,8 +150,8 @@ public class ServiceManager implements ApplicationRunner {
     }
 
     private void initializeComponents() {
-        ServiceManager.categorizer.postOfflineServicesToCimi(); // To be removed
-        ServiceManager.categorizer.getServicesFromCimi();
+        ServiceManager.categorizer.storeServicesLocally(CimiInterface.getServices());
+        ServiceManager.categorizer.loadLocalServices();
     }
 
     public static ServiceInstance getServiceInstance(String id) {

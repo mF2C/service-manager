@@ -25,66 +25,53 @@ import java.util.Map;
 public class Categorizer {
 
     private static Logger log = LoggerFactory.getLogger(Categorizer.class);
-    public static Map<String, Service> services;
+    public static Map<String, Service> localServices;
 
     public Categorizer() {
-        services = new HashMap<>();
+        localServices = new HashMap<>();
     }
 
-    // To be removed
-    public void postOfflineServicesToCimi() {
+    public void loadLocalServices() {
+        TypeReference<List<Service>> typeReference = new TypeReference<List<Service>>() {
+        };
+        InputStream inputStream = TypeReference.class.getResourceAsStream("/use-cases.json");
+        ObjectMapper mapper = new ObjectMapper();
+        List<Service> localJsonServices = null;
+        try {
+            log.info("Reading local services");
+            localJsonServices = mapper.readValue(inputStream, typeReference);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        List<Service> rServices = readServicesFromJSON();
-        if (rServices != null)
-            for (Service service : rServices) {
+        List<Service> newServices = storeServicesLocally(localJsonServices);
+
+        if (newServices != null)
+            for (Service service : newServices) {
                 String id = CimiInterface.postService(service);
                 service.setId(id);
-                services.put(service.getName(), service);
             }
     }
 
     public static Service getServiceById(String id) {
-        List<Service> servicesList = new ArrayList<>(services.values());
+        List<Service> servicesList = new ArrayList<>(localServices.values());
         for (Service service : servicesList)
             if (service.getId().equals(id))
                 return service;
         return null;
     }
 
-    private List<Service> readServicesFromJSON() {
-        TypeReference<List<Service>> typeReference = new TypeReference<List<Service>>() {
-        };
-        InputStream inputStream = TypeReference.class.getResourceAsStream("/use-cases.json");
-        ObjectMapper mapper = new ObjectMapper();
-        List<Service> rServices = null;
-        try {
-            log.info("Reading service definition from JSON file");
-            rServices = mapper.readValue(inputStream, typeReference);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return rServices;
-    }
-
-    public void getServicesFromCimi() {
-        List<Service> cimiServices = CimiInterface.getServices();
-        if (cimiServices != null)
-            for (Service s : cimiServices)
-                if (!services.containsKey(s.getName()))
-                    services.put(s.getName(), s);
-    }
-
     private void postServiceToCimi(Service service) {
         String id = CimiInterface.postService(service);
         service.setId(id);
-        services.put(service.getName(), service);
+        localServices.put(service.getName(), service);
     }
 
     public Service submit(Service service) {
 
-        if (services.containsKey(service.getName())) {
+        if (localServices.containsKey(service.getName())) {
             log.info("The service was already categorized: " + service.getName());
-            return services.get(service.getName());
+            return localServices.get(service.getName());
         } else if (checkService(service)) {
             if (CimiInterface.isSessionStarted()) {
                 postServiceToCimi(service);
@@ -103,7 +90,7 @@ public class Categorizer {
             return false;
         if (service.getExec() == null)
             return false;
-        if (service.getExecPorts() == null)
+        if (service.getExecType() == null)
             return false;
         if (service.getCategory() == null)
             return false;
@@ -111,5 +98,17 @@ public class Categorizer {
         return true;
     }
 
+    public List<Service> storeServicesLocally(List<Service> services){
+
+        List<Service> newServices = new ArrayList<>();
+
+        if (services != null)
+            for (Service service : services)
+                if (!localServices.containsKey(service.getName())) {
+                    localServices.put(service.getName(), service);
+                    newServices.add(service);
+                }
+        return newServices;
+    }
 }
 

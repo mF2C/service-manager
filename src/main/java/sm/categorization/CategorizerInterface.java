@@ -55,8 +55,8 @@ public class CategorizerInterface {
 
         Response response = new Response(service_id, URL + service_id);
         try {
-            if (Categorizer.services.containsKey(service_id)) {
-                response.setService(Categorizer.services.get(service_id));
+            if (Categorizer.localServices.containsKey(service_id)) {
+                response.setService(Categorizer.localServices.get(service_id));
                 response.setMessage("Info - service retrieved");
                 response.setStatus(HttpStatus.OK.value());
             } else {
@@ -76,8 +76,8 @@ public class CategorizerInterface {
 
         Response response = new Response(service_id, URL + service_id);
         try {
-            if (Categorizer.services.containsKey(service_id)) {
-                Categorizer.services.remove(service_id);
+            if (Categorizer.localServices.containsKey(service_id)) {
+                Categorizer.localServices.remove(service_id);
                 log.info("Service deleted: " + service_id);
                 response.setMessage("Info - service instance deleted");
                 response.setStatus(HttpStatus.OK.value());
