@@ -23,21 +23,22 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import sm.categorization.Categorizer;
 import sm.categorization.CategorizerInterface;
 import sm.cimi.CimiInterface;
 import sm.cimi.CimiSession;
 import sm.cimi.SessionTemplate;
 import sm.elements.Response;
-import sm.elements.ServiceInstance;
 import sm.qos.QosProvider;
 import sm.qos.QosProviderInterface;
 
-import java.util.LinkedHashMap;
 import java.util.concurrent.*;
 
-import static sm.Parameters.*;
+import static sm.Parameters.CIMI_RECONNECTION_TIME;
+import static sm.Parameters.SERVICE_MANAGEMENT_ROOT;
 
 //@SpringBootApplication
 @Configuration
@@ -65,11 +66,8 @@ public class ServiceManager implements ApplicationRunner {
     private static Logger log = LoggerFactory.getLogger(ServiceManager.class);
     public static Categorizer categorizer;
     public static QosProvider qosProvider;
-    private static LinkedHashMap<String, ServiceInstance> serviceInstances;
-    private final String URL = SERVICE_MANAGEMENT_ROOT;
 
     public ServiceManager() {
-        serviceInstances = new LinkedHashMap<>();
         categorizer = new Categorizer();
         qosProvider = new QosProvider();
     }
@@ -132,7 +130,6 @@ public class ServiceManager implements ApplicationRunner {
             public Boolean call() {
                 if (CimiInterface.checkCimiInterface()) {
                     initializeComponents();
-                    log.info("Connection to CIMI established");
                     return true;
                 } else {
                     scheduledExecutorService.schedule(this, CIMI_RECONNECTION_TIME, TimeUnit.SECONDS);
@@ -154,81 +151,11 @@ public class ServiceManager implements ApplicationRunner {
         ServiceManager.categorizer.loadLocalServices();
     }
 
-    public static ServiceInstance getServiceInstance(String id) {
-
-        ServiceInstance serviceInstance = CimiInterface.getServiceInstance(id);
-        if (serviceInstance != null)
-            serviceInstances.put(serviceInstance.getId(), serviceInstance);
-        return serviceInstance;
-    }
-
-    @RequestMapping(method = RequestMethod.GET)
-    public String home() {
-        return "Info - Welcome to the mF2C Service Manager!";
-    }
-
-    @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody
-    Response submit(@RequestBody ServiceInstance serviceInstance) {
-
-        Response response = new Response(serviceInstance.getId(), URL);
-        try {
-            if (!serviceInstances.containsKey(serviceInstance.getId())) {
-                serviceInstances.put(serviceInstance.getId(), serviceInstance);
-                log.info("Service instance submitted: " + serviceInstance.getId());
-                response.setMessage("Info - service instance submitted");
-                response.setStatus(HttpStatus.CREATED.value());
-            } else {
-                response.setMessage("Error - a service instance with the same id already exists");
-                response.setStatus(HttpStatus.CONFLICT.value());
-            }
-        } catch (Exception e) {
-            response.setMessage("Error - invalid request");
-            response.setStatus(HttpStatus.BAD_REQUEST.value());
-        }
-        return response;
-    }
-
-    @RequestMapping(method = RequestMethod.GET, value = SERVICE_INSTANCE_ID, produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody
-    Response get(@PathVariable String service_instance_id) {
-
-        Response response = new Response(service_instance_id, URL + service_instance_id);
-        try {
-            if (serviceInstances.containsKey(service_instance_id)) {
-                response.setServiceInstance(serviceInstances.get(service_instance_id));
-                response.setMessage("Info - service instance retrieved");
-                response.setStatus(HttpStatus.OK.value());
-            } else {
-                response.setMessage("Error - service instance does not exist");
-                response.setStatus(HttpStatus.NOT_FOUND.value());
-            }
-        } catch (Exception e) {
-            response.setMessage("Error - invalid request");
-            response.setStatus(HttpStatus.BAD_REQUEST.value());
-        }
-        return response;
-    }
-
-    @RequestMapping(method = RequestMethod.DELETE, value = SERVICE_INSTANCE_ID, produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody
-    Response delete(@PathVariable String service_instance_id) {
-
-        Response response = new Response(service_instance_id, URL + service_instance_id);
-        try {
-            if (serviceInstances.containsKey(service_instance_id)) {
-                serviceInstances.remove(service_instance_id);
-                log.info("Service instance deleted: " + service_instance_id);
-                response.setMessage("Info - service instance deleted");
-                response.setStatus(HttpStatus.OK.value());
-            } else {
-                response.setMessage("Error - service instance does not exist");
-                response.setStatus(HttpStatus.NOT_FOUND.value());
-            }
-        } catch (Exception e) {
-            response.setMessage("Error - invalid request!");
-            response.setStatus(HttpStatus.BAD_REQUEST.value());
-        }
+    @RequestMapping(method = RequestMethod.GET, path ="/", produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody Response home() {
+        Response response = new Response(null, SERVICE_MANAGEMENT_ROOT);
+        response.setMessage("Info - Welcome to the mF2C Service Manager!");
+        response.setStatus(HttpStatus.OK.value());
         return response;
     }
 }

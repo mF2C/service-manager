@@ -25,13 +25,15 @@ import static sm.Parameters.*;
 @RequestMapping(QOS)
 public class QosProviderInterface {
 
-    @RequestMapping(method = RequestMethod.GET, value = SERVICE_INSTANCE_ID, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.GET, value = SERVICE_INSTANCE + SERVICE_INSTANCE_ID, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     Response check(@PathVariable String service_instance_id) {
 
-        Response response = new Response(service_instance_id, SERVICE_MANAGEMENT_ROOT + QOS);
+        String serviceId = "service-instance/" + service_instance_id;
+
+        Response response = new Response(serviceId, SERVICE_MANAGEMENT_ROOT + QOS);
         try {
-            ServiceInstance serviceInstance = ServiceManager.getServiceInstance(service_instance_id);
+            ServiceInstance serviceInstance = CimiInterface.getServiceInstance(serviceId);
             if (serviceInstance != null) {
                 List<SlaViolation> slaViolations = CimiInterface.getSlaViolations(serviceInstance.getAgreementId());
                 serviceInstance = ServiceManager.qosProvider.check(serviceInstance, slaViolations);

@@ -61,6 +61,10 @@ public class Categorizer {
         return null;
     }
 
+    public static List<Service> getServices() {
+        return new ArrayList<>(localServices.values());
+    }
+
     private void postServiceToCimi(Service service) {
         String id = CimiInterface.postService(service);
         service.setId(id);

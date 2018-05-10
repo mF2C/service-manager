@@ -33,11 +33,11 @@ public class QosProvider {
 
     public ServiceInstance check(ServiceInstance serviceInstance, List<SlaViolation> slaViolations) {
 
-        if (Categorizer.getServiceById(serviceInstance.getServiceId()) != null) {
+        Service service;
+        if ((service = Categorizer.getServiceById(serviceInstance.getServiceId())) != null) {
             if (!qosProviderMap.containsKey(serviceInstance.getId()))
                 qosProviderMap.put(serviceInstance.getId(), new ServiceQosProvider(serviceInstance.getAgents().size()));
             if (slaViolations != null) {
-                Service service = Categorizer.localServices.get(serviceInstance.getServiceId());
                 service.increaseExecutionsCounter();
                 service.setSlaViolationsCounter(service.getSlaViolationsCounter() + slaViolations.size());
                 float slaViolationRatio = calculateSlaViolationRatio(service, serviceInstance);

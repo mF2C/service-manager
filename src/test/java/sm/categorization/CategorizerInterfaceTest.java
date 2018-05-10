@@ -17,6 +17,7 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasProperty;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static sm.Parameters.*;
 
@@ -25,10 +26,9 @@ public class CategorizerInterfaceTest {
 
     private TestRestTemplate restTemplate;
     private Service serviceTest;
-    private String url;
+    private final String URL = SERVICE_MANAGEMENT_URL + SERVICE_MANAGEMENT_ROOT + CATEGORIZER + "/";
 
     public CategorizerInterfaceTest() {
-        url = SERVICE_MANAGEMENT_URL + SERVICE_MANAGEMENT_ROOT + CATEGORIZER;
         restTemplate = new TestRestTemplate();
         TypeReference<List<Service>> typeReference = new TypeReference<List<Service>>() {
         };
@@ -46,47 +46,29 @@ public class CategorizerInterfaceTest {
     @Test
     public void _1_submitService() {
 
-        Response response = restTemplate.postForObject(url, serviceTest, Response.class);
+        Response response = restTemplate.postForObject(URL, serviceTest, Response.class);
         assertThat(response, hasProperty("status", is(HttpStatus.CREATED.value())));
     }
 
     @Test
     public void _2_getService() {
 
-        Response response = restTemplate.getForObject(url + serviceTest.getName(), Response.class);
+        Response response = restTemplate.getForObject(URL, Response.class);
+        String id = response.getServices().get(0).getId();
 
+        response = restTemplate.getForObject(URL + id, Response.class);
         assertThat(response, hasProperty("status", is(HttpStatus.OK.value())));
-        assertThat(response.getService(), hasProperty("name", is(serviceTest.getName())));
-        assertThat(response.getService(), hasProperty("description", is(serviceTest.getDescription())));
-        assertThat(response.getService(), hasProperty("created", is(serviceTest.getCreated())));
-        assertThat(response.getService(), hasProperty("updated", is(serviceTest.getUpdated())));
-        assertThat(response.getService(), hasProperty("exec", is(serviceTest.getExec())));
-        assertThat(response.getService(), hasProperty("execType", is(serviceTest.getExecType())));
-        assertThat(response.getService(), hasProperty("execPorts", is(serviceTest.getExecPorts())));
-        assertThat(response.getService(), hasProperty("resourceURI", is(serviceTest.getResourceURI())));
-        assertThat(response.getService().getCategory(), hasProperty("cpu", is(serviceTest.getCategory().getCpu())));
-        assertThat(response.getService().getCategory(), hasProperty("memory", is(serviceTest.getCategory().getMemory())));
-        assertThat(response.getService().getCategory(), hasProperty("storage", is(serviceTest.getCategory().getStorage())));
-        assertThat(response.getService().getCategory(), hasProperty("inclinometer", is(serviceTest.getCategory().isInclinometer())));
-        assertThat(response.getService().getCategory(), hasProperty("temperature", is(serviceTest.getCategory().isTemperature())));
-        assertThat(response.getService().getCategory(), hasProperty("jammer", is(serviceTest.getCategory().isJammer())));
-        assertThat(response.getService().getCategory(), hasProperty("location", is(serviceTest.getCategory().isLocation())));
-        assertThat(response.getService().getCategory(), hasProperty("batteryLevel", is(serviceTest.getCategory().isBatteryLevel())));
-        assertThat(response.getService().getCategory(), hasProperty("doorSensor", is(serviceTest.getCategory().isDoorSensor())));
-        assertThat(response.getService().getCategory(), hasProperty("pumpSensor", is(serviceTest.getCategory().isPumpSensor())));
-        assertThat(response.getService().getCategory(), hasProperty("accelerometer", is(serviceTest.getCategory().isAccelerometer())));
-        assertThat(response.getService().getCategory(), hasProperty("humidity", is(serviceTest.getCategory().isHumidity())));
-        assertThat(response.getService().getCategory(), hasProperty("airPressure", is(serviceTest.getCategory().isAirPressure())));
-        assertThat(response.getService().getCategory(), hasProperty("irMotion", is(serviceTest.getCategory().isIrMotion())));
+        assertNotNull(response.getService());
     }
 
     @Test
     public void _3_deleteService() {
 
-        restTemplate.delete(url + serviceTest.getName());
+        Response response = restTemplate.getForObject(URL, Response.class);
+        String id = response.getServices().get(0).getId();
 
-        Response response = restTemplate.getForObject(url + serviceTest.getName(), Response.class);
-
+        restTemplate.delete(URL + id);
+        response = restTemplate.getForObject(URL + id, Response.class);
         assertThat(response, hasProperty("status", is(HttpStatus.NOT_FOUND.value())));
     }
 }

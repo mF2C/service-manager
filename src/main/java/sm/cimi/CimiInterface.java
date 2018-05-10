@@ -28,29 +28,29 @@ public class CimiInterface {
     private static final Logger log = LoggerFactory.getLogger(CimiInterface.class);
     private static HttpHeaders headers;
     private static RestTemplate restTemplate = new RestTemplate();
-    private static String rootUrl;
     private static String cookie;
     private static boolean sessionStarted;
     private static CimiSession cimiSession;
 
-    public CimiInterface() {
-        rootUrl = cimiUrl + CIMI_ROOT;
-    }
-
     public CimiInterface(CimiSession cimiSession) {
         CimiInterface.cimiSession = cimiSession;
-        rootUrl = cimiUrl + CIMI_ROOT;
     }
 
     public static boolean checkCimiInterface() {
         headers = new HttpHeaders();
         HttpEntity<String> entity = new HttpEntity<>(headers);
         try {
-            restTemplate.exchange(rootUrl + CIMI_ENDPOINTS, HttpMethod.GET, entity, String.class);
-            sessionStarted = true;
-            return true;
+            ResponseEntity<String> responseEntity = restTemplate.exchange(cimiUrl + CIMI_ENDPOINTS, HttpMethod.GET, entity, String.class);
+            if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
+                sessionStarted = true;
+                log.info("Connection established to CIMI [" + cimiUrl + "]");
+                return true;
+            } else {
+                log.error("No connection to CIMI [" + cimiUrl + "]");
+                return false;
+            }
         } catch (Exception e) {
-            log.error("No connection to CIMI");
+            log.error("No connection to CIMI [" + cimiUrl + "]");
             return false;
         }
     }
@@ -70,7 +70,7 @@ public class CimiInterface {
         HttpEntity<CimiSession> entity = new HttpEntity<>(cimiSession, headers);
 
         try {
-            ResponseEntity<Map> responseEntity = restTemplate.exchange(rootUrl + SESSION, HttpMethod.POST, entity, Map.class);
+            ResponseEntity<Map> responseEntity = restTemplate.exchange(cimiUrl + SESSION, HttpMethod.POST, entity, Map.class);
             if (responseEntity.getStatusCodeValue() == HttpStatus.CREATED.value()) {
                 log.info("Session started");
                 cookie = responseEntity.getHeaders().getFirst(HttpHeaders.SET_COOKIE);
@@ -93,7 +93,7 @@ public class CimiInterface {
         HttpEntity<Service> entity = new HttpEntity<>(service, headers);
         String id = null;
         try {
-            ResponseEntity<Map> responseEntity = restTemplate.exchange(rootUrl + SERVICE, HttpMethod.POST, entity, Map.class);
+            ResponseEntity<Map> responseEntity = restTemplate.exchange(cimiUrl + SERVICE, HttpMethod.POST, entity, Map.class);
             if (responseEntity.getStatusCodeValue() == HttpStatus.CREATED.value()) {
                 log.info("Service submitted: " + service.getName());
                 Map<String, String> body = responseEntity.getBody();
@@ -113,7 +113,7 @@ public class CimiInterface {
         HttpEntity<String> entity = new HttpEntity<>(headers);
         List<Service> services = new ArrayList<>();
         try {
-            ResponseEntity<Response> responseEntity = restTemplate.exchange(rootUrl + SERVICE, HttpMethod.GET, entity, Response.class);
+            ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + SERVICE, HttpMethod.GET, entity, Response.class);
             if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
                 log.info("Services retrieved");
                 Response response = responseEntity.getBody();
@@ -134,13 +134,34 @@ public class CimiInterface {
         HttpEntity<String> entity = new HttpEntity<>(headers);
         ServiceInstance serviceInstance = null;
         try {
-            ResponseEntity<Response> responseEntity = restTemplate.exchange(rootUrl + SERVICE_INSTANCE + "/" + serviceInstanceId, HttpMethod.GET, entity, Response.class);
+            ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + SERVICE_INSTANCE + "/" + serviceInstanceId, HttpMethod.GET, entity, Response.class);
             if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
-                log.info("service instances retrieved");
+                log.info("service instance retrieved");
                 Response response = responseEntity.getBody();
                 serviceInstance = response.getServiceInstance();
             }
             return serviceInstance;
+        } catch (Exception e) {
+            log.error("Error retrieving service instance");
+            return null;
+        }
+    }
+
+    public static List<ServiceInstance> getServiceInstances() {
+
+        headers = new HttpHeaders();
+        headers.set("slipstream-authn-info", "super ADMIN");
+        headers.add("Cookie", cookie);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        List<ServiceInstance> serviceInstances = new ArrayList<>();
+        try {
+            ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + SERVICE_INSTANCE, HttpMethod.GET, entity, Response.class);
+            if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
+                log.info("service instances retrieved");
+                Response response = responseEntity.getBody();
+                serviceInstances = response.getServiceInstances();
+            }
+            return serviceInstances;
         } catch (Exception e) {
             log.error("Error retrieving service instance");
             return null;
@@ -155,7 +176,7 @@ public class CimiInterface {
         HttpEntity<String> entity = new HttpEntity<>(headers);
         List<SlaViolation> slaViolations = new ArrayList<>();
         try {
-            ResponseEntity<Map> responseEntity = restTemplate.exchange(rootUrl + SLA_MANAGEMENT + AGREEMENTS + "/" + agreementId, HttpMethod.GET, entity, Map.class);
+            ResponseEntity<Map> responseEntity = restTemplate.exchange(cimiUrl + SLA_MANAGEMENT + AGREEMENTS + "/" + agreementId, HttpMethod.GET, entity, Map.class);
             if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
                 log.info("sla violations retrieved");
                 Map<String, Object> objects = responseEntity.getBody();
