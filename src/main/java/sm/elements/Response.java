@@ -10,6 +10,7 @@ package sm.elements;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,14 +21,16 @@ public class Response {
 
     private String id;
     private String message;
-    private String created;
-    private String updated;
     private String resourceURI;
     private int status;
-    private Service service;
+    // from CIMI
+    @JsonProperty("service_instance")
     private ServiceInstance serviceInstance;
+    private String service;
     private List<Service> services;
     private List<ServiceInstance> serviceInstances;
+    // to others
+    private Service serviceElement;
 
     public Response() {
         services = new ArrayList<>();
@@ -55,22 +58,6 @@ public class Response {
         this.message = message;
     }
 
-    public String getCreated() {
-        return created;
-    }
-
-    public void setCreated(String created) {
-        this.created = created;
-    }
-
-    public String getUpdated() {
-        return updated;
-    }
-
-    public void setUpdated(String updated) {
-        this.updated = updated;
-    }
-
     public String getResourceURI() {
         return resourceURI;
     }
@@ -87,20 +74,20 @@ public class Response {
         this.status = status;
     }
 
-    public Service getService() {
-        return service;
-    }
-
-    public void setService(Service service) {
-        this.service = service;
-    }
-
     public ServiceInstance getServiceInstance() {
         return serviceInstance;
     }
 
     public void setServiceInstance(ServiceInstance serviceInstance) {
         this.serviceInstance = serviceInstance;
+    }
+
+    public String getService() {
+        return service;
+    }
+
+    public void setService(String service) {
+        this.service = service;
     }
 
     public List<Service> getServices() {
@@ -117,5 +104,13 @@ public class Response {
 
     public void setServiceInstances(List<ServiceInstance> serviceInstances) {
         this.serviceInstances = serviceInstances;
+    }
+
+    public Service getServiceElement() {
+        return serviceElement;
+    }
+
+    public void setServiceElement(Service serviceElement) {
+        this.serviceElement = serviceElement;
     }
 }

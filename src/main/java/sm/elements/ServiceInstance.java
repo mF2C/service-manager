@@ -11,8 +11,6 @@ package sm.elements;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import sm.qos.elements.Agent;
 
 import java.util.List;
 
@@ -21,14 +19,10 @@ import java.util.List;
 public class ServiceInstance {
 
     private String id;
-    @JsonProperty("service_id")
-    private String serviceId;
-    @JsonProperty("status")
-    private String state;
-    @JsonProperty("agents")
+    private String service;
+    private String status;
     private List<Agent> agents;
-    @JsonProperty("agreement_id")
-    private String agreementId;
+    private String agreement;
 
     public ServiceInstance() {
     }
@@ -41,20 +35,20 @@ public class ServiceInstance {
         this.id = id;
     }
 
-    public String getServiceId() {
-        return serviceId;
+    public String getService() {
+        return service;
     }
 
-    public void setServiceId(String serviceId) {
-        this.serviceId = serviceId;
+    public void setService(String service) {
+        this.service = service;
     }
 
-    public String getState() {
-        return state;
+    public String getStatus() {
+        return status;
     }
 
-    public void setState(String state) {
-        this.state = state;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public List<Agent> getAgents() {
@@ -65,11 +59,11 @@ public class ServiceInstance {
         this.agents = agents;
     }
 
-    public String getAgreementId() {
-        return agreementId;
+    public String getAgreement() {
+        return agreement;
     }
 
-    public void setAgreementId(String agreementId) {
-        this.agreementId = agreementId;
+    public void setAgreement(String agreement) {
+        this.agreement = agreement;
     }
 }

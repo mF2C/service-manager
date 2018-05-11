@@ -34,7 +34,7 @@ public class QosProvider {
     public ServiceInstance check(ServiceInstance serviceInstance, List<SlaViolation> slaViolations) {
 
         Service service;
-        if ((service = Categorizer.getServiceById(serviceInstance.getServiceId())) != null) {
+        if ((service = Categorizer.getServiceById(serviceInstance.getService())) != null) {
             if (!qosProviderMap.containsKey(serviceInstance.getId()))
                 qosProviderMap.put(serviceInstance.getId(), new ServiceQosProvider(serviceInstance.getAgents().size()));
             if (slaViolations != null) {

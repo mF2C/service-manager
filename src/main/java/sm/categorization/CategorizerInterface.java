@@ -32,7 +32,7 @@ public class CategorizerInterface {
             Service serviceCategorized = ServiceManager.categorizer.submit(service);
             if (serviceCategorized != null) {
                 response.setMessage("Info - Service categorized");
-                response.setService(serviceCategorized);
+                response.setServiceElement(serviceCategorized);
                 response.setStatus(HttpStatus.CREATED.value());
             } else {
                 response.setMessage("Info - Service has a wrong format or CIMI is not running");
@@ -53,7 +53,7 @@ public class CategorizerInterface {
         Service service;
         try {
             if ((service = Categorizer.getServiceById(serviceId)) != null) {
-                response.setService(service);
+                response.setServiceElement(service);
                 response.setStatus(HttpStatus.OK.value());
             } else {
                 response.setMessage("Error - service does not exist");

@@ -35,7 +35,7 @@ public class QosProviderInterface {
         try {
             ServiceInstance serviceInstance = CimiInterface.getServiceInstance(serviceId);
             if (serviceInstance != null) {
-                List<SlaViolation> slaViolations = CimiInterface.getSlaViolations(serviceInstance.getAgreementId());
+                List<SlaViolation> slaViolations = CimiInterface.getSlaViolations(serviceInstance.getAgreement());
                 serviceInstance = ServiceManager.qosProvider.check(serviceInstance, slaViolations);
                 response.setMessage("Info - Checked QoS requirements");
                 response.setServiceInstance(serviceInstance);

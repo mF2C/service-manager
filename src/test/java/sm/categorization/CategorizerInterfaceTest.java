@@ -58,7 +58,7 @@ public class CategorizerInterfaceTest {
 
         response = restTemplate.getForObject(URL + id, Response.class);
         assertThat(response, hasProperty("status", is(HttpStatus.OK.value())));
-        assertNotNull(response.getService());
+        assertNotNull(response.getServiceElement());
     }
 
     @Test
