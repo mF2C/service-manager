@@ -23,11 +23,6 @@ public class Agent {
     public Agent() {
     }
 
-    public Agent(String id, boolean allow) {
-        this.id = id;
-        this.allow = allow;
-    }
-
     public String getId() {
         return id;
     }

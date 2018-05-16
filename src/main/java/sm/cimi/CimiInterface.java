@@ -12,10 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
-import sm.elements.Response;
-import sm.elements.Service;
-import sm.elements.ServiceInstance;
-import sm.elements.SlaViolation;
+import sm.elements.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -136,7 +133,7 @@ public class CimiInterface {
         try {
             ResponseEntity<ServiceInstance> responseEntity = restTemplate.exchange(cimiUrl + "/" + serviceInstanceId, HttpMethod.GET, entity, ServiceInstance.class);
             if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
-                log.info("service instance retrieved");
+                log.info("Service instance retrieved");
                 serviceInstance = responseEntity.getBody();
             }
             return serviceInstance;
@@ -156,13 +153,34 @@ public class CimiInterface {
         try {
             ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + SERVICE_INSTANCE, HttpMethod.GET, entity, Response.class);
             if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
-                log.info("service instances retrieved");
+                log.info("Service instances retrieved");
                 Response response = responseEntity.getBody();
                 serviceInstances = response.getServiceInstances();
             }
             return serviceInstances;
         } catch (Exception e) {
             log.error("Error retrieving service instance");
+            return null;
+        }
+    }
+
+    public static Agreement getAgreement(String agreementId) {
+
+        headers = new HttpHeaders();
+        headers.set("slipstream-authn-info", "super ADMIN");
+        headers.add("Cookie", cookie);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        Agreement agreement = null;
+        try {
+            ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl +  "/" + agreementId, HttpMethod.GET, entity, Response.class);
+            if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
+                log.info("Agreement retrieved");
+                Response response = responseEntity.getBody();
+                agreement = response.getAgreement();
+            }
+            return agreement;
+        } catch (Exception e) {
+            log.error("Error retrieving agreement");
             return null;
         }
     }
@@ -175,11 +193,11 @@ public class CimiInterface {
         HttpEntity<String> entity = new HttpEntity<>(headers);
         List<SlaViolation> slaViolations = new ArrayList<>();
         try {
-            ResponseEntity<Map> responseEntity = restTemplate.exchange(cimiUrl + SLA_MANAGEMENT + AGREEMENTS + "/" + agreementId, HttpMethod.GET, entity, Map.class);
+            ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl  + "/sla-violation?$filter=agreement=" + agreementId, HttpMethod.GET, entity, Response.class);
             if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
-                log.info("sla violations retrieved");
-                Map<String, Object> objects = responseEntity.getBody();
-                slaViolations = (List<SlaViolation>) objects.get("sla_violations");
+                log.info("SLA violations retrieved");
+                Response response = responseEntity.getBody();
+                slaViolations = response.getSlaViolations();
             }
             return slaViolations;
         } catch (Exception e) {

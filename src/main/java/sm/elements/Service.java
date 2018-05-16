@@ -30,15 +30,19 @@ public class Service {
     private String resourceURI;
     private Category category;
     @JsonIgnore
-    private int slaViolationsCounter;
-    @JsonIgnore
     private int executionsCounter;
+    @JsonIgnore
+    private float serviceFailureRatioCounter;
 
     public Service() {
     }
 
     public void increaseExecutionsCounter() {
         executionsCounter++;
+    }
+
+    public void increaseServiceFailureCounter(float ratio) {
+        serviceFailureRatioCounter = serviceFailureRatioCounter + ratio;
     }
 
     public String getId() {
@@ -121,15 +125,11 @@ public class Service {
         this.category = category;
     }
 
-    public int getSlaViolationsCounter() {
-        return slaViolationsCounter;
-    }
-
     public int getExecutionsCounter() {
         return executionsCounter;
     }
 
-    public void setSlaViolationsCounter(int slaViolationsCounter) {
-        this.slaViolationsCounter = slaViolationsCounter;
+    public float getServiceFailureRatioCounter() {
+        return serviceFailureRatioCounter;
     }
 }

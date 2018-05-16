@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import sm.ServiceManager;
+import sm.elements.Agreement;
 import sm.elements.Response;
 import sm.elements.ServiceInstance;
 import sm.elements.SlaViolation;
@@ -35,11 +36,17 @@ public class QosProviderInterface {
         try {
             ServiceInstance serviceInstance = CimiInterface.getServiceInstance(serviceId);
             if (serviceInstance != null) {
-                List<SlaViolation> slaViolations = CimiInterface.getSlaViolations(serviceInstance.getAgreement());
-                serviceInstance = ServiceManager.qosProvider.check(serviceInstance, slaViolations);
-                response.setMessage("Info - Checked QoS requirements");
-                response.setServiceInstance(serviceInstance);
-                response.setStatus(HttpStatus.OK.value());
+                Agreement agreement = CimiInterface.getAgreement(serviceInstance.getAgreement());
+                if(agreement != null) {
+                    List<SlaViolation> slaViolations = CimiInterface.getSlaViolations(serviceInstance.getAgreement());
+                    serviceInstance = ServiceManager.qosProvider.check(serviceInstance, agreement, slaViolations);
+                    response.setMessage("Info - Checked QoS requirements");
+                    response.setServiceInstance(serviceInstance);
+                    response.setStatus(HttpStatus.OK.value());
+                } else {
+                    response.setMessage("Error - agreement does not exist!");
+                    response.setStatus(HttpStatus.NOT_FOUND.value());
+                }
             } else {
                 response.setMessage("Error - service instance does not exist!");
                 response.setStatus(HttpStatus.NOT_FOUND.value());

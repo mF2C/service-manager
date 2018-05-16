@@ -29,6 +29,8 @@ public class Response {
     private String service;
     private List<Service> services;
     private List<ServiceInstance> serviceInstances;
+    private Agreement agreement;
+    private List<SlaViolation> slaViolations;
     // to others
     private Service serviceElement;
 
@@ -112,5 +114,21 @@ public class Response {
 
     public void setServiceElement(Service serviceElement) {
         this.serviceElement = serviceElement;
+    }
+
+    public Agreement getAgreement() {
+        return agreement;
+    }
+
+    public void setAgreement(Agreement agreement) {
+        this.agreement = agreement;
+    }
+
+    public List<SlaViolation> getSlaViolations() {
+        return slaViolations;
+    }
+
+    public void setSlaViolations(List<SlaViolation> slaViolations) {
+        this.slaViolations = slaViolations;
     }
 }

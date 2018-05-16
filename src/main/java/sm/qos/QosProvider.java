@@ -11,6 +11,7 @@ package sm.qos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sm.categorization.Categorizer;
+import sm.elements.Agreement;
 import sm.elements.Service;
 import sm.elements.ServiceInstance;
 import sm.elements.SlaViolation;
@@ -31,15 +32,15 @@ public class QosProvider {
         qosProviderMap = new HashMap<>();
     }
 
-    public ServiceInstance check(ServiceInstance serviceInstance, List<SlaViolation> slaViolations) {
+    public ServiceInstance check(ServiceInstance serviceInstance, Agreement agreement, List<SlaViolation> slaViolations) {
 
         Service service;
         if ((service = Categorizer.getServiceById(serviceInstance.getService())) != null) {
             service.increaseExecutionsCounter();
-            if (!qosProviderMap.containsKey(serviceInstance.getId()))
+            if (!qosProviderMap.containsKey(service.getId()))
                 qosProviderMap.put(service.getId(), new ServiceQosProvider(serviceInstance.getAgents().size()));
             if (slaViolations != null) {
-                float slaViolationRatio = calculateSlaViolationRatio(service, slaViolations);
+                float slaViolationRatio = calculateSlaViolationRatio(service, agreement, slaViolations);
                 boolean[] acceptedAgents;
                 if (service.getExecutionsCounter() < QOS_WARM_UP)
                     acceptedAgents = qosProviderMap.get(service.getId()).checkServiceInstance(slaViolationRatio, true, 0);
@@ -51,11 +52,15 @@ public class QosProvider {
         return serviceInstance;
     }
 
-    // To be updated
-    private float calculateSlaViolationRatio(Service service, List<SlaViolation> slaViolations) {
-        service.setSlaViolationsCounter(service.getSlaViolationsCounter() + slaViolations.size());
-        float ratio = service.getSlaViolationsCounter() / (service.getExecutionsCounter());
-        return ratio;
+    private float calculateSlaViolationRatio(Service service, Agreement agreement, List<SlaViolation> slaViolations) {
+
+        int numberOfGuarantees = agreement.getDetails().getGuarantees().size();
+        float ratioOfServiceFailure = slaViolations.size() / numberOfGuarantees;
+
+        if(ratioOfServiceFailure > 0)
+            service.increaseServiceFailureCounter(ratioOfServiceFailure);
+
+        return service.getServiceFailureRatioCounter() / service.getExecutionsCounter();
     }
 
     private void setAcceptedAgents(boolean acceptedAgents[], ServiceInstance serviceInstance) {
