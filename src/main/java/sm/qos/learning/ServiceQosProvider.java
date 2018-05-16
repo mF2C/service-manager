@@ -140,7 +140,9 @@ public class ServiceQosProvider {
         for (boolean anOutput : output)
             if (anOutput)
                 reward += -2 * input + 1;
-            else reward += input - 1;
+            else {
+                reward += input - 1;
+            }
 
         return reward;
     }

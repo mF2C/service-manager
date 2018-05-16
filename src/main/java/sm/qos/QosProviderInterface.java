@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import sm.ServiceManager;
 import sm.elements.Response;
 import sm.elements.ServiceInstance;
-import sm.qos.elements.SlaViolation;
+import sm.elements.SlaViolation;
 import sm.cimi.CimiInterface;
 
 import java.util.List;

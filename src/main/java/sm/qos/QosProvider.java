@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import sm.categorization.Categorizer;
 import sm.elements.Service;
 import sm.elements.ServiceInstance;
-import sm.qos.elements.SlaViolation;
+import sm.elements.SlaViolation;
 import sm.qos.learning.ServiceQosProvider;
 
 import java.util.HashMap;
@@ -35,30 +35,28 @@ public class QosProvider {
 
         Service service;
         if ((service = Categorizer.getServiceById(serviceInstance.getService())) != null) {
+            service.increaseExecutionsCounter();
             if (!qosProviderMap.containsKey(serviceInstance.getId()))
-                qosProviderMap.put(serviceInstance.getId(), new ServiceQosProvider(serviceInstance.getAgents().size()));
+                qosProviderMap.put(service.getId(), new ServiceQosProvider(serviceInstance.getAgents().size()));
             if (slaViolations != null) {
-                service.increaseExecutionsCounter();
-                service.setSlaViolationsCounter(service.getSlaViolationsCounter() + slaViolations.size());
-                float slaViolationRatio = calculateSlaViolationRatio(service, serviceInstance);
+                float slaViolationRatio = calculateSlaViolationRatio(service, slaViolations);
                 boolean[] acceptedAgents;
                 if (service.getExecutionsCounter() < QOS_WARM_UP)
-                    acceptedAgents = qosProviderMap.get(serviceInstance.getId()).checkServiceInstance(slaViolationRatio, true, 0);
+                    acceptedAgents = qosProviderMap.get(service.getId()).checkServiceInstance(slaViolationRatio, true, 0);
                 else
-                    acceptedAgents = qosProviderMap.get(serviceInstance.getId()).checkServiceInstance(slaViolationRatio, false, EPSILON);
+                    acceptedAgents = qosProviderMap.get(service.getId()).checkServiceInstance(slaViolationRatio, false, EPSILON);
                 setAcceptedAgents(acceptedAgents, serviceInstance);
             }
         }
         return serviceInstance;
     }
 
-    private float calculateSlaViolationRatio(Service service, ServiceInstance serviceInstance) {
-        float ratio = service.getSlaViolationsCounter() / (service.getExecutionsCounter() * serviceInstance.getAgents().size());
-        if (ratio > 1)
-            ratio = 1;
+    // To be updated
+    private float calculateSlaViolationRatio(Service service, List<SlaViolation> slaViolations) {
+        service.setSlaViolationsCounter(service.getSlaViolationsCounter() + slaViolations.size());
+        float ratio = service.getSlaViolationsCounter() / (service.getExecutionsCounter());
         return ratio;
     }
-
 
     private void setAcceptedAgents(boolean acceptedAgents[], ServiceInstance serviceInstance) {
         for (int i = 0; i < serviceInstance.getAgents().size(); i++)

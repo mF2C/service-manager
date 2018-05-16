@@ -15,7 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import sm.elements.Response;
 import sm.elements.Service;
 import sm.elements.ServiceInstance;
-import sm.qos.elements.SlaViolation;
+import sm.elements.SlaViolation;
 
 import java.util.ArrayList;
 import java.util.List;

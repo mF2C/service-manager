@@ -1,11 +1,11 @@
 version: '3'
 services:
   service-manager:
-    image: mf2c/service-manager:1.3
+    image: mf2c/service-manager
     environment:
-      - "JAVA_OPTS="
+      - JAVA_OPTS=
       - CIMI_URL=https://dashboard.mf2c-project.eu/api
     expose:
-      - "46200"
+      - 46200
 
 

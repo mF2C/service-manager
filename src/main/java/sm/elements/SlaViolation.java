@@ -6,22 +6,26 @@
  *
  * @author Francisco Carpio - TUBS
  */
-package sm.qos.elements;
+package sm.elements;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SlaViolation {
 
     private String id;
     @JsonProperty("agreement_id")
-    private String agreementId;
+    private String agreement;
     private int guarantee;
-    @JsonProperty("datetime")
-    private String dateTime;
+    private String constraint;
+    private Map<String, Integer> values;
 
     public SlaViolation(){
+        values = new HashMap<>();
     }
 
     public String getId() {
@@ -32,12 +36,12 @@ public class SlaViolation {
         this.id = id;
     }
 
-    public String getAgreementId() {
-        return agreementId;
+    public String getAgreement() {
+        return agreement;
     }
 
-    public void setAgreementId(String agreementId) {
-        this.agreementId = agreementId;
+    public void setAgreement(String agreement) {
+        this.agreement = agreement;
     }
 
     public int getGuarantee() {
@@ -48,11 +52,19 @@ public class SlaViolation {
         this.guarantee = guarantee;
     }
 
-    public String getDateTime() {
-        return dateTime;
+    public String getConstraint() {
+        return constraint;
     }
 
-    public void setDateTime(String dateTime) {
-        this.dateTime = dateTime;
+    public void setConstraint(String constraint) {
+        this.constraint = constraint;
+    }
+
+    public Map<String, Integer> getValues() {
+        return values;
+    }
+
+    public void setValues(Map<String, Integer> values) {
+        this.values = values;
     }
 }

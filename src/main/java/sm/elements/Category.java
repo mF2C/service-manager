@@ -6,7 +6,7 @@
  *
  * @author Francisco Carpio - TUBS
  */
-package sm.categorization.elements;
+package sm.elements;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
