@@ -50,20 +50,15 @@ public class DeepQ {
         this.rnd = new Random();
     }
 
-    public int getAction(INDArray input, boolean[] actionMask) {
+    public int getAction(INDArray input) {
 
         this.lastInput = input;
         INDArray output = multiLayerNetwork.output(input);
-        log.debug("DeepQ output: " + output);
         if (epsilon > rnd.nextDouble()) {
             int outputSize = output.size(1);
             this.lastAction = rnd.nextInt(outputSize);
-            while (!actionMask[this.lastAction])
-                this.lastAction = rnd.nextInt(outputSize);
         } else
             this.lastAction = findActionMax(output);
-
-        log.debug("DeepQ action: " + this.lastAction);
         return this.lastAction;
     }
 

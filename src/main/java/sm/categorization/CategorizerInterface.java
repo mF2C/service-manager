@@ -31,15 +31,15 @@ public class CategorizerInterface {
         try {
             Service serviceCategorized = ServiceManager.categorizer.submit(service);
             if (serviceCategorized != null) {
-                response.setMessage("Info - Service categorized");
-                response.setServiceElement(serviceCategorized);
+                response.setMessage("Info: service categorized");
+                response.setService(serviceCategorized);
                 response.setStatus(HttpStatus.CREATED.value());
             } else {
-                response.setMessage("Info - Service has a wrong format or CIMI is not running");
+                response.setMessage("Info: service has a wrong format or CIMI is not running");
                 response.setStatus(HttpStatus.NOT_FOUND.value());
             }
         } catch (Exception e) {
-            response.setMessage("Error - invalid request!");
+            response.setMessage("Error: invalid request");
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         }
         return response;
@@ -53,14 +53,14 @@ public class CategorizerInterface {
         Service service;
         try {
             if ((service = Categorizer.getServiceById(serviceId)) != null) {
-                response.setServiceElement(service);
+                response.setService(service);
                 response.setStatus(HttpStatus.OK.value());
             } else {
-                response.setMessage("Error - service does not exist");
+                response.setMessage("Error: service does not exist");
                 response.setStatus(HttpStatus.NOT_FOUND.value());
             }
         } catch (Exception e) {
-            response.setMessage("Error - invalid request");
+            response.setMessage("Error: invalid request");
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         }
         return response;
@@ -75,7 +75,7 @@ public class CategorizerInterface {
             response.setServices(Categorizer.getServices());
             response.setStatus(HttpStatus.OK.value());
         } catch (Exception e) {
-            response.setMessage("Error - invalid request");
+            response.setMessage("Error: invalid request");
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         }
         return response;
@@ -91,14 +91,14 @@ public class CategorizerInterface {
         try {
             if ((service = Categorizer.getServiceById(serviceId)) != null) {
                 Categorizer.localServices.remove(service.getName());
-                response.setMessage("Info - service instance deleted");
+                response.setMessage("Info: service deleted");
                 response.setStatus(HttpStatus.OK.value());
             } else {
-                response.setMessage("Error - service does not exist");
+                response.setMessage("Error: service does not exist");
                 response.setStatus(HttpStatus.NOT_FOUND.value());
             }
         } catch (Exception e) {
-            response.setMessage("Error - invalid request!");
+            response.setMessage("Error: invalid request");
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         }
         return response;

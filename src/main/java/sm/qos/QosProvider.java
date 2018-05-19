@@ -37,16 +37,20 @@ public class QosProvider {
         Service service;
         if ((service = Categorizer.getServiceById(serviceInstance.getService())) != null) {
             service.increaseExecutionsCounter();
-            if (!qosProviderMap.containsKey(service.getId()))
-                qosProviderMap.put(service.getId(), new ServiceQosProvider(serviceInstance.getAgents().size()));
+            if (!qosProviderMap.containsKey(service.getId())) {
+                ServiceQosProvider serviceQosProvider = new ServiceQosProvider(serviceInstance.getAgents().size());
+                qosProviderMap.put(service.getId(), serviceQosProvider);
+                serviceQosProvider.initializeParameters();
+            }
             if (slaViolations != null) {
                 float slaViolationRatio = calculateSlaViolationRatio(service, agreement, slaViolations);
-                boolean[] acceptedAgents;
+                ServiceQosProvider serviceQosProvider = qosProviderMap.get(service.getId());
                 if (service.getExecutionsCounter() < QOS_WARM_UP)
-                    acceptedAgents = qosProviderMap.get(service.getId()).checkServiceInstance(slaViolationRatio, true, 0);
+                    serviceQosProvider.trainNetwork(slaViolationRatio);
                 else
-                    acceptedAgents = qosProviderMap.get(service.getId()).checkServiceInstance(slaViolationRatio, false, EPSILON);
-                setAcceptedAgents(acceptedAgents, serviceInstance);
+                    serviceQosProvider.evaluateNetwork(slaViolationRatio, EPSILON);
+                boolean[] agents = serviceQosProvider.getOutput();
+                setAcceptedAgents(agents, serviceInstance);
             }
         }
         return serviceInstance;
@@ -57,7 +61,7 @@ public class QosProvider {
         int numberOfGuarantees = agreement.getDetails().getGuarantees().size();
         float ratioOfServiceFailure = slaViolations.size() / numberOfGuarantees;
 
-        if(ratioOfServiceFailure > 0)
+        if (ratioOfServiceFailure > 0)
             service.increaseServiceFailureCounter(ratioOfServiceFailure);
 
         return service.getServiceFailureRatioCounter() / service.getExecutionsCounter();

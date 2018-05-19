@@ -25,15 +25,13 @@ import java.util.Arrays;
 public class ServiceQosProvider {
 
     private DeepQ network;
-    private boolean[] allowedAgents;
+    private int numOfAgents;
     private int timeStep;
+    private boolean[] output;
+    private final double THRESHOLD = 0.7;
 
     public ServiceQosProvider(int numOfAgents) {
-
-        allowedAgents = new boolean[numOfAgents];
-        Arrays.fill(allowedAgents, true);
-        timeStep = 0;
-
+        this.numOfAgents = numOfAgents;
         int hiddenLayerOut = 150;
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(123)
@@ -50,7 +48,7 @@ public class ServiceQosProvider {
                         .build())
                 .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
                         .nIn(hiddenLayerOut)
-                        .nOut(numOfAgents * 2)
+                        .nOut(numOfAgents + 1)
                         .weightInit(WeightInit.XAVIER)
                         .activation(Activation.IDENTITY)
                         .build())
@@ -58,47 +56,36 @@ public class ServiceQosProvider {
                 .backprop(true)
                 .build();
 
-        network = new DeepQ(conf, 100000, .99f, 1d, 1024, 500, 1024, numOfAgents + 1);
-
+        network = new DeepQ(conf, 100000, .99f, 1d, 1024, 500, 1024, 2);
     }
 
-    public boolean[] checkServiceInstance(float slaViolationRatio, boolean isWarmUp, double epsilon) {
-        if (isWarmUp)
-            trainNetwork(slaViolationRatio);
-        else
-            allowedAgents = evaluateNetwork(slaViolationRatio, epsilon);
-
-        return this.allowedAgents;
+    public void initializeParameters() {
+        timeStep = 0;
+        output = new boolean[numOfAgents];
+        Arrays.fill(output, true);
     }
 
-    private void trainNetwork(float slaViolationRatio) {
+    public boolean trainNetwork(float slaViolationRatio) {
 
-        boolean[] outputBuffer = new boolean[allowedAgents.length];
-        System.arraycopy(allowedAgents, 0, outputBuffer, 0, allowedAgents.length);
         float maxReward = calculateMaxReward(slaViolationRatio);
-
-        while (true) {
-            int action = network.getAction(createINDArray(timeStep, slaViolationRatio), getActionMask(outputBuffer));
-            boolean nextOutput[] = modifyOutput(outputBuffer, action);
-            float reward = calculateReward(nextOutput, slaViolationRatio);
-            timeStep++;
-            if (reward >= maxReward) {
-                network.observeReward(reward, null);
-                break;
-            } else
-                network.observeReward(reward, createINDArray(timeStep, slaViolationRatio));
+        int action = network.getAction(createINDArray(timeStep, slaViolationRatio));
+        boolean nextOutput[] = modifyOutput(output, action);
+        float reward = calculateReward(nextOutput, slaViolationRatio);
+        output = nextOutput;
+        timeStep++;
+        if (reward >= maxReward * THRESHOLD) {
+            network.observeReward(reward, null);
+            return true;
+        } else {
+            network.observeReward(reward, createINDArray(timeStep, slaViolationRatio));
+            return false;
         }
     }
 
-    private boolean[] evaluateNetwork(float slaViolationRatio, double epsilon){
-
-        boolean[] output = new boolean[allowedAgents.length];
+    public void evaluateNetwork(float slaViolationRatio, double epsilon) {
         network.setEpsilon(epsilon);
-
-        int action = network.getAction(createINDArray(timeStep, slaViolationRatio), getActionMask(output));
+        int action = network.getAction(createINDArray(timeStep, slaViolationRatio));
         output = modifyOutput(output, action);
-
-        return output;
     }
 
     private INDArray createINDArray(int timeStep, float inputBuffer) {
@@ -109,27 +96,14 @@ public class ServiceQosProvider {
         return Nd4j.create(convertedInput);
     }
 
-    private boolean[] getActionMask(boolean[] currentOutput) {
-        boolean[] actionMask = new boolean[currentOutput.length * 2];
-        Arrays.fill(actionMask, true);
-
-        for (int i = 0; i < currentOutput.length; i++)
-            if (!currentOutput[i])
-                actionMask[i] = false;
-            else
-                actionMask[i + currentOutput.length] = false;
-
-        return actionMask;
-    }
-
     private boolean[] modifyOutput(boolean[] lastOutput, int action) {
         boolean[] output = Arrays.copyOf(lastOutput, lastOutput.length);
 
-        for (int i = 0; i < output.length; i++) {
-            if (!output[i] && action == i + 1)
-                output[i] = true;
-            if (output[i] && action == i)
-                output[i] = false;
+        if (action < lastOutput.length) {
+            if (!lastOutput[action])
+                output[action] = true;
+            else
+                output[action] = false;
         }
         return output;
     }
@@ -148,6 +122,13 @@ public class ServiceQosProvider {
     }
 
     private float calculateMaxReward(float slaHistory) {
-        return -2 * slaHistory + 1;
+        float maxReward = (-2 * slaHistory + 1) * numOfAgents;
+        if (maxReward < 0)
+            maxReward = 0;
+        return maxReward;
+    }
+
+    public boolean[] getOutput() {
+        return output;
     }
 }

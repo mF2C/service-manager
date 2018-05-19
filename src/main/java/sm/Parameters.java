@@ -33,7 +33,7 @@ public class Parameters {
     public static final String QOS = "/qos";
     public static final String CATEGORIZER = "/categorizer";
 
-    public static final int QOS_WARM_UP = 100;
-    public static final double EPSILON = 1.0;
+    public static final int QOS_WARM_UP = 500;
+    public static final double EPSILON = 0.0;
 
 }

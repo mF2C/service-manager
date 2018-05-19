@@ -1,5 +1,5 @@
 /**
- * Agent class.
+ * Agreement class.
  * Part of the mF2C Project: http://www.mf2c-project.eu/
  * <p>
  * This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
@@ -9,13 +9,11 @@
 package sm.elements;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Agreement {
 
     private String id;
@@ -41,8 +39,7 @@ public class Agreement {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public class Details{
+    public static class Details{
 
         private List<Guarantee> guarantees;
 
@@ -59,8 +56,7 @@ public class Agreement {
         }
 
         @JsonIgnoreProperties(ignoreUnknown = true)
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        public class Guarantee {
+        public static class Guarantee {
             private String name;
             private String constraint;
 

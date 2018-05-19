@@ -9,18 +9,20 @@
 package sm.elements;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SlaViolation {
 
     private String id;
-    @JsonProperty("agreement_id")
+    @JsonProperty("agreement_id/href")
     private String agreement;
-    private int guarantee;
+    private String guarantee;
     private String constraint;
     private Map<String, Integer> values;
 
@@ -44,11 +46,11 @@ public class SlaViolation {
         this.agreement = agreement;
     }
 
-    public int getGuarantee() {
+    public String getGuarantee() {
         return guarantee;
     }
 
-    public void setGuarantee(int guarantee) {
+    public void setGuarantee(String guarantee) {
         this.guarantee = guarantee;
     }
 

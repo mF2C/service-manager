@@ -40,19 +40,19 @@ public class QosProviderInterface {
                 if(agreement != null) {
                     List<SlaViolation> slaViolations = CimiInterface.getSlaViolations(serviceInstance.getAgreement());
                     serviceInstance = ServiceManager.qosProvider.check(serviceInstance, agreement, slaViolations);
-                    response.setMessage("Info - Checked QoS requirements");
+                    response.setMessage("Info: QoS checked");
                     response.setServiceInstance(serviceInstance);
                     response.setStatus(HttpStatus.OK.value());
                 } else {
-                    response.setMessage("Error - agreement does not exist!");
+                    response.setMessage("Error: agreement does not exist");
                     response.setStatus(HttpStatus.NOT_FOUND.value());
                 }
             } else {
-                response.setMessage("Error - service instance does not exist!");
+                response.setMessage("Error: service instance does not exist");
                 response.setStatus(HttpStatus.NOT_FOUND.value());
             }
         } catch (Exception e) {
-            response.setMessage("Error - invalid request!");
+            response.setMessage("Error: invalid request");
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         }
         return response;

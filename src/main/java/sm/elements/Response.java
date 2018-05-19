@@ -23,20 +23,18 @@ public class Response {
     private String message;
     private String resourceURI;
     private int status;
+
     // from CIMI
-    @JsonProperty("service_instance")
-    private ServiceInstance serviceInstance;
-    private String service;
     private List<Service> services;
-    private List<ServiceInstance> serviceInstances;
-    private Agreement agreement;
     private List<SlaViolation> slaViolations;
+
     // to others
-    private Service serviceElement;
+    private Service service;
+    @JsonProperty("service-instance")
+    private ServiceInstance serviceInstance;
 
     public Response() {
         services = new ArrayList<>();
-        serviceInstances = new ArrayList<>();
     }
 
     public Response(String id, String resourceURI) {
@@ -76,22 +74,6 @@ public class Response {
         this.status = status;
     }
 
-    public ServiceInstance getServiceInstance() {
-        return serviceInstance;
-    }
-
-    public void setServiceInstance(ServiceInstance serviceInstance) {
-        this.serviceInstance = serviceInstance;
-    }
-
-    public String getService() {
-        return service;
-    }
-
-    public void setService(String service) {
-        this.service = service;
-    }
-
     public List<Service> getServices() {
         return services;
     }
@@ -100,35 +82,27 @@ public class Response {
         this.services = services;
     }
 
-    public List<ServiceInstance> getServiceInstances() {
-        return serviceInstances;
-    }
-
-    public void setServiceInstances(List<ServiceInstance> serviceInstances) {
-        this.serviceInstances = serviceInstances;
-    }
-
-    public Service getServiceElement() {
-        return serviceElement;
-    }
-
-    public void setServiceElement(Service serviceElement) {
-        this.serviceElement = serviceElement;
-    }
-
-    public Agreement getAgreement() {
-        return agreement;
-    }
-
-    public void setAgreement(Agreement agreement) {
-        this.agreement = agreement;
-    }
-
     public List<SlaViolation> getSlaViolations() {
         return slaViolations;
     }
 
     public void setSlaViolations(List<SlaViolation> slaViolations) {
         this.slaViolations = slaViolations;
+    }
+
+    public Service getService() {
+        return service;
+    }
+
+    public void setService(Service service) {
+        this.service = service;
+    }
+
+    public ServiceInstance getServiceInstance() {
+        return serviceInstance;
+    }
+
+    public void setServiceInstance(ServiceInstance serviceInstance) {
+        this.serviceInstance = serviceInstance;
     }
 }

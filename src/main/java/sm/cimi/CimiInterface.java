@@ -143,27 +143,6 @@ public class CimiInterface {
         }
     }
 
-    public static List<ServiceInstance> getServiceInstances() {
-
-        headers = new HttpHeaders();
-        headers.set("slipstream-authn-info", "super ADMIN");
-        headers.add("Cookie", cookie);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        List<ServiceInstance> serviceInstances = new ArrayList<>();
-        try {
-            ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + SERVICE_INSTANCE, HttpMethod.GET, entity, Response.class);
-            if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
-                log.info("Service instances retrieved");
-                Response response = responseEntity.getBody();
-                serviceInstances = response.getServiceInstances();
-            }
-            return serviceInstances;
-        } catch (Exception e) {
-            log.error("Error retrieving service instance");
-            return null;
-        }
-    }
-
     public static Agreement getAgreement(String agreementId) {
 
         headers = new HttpHeaders();
@@ -172,11 +151,10 @@ public class CimiInterface {
         HttpEntity<String> entity = new HttpEntity<>(headers);
         Agreement agreement = null;
         try {
-            ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl +  "/" + agreementId, HttpMethod.GET, entity, Response.class);
+            ResponseEntity<Agreement> responseEntity = restTemplate.exchange(cimiUrl +  "/" + agreementId, HttpMethod.GET, entity, Agreement.class);
             if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
                 log.info("Agreement retrieved");
-                Response response = responseEntity.getBody();
-                agreement = response.getAgreement();
+                agreement = responseEntity.getBody();
             }
             return agreement;
         } catch (Exception e) {
@@ -193,7 +171,7 @@ public class CimiInterface {
         HttpEntity<String> entity = new HttpEntity<>(headers);
         List<SlaViolation> slaViolations = new ArrayList<>();
         try {
-            ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl  + "/sla-violation?$filter=agreement=" + agreementId, HttpMethod.GET, entity, Response.class);
+            ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl  + "/sla-violation?$filter=agreement_id/href='" + agreementId+"'", HttpMethod.GET, entity, Response.class);
             if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
                 log.info("SLA violations retrieved");
                 Response response = responseEntity.getBody();
