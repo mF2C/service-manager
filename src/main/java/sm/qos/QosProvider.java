@@ -10,7 +10,6 @@ package sm.qos;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sm.categorization.Categorizer;
 import sm.elements.Agreement;
 import sm.elements.Service;
 import sm.elements.ServiceInstance;
@@ -32,27 +31,25 @@ public class QosProvider {
         qosProviderMap = new HashMap<>();
     }
 
-    public ServiceInstance check(ServiceInstance serviceInstance, Agreement agreement, List<SlaViolation> slaViolations) {
+    public ServiceInstance check(Service service, ServiceInstance serviceInstance, Agreement agreement, List<SlaViolation> slaViolations) {
 
-        Service service;
-        if ((service = Categorizer.getServiceById(serviceInstance.getService())) != null) {
-            service.increaseExecutionsCounter();
-            if (!qosProviderMap.containsKey(service.getId())) {
-                ServiceQosProvider serviceQosProvider = new ServiceQosProvider(serviceInstance.getAgents().size());
-                qosProviderMap.put(service.getId(), serviceQosProvider);
-                serviceQosProvider.initializeParameters();
-            }
-            if (slaViolations != null) {
-                float slaViolationRatio = calculateSlaViolationRatio(service, agreement, slaViolations);
-                ServiceQosProvider serviceQosProvider = qosProviderMap.get(service.getId());
-                if (service.getExecutionsCounter() < QOS_WARM_UP)
-                    serviceQosProvider.trainNetwork(slaViolationRatio);
-                else
-                    serviceQosProvider.evaluateNetwork(slaViolationRatio, EPSILON);
-                boolean[] agents = serviceQosProvider.getOutput();
-                setAcceptedAgents(agents, serviceInstance);
-            }
+        service.increaseExecutionsCounter();
+        if (!qosProviderMap.containsKey(service.getId())) {
+            ServiceQosProvider serviceQosProvider = new ServiceQosProvider(serviceInstance.getAgents().size());
+            qosProviderMap.put(service.getId(), serviceQosProvider);
+            serviceQosProvider.initializeParameters();
         }
+        if (slaViolations != null) {
+            float slaViolationRatio = calculateSlaViolationRatio(service, agreement, slaViolations);
+            ServiceQosProvider serviceQosProvider = qosProviderMap.get(service.getId());
+            if (service.getExecutionsCounter() < QOS_WARM_UP)
+                serviceQosProvider.trainNetwork(slaViolationRatio);
+            else
+                serviceQosProvider.evaluateNetwork(slaViolationRatio, EPSILON);
+            boolean[] agents = serviceQosProvider.getOutput();
+            setAcceptedAgents(agents, serviceInstance);
+        }
+
         return serviceInstance;
     }
 

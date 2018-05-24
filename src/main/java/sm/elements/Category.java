@@ -19,6 +19,8 @@ public class Category {
     private String cpu;
     private String memory;
     private String storage;
+    private String disk;
+    private String network;
     private boolean inclinometer;
     private boolean temperature;
     private boolean jammer;
@@ -61,6 +63,22 @@ public class Category {
 
     public void setStorage(String storage) {
         this.storage = storage;
+    }
+
+    public String getDisk() {
+        return disk;
+    }
+
+    public void setDisk(String disk) {
+        this.disk = disk;
+    }
+
+    public String getNetwork() {
+        return network;
+    }
+
+    public void setNetwork(String network) {
+        this.network = network;
     }
 
     public boolean isInclinometer() {

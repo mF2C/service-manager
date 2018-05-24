@@ -12,11 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import sm.ServiceManager;
-import sm.elements.Agreement;
-import sm.elements.Response;
-import sm.elements.ServiceInstance;
-import sm.elements.SlaViolation;
+import sm.categorization.Categorizer;
 import sm.cimi.CimiInterface;
+import sm.elements.*;
 
 import java.util.List;
 
@@ -31,26 +29,22 @@ public class QosProviderInterface {
     Response check(@PathVariable String service_instance_id) {
 
         String serviceId = "service-instance/" + service_instance_id;
-
         Response response = new Response(serviceId, SERVICE_MANAGEMENT_ROOT + QOS);
+
         try {
             ServiceInstance serviceInstance = CimiInterface.getServiceInstance(serviceId);
-            if (serviceInstance != null) {
-                Agreement agreement = CimiInterface.getAgreement(serviceInstance.getAgreement());
-                if(agreement != null) {
-                    List<SlaViolation> slaViolations = CimiInterface.getSlaViolations(serviceInstance.getAgreement());
-                    serviceInstance = ServiceManager.qosProvider.check(serviceInstance, agreement, slaViolations);
-                    response.setMessage("Info: QoS checked");
-                    response.setServiceInstance(serviceInstance);
-                    response.setStatus(HttpStatus.OK.value());
-                } else {
-                    response.setMessage("Error: agreement does not exist");
-                    response.setStatus(HttpStatus.NOT_FOUND.value());
-                }
-            } else {
-                response.setMessage("Error: service instance does not exist");
+            Agreement agreement = CimiInterface.getAgreement(serviceInstance.getAgreement());
+            Service service = Categorizer.getServiceById(serviceInstance.getService());
+            if (serviceInstance == null | agreement == null | service == null) {
+                response.setMessage("Error: service-instance, agreement and/or service resources do not exist");
                 response.setStatus(HttpStatus.NOT_FOUND.value());
+                return response;
             }
+            List<SlaViolation> slaViolations = CimiInterface.getSlaViolations(serviceInstance.getAgreement());
+            serviceInstance = ServiceManager.qosProvider.check(service, serviceInstance, agreement, slaViolations);
+            response.setMessage("Info: QoS checked");
+            response.setServiceInstance(serviceInstance);
+            response.setStatus(HttpStatus.OK.value());
         } catch (Exception e) {
             response.setMessage("Error: invalid request");
             response.setStatus(HttpStatus.BAD_REQUEST.value());

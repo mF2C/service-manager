@@ -1,4 +1,4 @@
-FROM openjdk:8-jdk-alpine
+FROM azul/zulu-openjdk:8
 ENV CIMI_URL=http://cimi:8201/api
 VOLUME /tmp
 ARG JAR_FILE
