@@ -24,14 +24,12 @@ public class CimiInterfaceTest {
 
     @Test
     public void _1_connectToCimi() {
-        SessionTemplate sessionTemplate = new SessionTemplate(KEY, SECRET);
-        new CimiInterface(new CimiSession(sessionTemplate));
+        new CimiInterface(new CimiSession(new CimiSession.SessionTemplate(KEY, SECRET)));
         assertThat(CimiInterface.requestSession(), is(HttpStatus.CREATED.value()));
     }
 
     @Test
     public void _2_postService() {
-
         TypeReference<List<Service>> typeReference = new TypeReference<List<Service>>() {
         };
         InputStream inputStream = TypeReference.class.getResourceAsStream("/use-cases.json");
@@ -39,7 +37,6 @@ public class CimiInterfaceTest {
         List<Service> rServices = new ArrayList<>();
         try {
             rServices = mapper.readValue(inputStream, typeReference);
-
         } catch (IOException e) {
             e.printStackTrace();
         }

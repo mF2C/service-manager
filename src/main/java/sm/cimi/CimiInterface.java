@@ -25,35 +25,36 @@ public class CimiInterface {
     private static final Logger log = LoggerFactory.getLogger(CimiInterface.class);
     private static HttpHeaders headers;
     private static RestTemplate restTemplate = new RestTemplate();
-    private static String cookie;
     private static boolean sessionStarted;
     private static CimiSession cimiSession;
+
+    public CimiInterface(){
+        headers = new HttpHeaders();
+        headers.set("slipstream-authn-info", "super ADMIN");
+    }
 
     public CimiInterface(CimiSession cimiSession) {
         CimiInterface.cimiSession = cimiSession;
     }
 
     public static boolean checkCimiInterface() {
-        headers = new HttpHeaders();
         HttpEntity<String> entity = new HttpEntity<>(headers);
         try {
             ResponseEntity<String> responseEntity = restTemplate.exchange(cimiUrl + CIMI_ENDPOINTS, HttpMethod.GET, entity, String.class);
             if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
                 sessionStarted = true;
-                log.info("Connection established to CIMI [" + cimiUrl + "]");
-                return true;
-            } else {
-                log.error("No connection to CIMI [" + cimiUrl + "]");
-                return false;
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) { }
+        if(!sessionStarted){
             log.error("No connection to CIMI [" + cimiUrl + "]");
             return false;
+        } else {
+            log.info("Connection established to CIMI [" + cimiUrl + "]");
+            return true;
         }
     }
 
     public static Boolean startSession() {
-
         if (!sessionStarted)
             if (requestSession() == HttpStatus.CREATED.value())
                 sessionStarted = true;
@@ -61,17 +62,14 @@ public class CimiInterface {
     }
 
     public static int requestSession() {
-        headers = new HttpHeaders();
-        headers.set("slipstream-authn-info", "super ADMIN");
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<CimiSession> entity = new HttpEntity<>(cimiSession, headers);
-
         try {
             ResponseEntity<Map> responseEntity = restTemplate.exchange(cimiUrl + SESSION, HttpMethod.POST, entity, Map.class);
             if (responseEntity.getStatusCodeValue() == HttpStatus.CREATED.value()) {
-                log.info("Session started");
-                cookie = responseEntity.getHeaders().getFirst(HttpHeaders.SET_COOKIE);
-                log.info("Cookie: " + cookie);
+                String cookie = responseEntity.getHeaders().getFirst(HttpHeaders.SET_COOKIE);
+                headers.add("Cookie", cookie);
+                log.info("Session started - Cookie: " + cookie);
             } else
                 log.error("Session could not be started");
             return responseEntity.getStatusCodeValue();
@@ -82,10 +80,6 @@ public class CimiInterface {
     }
 
     public static String postService(Service service) {
-
-        headers = new HttpHeaders();
-        headers.set("slipstream-authn-info", "super ADMIN");
-        headers.add("Cookie", cookie);
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<Service> entity = new HttpEntity<>(service, headers);
         String id = null;
@@ -103,10 +97,6 @@ public class CimiInterface {
     }
 
     public static List<Service> getServices() {
-
-        headers = new HttpHeaders();
-        headers.set("slipstream-authn-info", "super ADMIN");
-        headers.add("Cookie", cookie);
         HttpEntity<String> entity = new HttpEntity<>(headers);
         List<Service> services = new ArrayList<>();
         try {
@@ -124,10 +114,6 @@ public class CimiInterface {
     }
 
     public static ServiceInstance getServiceInstance(String serviceInstanceId) {
-
-        headers = new HttpHeaders();
-        headers.set("slipstream-authn-info", "super ADMIN");
-        headers.add("Cookie", cookie);
         HttpEntity<String> entity = new HttpEntity<>(headers);
         ServiceInstance serviceInstance = null;
         try {
@@ -144,14 +130,10 @@ public class CimiInterface {
     }
 
     public static Agreement getAgreement(String agreementId) {
-
-        headers = new HttpHeaders();
-        headers.set("slipstream-authn-info", "super ADMIN");
-        headers.add("Cookie", cookie);
         HttpEntity<String> entity = new HttpEntity<>(headers);
         Agreement agreement = null;
         try {
-            ResponseEntity<Agreement> responseEntity = restTemplate.exchange(cimiUrl +  "/" + agreementId, HttpMethod.GET, entity, Agreement.class);
+            ResponseEntity<Agreement> responseEntity = restTemplate.exchange(cimiUrl + "/" + agreementId, HttpMethod.GET, entity, Agreement.class);
             if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
                 log.info("Agreement retrieved");
                 agreement = responseEntity.getBody();
@@ -164,14 +146,10 @@ public class CimiInterface {
     }
 
     public static List<SlaViolation> getSlaViolations(String agreementId) {
-
-        headers = new HttpHeaders();
-        headers.set("slipstream-authn-info", "super ADMIN");
-        headers.add("Cookie", cookie);
         HttpEntity<String> entity = new HttpEntity<>(headers);
         List<SlaViolation> slaViolations = new ArrayList<>();
         try {
-            ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl  + "/sla-violation?$filter=agreement_id/href='" + agreementId+"'", HttpMethod.GET, entity, Response.class);
+            ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + "/sla-violation?$filter=agreement_id/href='" + agreementId + "'", HttpMethod.GET, entity, Response.class);
             if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
                 log.info("SLA violations retrieved");
                 Response response = responseEntity.getBody();

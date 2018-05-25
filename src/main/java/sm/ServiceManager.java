@@ -8,8 +8,6 @@
  */
 package sm;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -30,7 +28,7 @@ import sm.categorization.Categorizer;
 import sm.categorization.CategorizerInterface;
 import sm.cimi.CimiInterface;
 import sm.cimi.CimiSession;
-import sm.cimi.SessionTemplate;
+import sm.cimi.CimiSession.SessionTemplate;
 import sm.elements.Response;
 import sm.qos.QosProvider;
 import sm.qos.QosProviderInterface;
@@ -57,19 +55,19 @@ import static sm.Parameters.SERVICE_MANAGEMENT_ROOT;
         QosProviderInterface.class,
         CategorizerInterface.class,
         CimiInterface.class,
-        SessionTemplate.class,
-        CimiSession.class
+        CimiSession.class,
+        SessionTemplate.class
 })
 @Controller
 public class ServiceManager implements ApplicationRunner {
 
-    private static Logger log = LoggerFactory.getLogger(ServiceManager.class);
     public static Categorizer categorizer;
     public static QosProvider qosProvider;
 
     public ServiceManager() {
         categorizer = new Categorizer();
         qosProvider = new QosProvider();
+        new CimiInterface();
     }
 
     public static void main(String[] args) {
@@ -99,8 +97,7 @@ public class ServiceManager implements ApplicationRunner {
     }
 
     private void stablishSesionToCimi(String key, String secret) {
-        SessionTemplate sessionTemplate = new SessionTemplate(key, secret);
-        new CimiInterface(new CimiSession(sessionTemplate));
+        new CimiInterface(new CimiSession(new SessionTemplate(key, secret)));
         ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
         Callable<Boolean> callable = new Callable<Boolean>() {
             @Override

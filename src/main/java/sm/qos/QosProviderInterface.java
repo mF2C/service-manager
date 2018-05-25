@@ -8,7 +8,6 @@
  */
 package sm.qos;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import sm.ServiceManager;
@@ -27,27 +26,23 @@ public class QosProviderInterface {
     @RequestMapping(method = RequestMethod.GET, value = SERVICE_INSTANCE + SERVICE_INSTANCE_ID, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     Response check(@PathVariable String service_instance_id) {
-
         String serviceId = "service-instance/" + service_instance_id;
         Response response = new Response(serviceId, SERVICE_MANAGEMENT_ROOT + QOS);
-
         try {
             ServiceInstance serviceInstance = CimiInterface.getServiceInstance(serviceId);
             Agreement agreement = CimiInterface.getAgreement(serviceInstance.getAgreement());
             Service service = Categorizer.getServiceById(serviceInstance.getService());
             if (serviceInstance == null | agreement == null | service == null) {
+                response.setNotFound();
                 response.setMessage("Error: service-instance, agreement and/or service resources do not exist");
-                response.setStatus(HttpStatus.NOT_FOUND.value());
                 return response;
             }
             List<SlaViolation> slaViolations = CimiInterface.getSlaViolations(serviceInstance.getAgreement());
             serviceInstance = ServiceManager.qosProvider.check(service, serviceInstance, agreement, slaViolations);
-            response.setMessage("Info: QoS checked");
             response.setServiceInstance(serviceInstance);
-            response.setStatus(HttpStatus.OK.value());
+            response.setOk();
         } catch (Exception e) {
-            response.setMessage("Error: invalid request");
-            response.setStatus(HttpStatus.BAD_REQUEST.value());
+            response.setBadRequest();
         }
         return response;
     }

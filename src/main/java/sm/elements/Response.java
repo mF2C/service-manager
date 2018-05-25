@@ -11,6 +11,7 @@ package sm.elements;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +41,26 @@ public class Response {
     public Response(String id, String resourceURI) {
         this.id = id;
         this.resourceURI = resourceURI;
+    }
+
+    public void setOk(){
+        setMessage(HttpStatus.OK.getReasonPhrase());
+        setStatus(HttpStatus.OK.value());
+    }
+
+    public void setCreated(){
+        setMessage(HttpStatus.CREATED.getReasonPhrase());
+        setStatus(HttpStatus.CREATED.value());
+    }
+
+    public void setBadRequest(){
+        setMessage(HttpStatus.BAD_REQUEST.getReasonPhrase());
+        setStatus(HttpStatus.BAD_REQUEST.value());
+    }
+
+    public void setNotFound(){
+        setMessage(HttpStatus.NOT_FOUND.getReasonPhrase());
+        setStatus(HttpStatus.NOT_FOUND.value());
     }
 
     public String getId() {

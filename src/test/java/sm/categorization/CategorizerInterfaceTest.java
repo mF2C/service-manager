@@ -17,7 +17,6 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasProperty;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static sm.Parameters.*;
 
@@ -56,9 +55,8 @@ public class CategorizerInterfaceTest {
         Response response = restTemplate.getForObject(URL, Response.class);
         String id = response.getServices().get(0).getId();
 
-        response = restTemplate.getForObject(URL + id, Response.class);
-        assertThat(response, hasProperty("status", is(HttpStatus.OK.value())));
-        assertNotNull(response.getService());
+        Service service = restTemplate.getForObject(URL + id, Service.class);
+        assertThat(service, hasProperty("id", is(id)));
     }
 
     @Test

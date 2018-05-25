@@ -8,7 +8,6 @@
  */
 package sm.categorization;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import sm.ServiceManager;
@@ -26,21 +25,16 @@ public class CategorizerInterface {
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     Response submit(@RequestBody Service service) {
-
         Response response = new Response(service.getName(), URL);
         try {
             Service serviceCategorized = ServiceManager.categorizer.submit(service);
             if (serviceCategorized != null) {
-                response.setMessage("Info: service categorized");
                 response.setService(serviceCategorized);
-                response.setStatus(HttpStatus.CREATED.value());
-            } else {
-                response.setMessage("Info: service has a wrong format or CIMI is not running");
-                response.setStatus(HttpStatus.NOT_FOUND.value());
-            }
+                response.setCreated();
+            } else
+                response.setNotFound();
         } catch (Exception e) {
-            response.setMessage("Error: invalid request");
-            response.setStatus(HttpStatus.BAD_REQUEST.value());
+            response.setBadRequest();
         }
         return response;
     }
@@ -54,14 +48,11 @@ public class CategorizerInterface {
         try {
             if ((service = Categorizer.getServiceById(serviceId)) != null) {
                 response.setService(service);
-                response.setStatus(HttpStatus.OK.value());
-            } else {
-                response.setMessage("Error: service does not exist");
-                response.setStatus(HttpStatus.NOT_FOUND.value());
-            }
+                response.setOk();
+            } else
+                response.setNotFound();
         } catch (Exception e) {
-            response.setMessage("Error: invalid request");
-            response.setStatus(HttpStatus.BAD_REQUEST.value());
+            response.setBadRequest();
         }
         return response;
     }
@@ -69,14 +60,12 @@ public class CategorizerInterface {
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     Response get() {
-
         Response response = new Response(null, URL);
         try {
             response.setServices(Categorizer.getServices());
-            response.setStatus(HttpStatus.OK.value());
+            response.setOk();
         } catch (Exception e) {
-            response.setMessage("Error: invalid request");
-            response.setStatus(HttpStatus.BAD_REQUEST.value());
+            response.setBadRequest();
         }
         return response;
     }
@@ -84,22 +73,17 @@ public class CategorizerInterface {
     @RequestMapping(method = RequestMethod.DELETE, value = SERVICE + SERVICE_ID, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     Response delete(@PathVariable String service_id) {
-
         String serviceId = "service/" + service_id;
         Response response = new Response(serviceId, URL);
         Service service;
         try {
             if ((service = Categorizer.getServiceById(serviceId)) != null) {
                 Categorizer.localServices.remove(service.getName());
-                response.setMessage("Info: service deleted");
-                response.setStatus(HttpStatus.OK.value());
-            } else {
-                response.setMessage("Error: service does not exist");
-                response.setStatus(HttpStatus.NOT_FOUND.value());
-            }
+                response.setOk();
+            } else
+                response.setNotFound();
         } catch (Exception e) {
-            response.setMessage("Error: invalid request");
-            response.setStatus(HttpStatus.BAD_REQUEST.value());
+            response.setBadRequest();
         }
         return response;
     }

@@ -8,8 +8,6 @@
  */
 package sm.qos;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import sm.elements.Agreement;
 import sm.elements.Service;
 import sm.elements.ServiceInstance;
@@ -24,15 +22,12 @@ import static sm.Parameters.EPSILON;
 import static sm.Parameters.QOS_WARM_UP;
 
 public class QosProvider {
-    private static Logger log = LoggerFactory.getLogger(QosProvider.class);
     private Map<String, ServiceQosProvider> qosProviderMap;
-
     public QosProvider() {
         qosProviderMap = new HashMap<>();
     }
 
     public ServiceInstance check(Service service, ServiceInstance serviceInstance, Agreement agreement, List<SlaViolation> slaViolations) {
-
         service.increaseExecutionsCounter();
         if (!qosProviderMap.containsKey(service.getId())) {
             ServiceQosProvider serviceQosProvider = new ServiceQosProvider(serviceInstance.getAgents().size());
@@ -49,18 +44,14 @@ public class QosProvider {
             boolean[] agents = serviceQosProvider.getOutput();
             setAcceptedAgents(agents, serviceInstance);
         }
-
         return serviceInstance;
     }
 
     private float calculateSlaViolationRatio(Service service, Agreement agreement, List<SlaViolation> slaViolations) {
-
         int numberOfGuarantees = agreement.getDetails().getGuarantees().size();
         float ratioOfServiceFailure = slaViolations.size() / numberOfGuarantees;
-
         if (ratioOfServiceFailure > 0)
             service.increaseServiceFailureCounter(ratioOfServiceFailure);
-
         return service.getServiceFailureRatioCounter() / service.getExecutionsCounter();
     }
 
