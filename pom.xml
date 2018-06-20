@@ -6,12 +6,12 @@
 
     <groupId>tu-bs.mf2c</groupId>
     <artifactId>service-manager</artifactId>
-    <version>1.4.3</version>
+    <version>1.4.4</version>
 
     <properties>
         <java.version>1.8</java.version>
-        <docker.image.prefix>mf2c</docker.image.prefix>
         <dl4j.version>0.9.1</dl4j.version>
+        <docker.image.prefix>mf2c</docker.image.prefix>
         <maven.test.skip>true</maven.test.skip>
     </properties>
     <parent>
@@ -54,7 +54,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>1.5.10.RELEASE</version>
+                <version>1.5.13.RELEASE</version>
                 <executions>
                     <execution>
                         <goals>

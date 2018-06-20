@@ -65,28 +65,27 @@ public class Categorizer {
         return new ArrayList<>(localServices.values());
     }
 
-    private void postServiceToCimi(Service service) {
-        String id = CimiInterface.postService(service);
-        service.setId(id);
-        localServices.put(service.getName(), service);
+    public boolean checkService(Service service) {
+        if (localServices.containsKey(service.getName())) {
+            log.info("The service was already categorized: " + service.getName());
+            return true;
+        } else return false;
     }
 
     public Service submit(Service service) {
-
-        if (localServices.containsKey(service.getName())) {
-            log.info("The service was already categorized: " + service.getName());
-            return localServices.get(service.getName());
-        } else if (checkService(service)) {
-            if (CimiInterface.isSessionStarted()) {
-                postServiceToCimi(service);
-                log.info("Service submitted: " + service.getName());
-                return service;
-            } else return null;
-        } else
-            return null;
+        String id = null;
+        if (checkServiceFormat(service) & CimiInterface.isSessionStarted())
+            id = CimiInterface.postService(service);
+        if (id != null) {
+            service.setId(id);
+            localServices.put(service.getName(), service);
+            log.info("Service submitted: " + service.getName());
+            return service;
+        }
+        return null;
     }
 
-    private boolean checkService(Service service) {
+    private boolean checkServiceFormat(Service service) {
 
         if (service.getName() == null)
             return false;
@@ -102,7 +101,7 @@ public class Categorizer {
         return true;
     }
 
-    public List<Service> storeServicesLocally(List<Service> services){
+    public List<Service> storeServicesLocally(List<Service> services) {
 
         List<Service> newServices = new ArrayList<>();
 

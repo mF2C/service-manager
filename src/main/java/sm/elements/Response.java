@@ -63,6 +63,11 @@ public class Response {
         setStatus(HttpStatus.NOT_FOUND.value());
     }
 
+    public void setConflict(){
+        setMessage(HttpStatus.CONFLICT.getReasonPhrase());
+        setStatus(HttpStatus.CONFLICT.value());
+    }
+
     public String getId() {
         return id;
     }

@@ -27,12 +27,28 @@ public class CategorizerInterface {
     Response submit(@RequestBody Service service) {
         Response response = new Response(service.getName(), URL);
         try {
+            if (ServiceManager.categorizer.checkService(service)) {
+                response.setConflict();
+                return response;
+            }
             Service serviceCategorized = ServiceManager.categorizer.submit(service);
             if (serviceCategorized != null) {
                 response.setService(serviceCategorized);
                 response.setCreated();
             } else
                 response.setNotFound();
+        } catch (Exception e) {
+            response.setBadRequest();
+        }
+        return response;
+    }
+
+    @RequestMapping(method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody
+    Response update(@RequestBody Service service) {
+        Response response = new Response(service.getName(), URL);
+        try {
+
         } catch (Exception e) {
             response.setBadRequest();
         }
