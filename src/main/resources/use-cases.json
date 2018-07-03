@@ -4,30 +4,21 @@
     "description": "Hello World Service",
     "exec": "hello-world",
     "exec_type": "docker",
-    "exec_ports": [8080],
+    "exec_ports": [
+      8080
+    ],
     "category": {
       "cpu": "low",
       "memory": "low",
       "storage": "low",
       "disk": "low",
-      "network": "low",
-      "inclinometer": false,
-      "temperature": false,
-      "jammer": false,
-      "location": false,
-      "battery_level": false,
-      "door_sensor": false,
-      "pump_sensor": false,
-      "accelerometer": false,
-      "humidity": false,
-      "air_pressure": false,
-      "ir_motion": false
+      "network": "low"
     }
   },
   {
-    "name": "use-case-1-gw",
-    "description": "Emergency Management System Gateway",
-    "exec": "http://162.13.179.15:40080/gw/docker-compose.yml",
+    "name": "use-case-1-fog",
+    "description": "Emergency Management System Fog",
+    "exec": "http://162.13.179.15:40080/fog/docker-compose.yml",
     "exec_type": "docker-compose",
     "exec_ports": [],
     "category": {
@@ -39,14 +30,7 @@
       "inclinometer": true,
       "temperature": true,
       "jammer": true,
-      "location": true,
-      "battery_level": false,
-      "door_sensor": false,
-      "pump_sensor": false,
-      "accelerometer": false,
-      "humidity": false,
-      "air_pressure": false,
-      "ir_motion": false
+      "location": true
     }
   },
   {
@@ -60,18 +44,7 @@
       "memory": "low",
       "storage": "low",
       "disk": "low",
-      "network": "low",
-      "inclinometer": false,
-      "temperature": false,
-      "jammer": false,
-      "location": false,
-      "battery_level": false,
-      "door_sensor": false,
-      "pump_sensor": false,
-      "accelerometer": false,
-      "humidity": false,
-      "air_pressure": false,
-      "ir_motion": false
+      "network": "low"
     }
   },
   {
@@ -79,16 +52,16 @@
     "description": "Smart Boats",
     "exec": "use-case-2",
     "exec_type": "compss",
-    "exec_ports": [8080],
+    "exec_ports": [
+      8080
+    ],
     "category": {
       "cpu": "low",
       "memory": "low",
       "storage": "low",
       "disk": "low",
       "network": "low",
-      "inclinometer": false,
       "temperature": true,
-      "jammer": false,
       "location": true,
       "battery_level": true,
       "door_sensor": true,
@@ -104,24 +77,58 @@
     "description": "Airport Location System",
     "exec": "use-case-3",
     "exec_type": "docker-compose",
-    "exec_ports": [8080],
+    "exec_ports": [
+      8080
+    ],
     "category": {
       "cpu": "low",
       "memory": "low",
       "storage": "low",
       "disk": "low",
       "network": "low",
-      "inclinometer": false,
-      "temperature": false,
-      "jammer": false,
-      "location": true,
-      "battery_level": false,
-      "door_sensor": false,
-      "pump_sensor": false,
-      "accelerometer": false,
-      "humidity": false,
-      "air_pressure": false,
-      "ir_motion": false
+      "location": true
+    }
+  },
+  {
+    "name": "emergency-ambulance-demo",
+    "description": "Ambulance Emergency Service",
+    "exec": "upcuc1/uc1-emergency1:latest",
+    "exec_type": "docker",
+    "exec_ports": [],
+    "category": {
+      "cpu": "low",
+      "memory": "low",
+      "storage": "low",
+      "disk": "low",
+      "network": "low"
+    }
+  },
+  {
+    "name": "emergency-firemen-demo",
+    "description": "Firemen Emergency Service",
+    "exec": "upcuc1/uc1-emergency2:latest",
+    "exec_type": "docker",
+    "exec_ports": [],
+    "category": {
+      "cpu": "low",
+      "memory": "low",
+      "storage": "low",
+      "disk": "low",
+      "network": "low"
+    }
+  },
+  {
+    "name": "emergency-traffic-demo",
+    "description": "Traffic Lights Emergency Service",
+    "exec": "upcuc1/uc1-emergency3:latest",
+    "exec_type": "docker",
+    "exec_ports": [],
+    "category": {
+      "cpu": "low",
+      "memory": "low",
+      "storage": "low",
+      "disk": "low",
+      "network": "low"
     }
   }
 ]
