@@ -12,36 +12,33 @@ import sm.elements.Agreement;
 import sm.elements.Service;
 import sm.elements.ServiceInstance;
 import sm.elements.SlaViolation;
-import sm.qos.learning.ServiceQosProvider;
+import sm.qos.learning.LearningModel;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import static sm.Parameters.EPSILON;
-import static sm.Parameters.QOS_WARM_UP;
 
 public class QosProvider {
-    private Map<String, ServiceQosProvider> qosProviderMap;
+
+    private HashMap<Integer, LearningModel> learningModels;
+
     public QosProvider() {
-        qosProviderMap = new HashMap<>();
+        learningModels = new HashMap<>();
     }
 
-    public ServiceInstance check(Service service, ServiceInstance serviceInstance, Agreement agreement, List<SlaViolation> slaViolations) {
+    ServiceInstance check(Service service, ServiceInstance serviceInstance, Agreement agreement, List<SlaViolation> slaViolations) {
         service.increaseExecutionsCounter();
-        if (!qosProviderMap.containsKey(service.getId())) {
-            ServiceQosProvider serviceQosProvider = new ServiceQosProvider(serviceInstance.getAgents().size());
-            qosProviderMap.put(service.getId(), serviceQosProvider);
-            serviceQosProvider.initializeParameters();
-        }
         if (slaViolations != null) {
-            float slaViolationRatio = calculateSlaViolationRatio(service, agreement, slaViolations);
-            ServiceQosProvider serviceQosProvider = qosProviderMap.get(service.getId());
-            if (service.getExecutionsCounter() < QOS_WARM_UP)
-                serviceQosProvider.trainNetwork(slaViolationRatio);
-            else
-                serviceQosProvider.evaluateNetwork(slaViolationRatio, EPSILON);
-            boolean[] agents = serviceQosProvider.getOutput();
+            float slaRatio = calculateSlaViolationRatio(service, agreement, slaViolations);
+            int numOfAgents = serviceInstance.getAgents().size();
+            LearningModel learningModel;
+            if (!learningModels.containsKey(numOfAgents)) {
+                learningModel = new LearningModel(numOfAgents);
+                learningModels.put(numOfAgents, learningModel);
+                learningModel.train(service, slaRatio, serviceInstance.getAgents());
+            } else
+                learningModel = learningModels.get(numOfAgents);
+            learningModel.evaluate(service, slaRatio, serviceInstance.getAgents());
+            int[] agents = learningModel.getOutput();
             setAcceptedAgents(agents, serviceInstance);
         }
         return serviceInstance;
@@ -49,14 +46,17 @@ public class QosProvider {
 
     private float calculateSlaViolationRatio(Service service, Agreement agreement, List<SlaViolation> slaViolations) {
         int numberOfGuarantees = agreement.getDetails().getGuarantees().size();
-        float ratioOfServiceFailure = slaViolations.size() / numberOfGuarantees;
+        float ratioOfServiceFailure = (float) slaViolations.size() / numberOfGuarantees;
         if (ratioOfServiceFailure > 0)
             service.increaseServiceFailureCounter(ratioOfServiceFailure);
         return service.getServiceFailureRatioCounter() / service.getExecutionsCounter();
     }
 
-    private void setAcceptedAgents(boolean acceptedAgents[], ServiceInstance serviceInstance) {
+    private void setAcceptedAgents(int acceptedAgents[], ServiceInstance serviceInstance) {
         for (int i = 0; i < serviceInstance.getAgents().size(); i++)
-            serviceInstance.getAgents().get(i).setAllow(acceptedAgents[i]);
+            if (acceptedAgents[i] == 1)
+                serviceInstance.getAgents().get(i).setAllow(true);
+            else
+                serviceInstance.getAgents().get(i).setAllow(false);
     }
 }

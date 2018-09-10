@@ -78,7 +78,7 @@ public class CategorizerInterface {
     Response get() {
         Response response = new Response(null, URL);
         try {
-            response.setServices(Categorizer.getServices());
+            response.setServices(ServiceManager.categorizer.getServices());
             response.setOk();
         } catch (Exception e) {
             response.setBadRequest();
@@ -94,7 +94,7 @@ public class CategorizerInterface {
         Service service;
         try {
             if ((service = Categorizer.getServiceById(serviceId)) != null) {
-                Categorizer.localServices.remove(service.getName());
+                ServiceManager.categorizer.removeService(service);
                 response.setOk();
             } else
                 response.setNotFound();

@@ -1,4 +1,4 @@
-FROM resin/raspberrypi3-openjdk:8-jre
+FROM openjdk/8-jdk-alpine
 ENV CIMI_URL=http://cimi:8201/api
 VOLUME /tmp
 ARG JAR_FILE

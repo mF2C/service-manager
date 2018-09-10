@@ -20,27 +20,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class DeepQ {
+class DeepQ {
 
     private static final Logger log = LoggerFactory.getLogger(DeepQ.class);
     private MultiLayerNetwork multiLayerNetwork, targetMultiLayerNetwork;
-    private INDArray lastInput;
-    private List<Provisioning> memoryProvisioning;
-    private int startSize, batchSize, freq, counter, inputLength, lastAction, memoryCapacity;
-    private double epsilon;
+    private List<Experience> experiences;
+    private int startSize, batchSize, freq, counter, inputLength, memoryCapacity, lastAction;
     private float discount;
     private Random rnd;
 
-    public DeepQ(MultiLayerConfiguration conf, int memoryCapacity, float discount, double epsilon, int batchSize, int freq, int startSize, int inputLength) {
-
+    DeepQ(MultiLayerConfiguration conf, int memoryCapacity, float discount, int batchSize, int freq, int startSize, int inputLength) {
         this.multiLayerNetwork = new MultiLayerNetwork(conf);
         this.multiLayerNetwork.init();
         this.targetMultiLayerNetwork = new MultiLayerNetwork(conf);
         this.targetMultiLayerNetwork.init();
         this.targetMultiLayerNetwork.setParams(multiLayerNetwork.params());
-        this.memoryProvisioning = new ArrayList<>();
+        this.experiences = new ArrayList<>();
         this.memoryCapacity = memoryCapacity;
-        this.epsilon = epsilon;
         this.discount = discount;
         this.batchSize = batchSize;
         this.freq = freq;
@@ -48,44 +44,56 @@ public class DeepQ {
         this.startSize = startSize;
         this.inputLength = inputLength;
         this.rnd = new Random();
+        this.lastAction = -1;
     }
 
-    public int getAction(INDArray input) {
-
-        this.lastInput = input;
-        INDArray output = multiLayerNetwork.output(input);
+    int getAction(INDArray input, int[] actionMask, double epsilon) {
+        boolean isValid = false;
+        INDArray indArrayOutput = multiLayerNetwork.output(input);
         if (epsilon > rnd.nextDouble()) {
-            int outputSize = output.size(1);
-            this.lastAction = rnd.nextInt(outputSize);
+            int action = -1;
+            while (!isValid) {
+                action = rnd.nextInt(indArrayOutput.size(1));
+                if (actionMask[action] == 1 && action != this.lastAction)
+                    isValid = true;
+            }
+            this.lastAction = action;
         } else
-            this.lastAction = findActionMax(output);
+            this.lastAction = findMaxAction(indArrayOutput, actionMask);
         return this.lastAction;
     }
 
-    private int findActionMax(INDArray outputs) {
-
-        float maxValue = outputs.getFloat(0);
-        int maxPosition = 0;
-        for (int i = 1; i < outputs.size(1); i++)
+    private int findMaxAction(INDArray outputs, int actionMask[]) {
+        float maxValue = Float.NEGATIVE_INFINITY;
+        int actionMax = -1;
+        for (int i = 0; i < outputs.size(1); i++) {
+            if (actionMask[i] != 1) continue;
             if (outputs.getFloat(i) > maxValue) {
                 maxValue = outputs.getFloat(i);
-                maxPosition = i;
+                actionMax = i;
             }
-
-        return maxPosition;
+        }
+        return actionMax;
     }
 
-    public void observeReward(float reward, INDArray nextInput) {
+    private float findMaxValue(INDArray outputs, int actionMask[]) {
+        float maxValue = Float.NEGATIVE_INFINITY;
+        for (int i = 0; i < outputs.size(1); i++) {
+            if (actionMask[i] != 1) continue;
+            if (outputs.getFloat(i) > maxValue)
+                maxValue = outputs.getFloat(i);
+        }
+        return maxValue;
+    }
 
-        if (memoryProvisioning.size() >= memoryCapacity)
-            memoryProvisioning.remove(rnd.nextInt(memoryProvisioning.size()));
-        memoryProvisioning.add(new Provisioning(lastInput, nextInput, lastAction, reward));
-
-        if (startSize < memoryProvisioning.size())
+    void observeReward(INDArray inputIndArray, INDArray nextInputIndArray, double reward, int[] actionMask) {
+        // TO BE CHANGED, SHOULD REMOVE THE ONE WITH LOWEST REWARD
+        if (experiences.size() >= memoryCapacity)
+            experiences.remove(rnd.nextInt(experiences.size()));
+        experiences.add(new Experience(inputIndArray, nextInputIndArray, lastAction, (float) reward, actionMask));
+        if (startSize < experiences.size())
             trainNetwork();
-
         counter++;
-
         if (counter == freq) {
             counter = 0;
             targetMultiLayerNetwork.setParams(multiLayerNetwork.params());
@@ -93,60 +101,42 @@ public class DeepQ {
     }
 
     private void trainNetwork() {
-        Provisioning provisioningArray[] = getMiniBatch();
-        INDArray currentInput = combineInputs(provisioningArray, false);
-        INDArray targetInput = combineInputs(provisioningArray, true);
-        INDArray currentOutput = multiLayerNetwork.output(currentInput);
-        INDArray targetOutput = targetMultiLayerNetwork.output(targetInput);
-
-        for (int i = 0; i < provisioningArray.length; i++) {
-            int ind[] = {i, provisioningArray[i].getAction()};
+        Experience experiences[] = getBatch();
+        INDArray combinedLastInputs = combineInputs(experiences);
+        INDArray combinedNextInputs = combineNextInputs(experiences);
+        INDArray currentOutput = multiLayerNetwork.output(combinedLastInputs);
+        INDArray targetOutput = targetMultiLayerNetwork.output(combinedNextInputs);
+        for (int i = 0; i < experiences.length; i++) {
             float futureReward = 0;
-            if (provisioningArray[i].getNextInput() != null)
-                futureReward = findMaxValue(targetOutput.getRow(i));
-            float targetReward = provisioningArray[i].getReward() + discount * futureReward;
-            currentOutput.putScalar(ind, targetReward);
+            if (experiences[i].getNextInputIndArray() != null)
+                futureReward = findMaxValue(targetOutput.getRow(i), experiences[i].getActionMask());
+            float targetReward = experiences[i].getReward() + discount * futureReward;
+            int actionScalar[] = {i, experiences[i].getAction()};
+            currentOutput.putScalar(actionScalar, targetReward);
         }
-
-        multiLayerNetwork.fit(currentInput, currentOutput);
+        multiLayerNetwork.fit(combinedLastInputs, currentOutput);
     }
 
-    private Provisioning[] getMiniBatch() {
-        int size = memoryProvisioning.size() < batchSize ? memoryProvisioning.size() : batchSize;
-        Provisioning[] retVal = new Provisioning[size];
-
+    private Experience[] getBatch() {
+        int size = experiences.size() < batchSize ? experiences.size() : batchSize;
+        Experience[] batch = new Experience[size];
         for (int i = 0; i < size; i++)
-            retVal[i] = memoryProvisioning.get(rnd.nextInt(memoryProvisioning.size()));
-
-        return retVal;
+            batch[i] = experiences.get(this.rnd.nextInt(experiences.size()));
+        return batch;
     }
 
-    private INDArray combineInputs(Provisioning provisioningArray[], boolean isNext) {
-        INDArray retVal = Nd4j.create(provisioningArray.length, inputLength);
-
-        for (int i = 0; i < provisioningArray.length; i++) {
-            if (isNext) {
-                if (provisioningArray[i].getNextInput() != null)
-                    retVal.putRow(i, provisioningArray[i].getNextInput());
-            } else
-                retVal.putRow(i, provisioningArray[i].getInput());
-        }
-
-        return retVal;
+    private INDArray combineInputs(Experience actionArray[]) {
+        INDArray combinedLastInputs = Nd4j.create(actionArray.length, inputLength);
+        for (int i = 0; i < actionArray.length; i++)
+            combinedLastInputs.putRow(i, actionArray[i].getInputIndArray());
+        return combinedLastInputs;
     }
 
-    private float findMaxValue(INDArray outputs) {
-
-        float maxValue = outputs.getFloat(0);
-
-        for (int i = 1; i < outputs.size(1); i++)
-            if (outputs.getFloat(i) > maxValue)
-                maxValue = outputs.getFloat(i);
-
-        return maxValue;
-    }
-
-    void setEpsilon(double e) {
-        this.epsilon = e;
+    private INDArray combineNextInputs(Experience actionArray[]) {
+        INDArray combinedNextInputs = Nd4j.create(actionArray.length, inputLength);
+        for (int i = 0; i < actionArray.length; i++)
+            if (actionArray[i].getNextInputIndArray() != null)
+                combinedNextInputs.putRow(i, actionArray[i].getNextInputIndArray());
+        return combinedNextInputs;
     }
 }

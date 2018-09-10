@@ -30,11 +30,16 @@ public class QosProviderInterface {
         Response response = new Response(serviceId, SERVICE_MANAGEMENT_ROOT + QOS);
         try {
             ServiceInstance serviceInstance = CimiInterface.getServiceInstance(serviceId);
+            if (serviceInstance == null) {
+                response.setNotFound();
+                response.setMessage("Error: service-instance does not exist");
+                return response;
+            }
             Agreement agreement = CimiInterface.getAgreement(serviceInstance.getAgreement());
             Service service = Categorizer.getServiceById(serviceInstance.getService());
-            if (serviceInstance == null | agreement == null | service == null) {
+            if (agreement == null | service == null) {
                 response.setNotFound();
-                response.setMessage("Error: service-instance, agreement and/or service resources do not exist");
+                response.setMessage("Error: the agreement or the service does not exist");
                 return response;
             }
             List<SlaViolation> slaViolations = CimiInterface.getSlaViolations(serviceInstance.getAgreement());

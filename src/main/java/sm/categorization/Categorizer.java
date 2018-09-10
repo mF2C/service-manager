@@ -25,54 +25,46 @@ import java.util.Map;
 public class Categorizer {
 
     private static Logger log = LoggerFactory.getLogger(Categorizer.class);
-    public static Map<String, Service> localServices;
+    private static Map<String, Service> localServices;
 
     public Categorizer() {
         localServices = new HashMap<>();
     }
 
-    public void loadLocalServices() {
+    public void initializeServices() {
+        List<Service> services = CimiInterface.getServices();
+        setServices(services);
+        postServiceFromFile();
+    }
+
+    private void setServices(List<Service> services) {
+        if (services != null)
+            for (Service service : services)
+                if (!localServices.containsKey(service.getName()))
+                    localServices.put(service.getName(), service);
+    }
+
+    private void postServiceFromFile() {
         TypeReference<List<Service>> typeReference = new TypeReference<List<Service>>() {
         };
         InputStream inputStream = TypeReference.class.getResourceAsStream("/use-cases.json");
         ObjectMapper mapper = new ObjectMapper();
-        List<Service> localJsonServices = null;
+        List<Service> servicesFromFile = null;
         try {
             log.info("Reading local services");
-            localJsonServices = mapper.readValue(inputStream, typeReference);
+            servicesFromFile = mapper.readValue(inputStream, typeReference);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        List<Service> newServices = storeServicesLocally(localJsonServices);
-
-        if (newServices != null)
-            for (Service service : newServices) {
+        setServices(servicesFromFile);
+        if (servicesFromFile != null)
+            for (Service service : servicesFromFile) {
                 String id = CimiInterface.postService(service);
                 service.setId(id);
             }
     }
 
-    public static Service getServiceById(String id) {
-        List<Service> servicesList = new ArrayList<>(localServices.values());
-        for (Service service : servicesList)
-            if (service.getId().equals(id))
-                return service;
-        return null;
-    }
-
-    public static List<Service> getServices() {
-        return new ArrayList<>(localServices.values());
-    }
-
-    public boolean checkService(Service service) {
-        if (localServices.containsKey(service.getName())) {
-            log.info("The service was already categorized: " + service.getName());
-            return true;
-        } else return false;
-    }
-
-    public Service submit(Service service) {
+    Service submit(Service service) {
         String id = null;
         if (checkServiceFormat(service) & CimiInterface.isSessionStarted())
             id = CimiInterface.postService(service);
@@ -85,33 +77,31 @@ public class Categorizer {
         return null;
     }
 
-    private boolean checkServiceFormat(Service service) {
-
-        if (service.getName() == null)
-            return false;
-        if (service.getDescription() == null)
-            return false;
-        if (service.getExec() == null)
-            return false;
-        if (service.getExecType() == null)
-            return false;
-        if (service.getCategory() == null)
-            return false;
-
-        return true;
+    private boolean checkServiceFormat(Service s) {
+        return s.getName() != null && s.getDescription() != null && s.getExec() != null && s.getExecType() != null && s.getCategory() != null;
     }
 
-    public List<Service> storeServicesLocally(List<Service> services) {
+    public static Service getServiceById(String id) {
+        List<Service> servicesList = new ArrayList<>(localServices.values());
+        for (Service service : servicesList)
+            if (service.getId().equals(id))
+                return service;
+        return null;
+    }
 
-        List<Service> newServices = new ArrayList<>();
+    List<Service> getServices() {
+        return new ArrayList<>(localServices.values());
+    }
 
-        if (services != null)
-            for (Service service : services)
-                if (!localServices.containsKey(service.getName())) {
-                    localServices.put(service.getName(), service);
-                    newServices.add(service);
-                }
-        return newServices;
+    boolean checkService(Service service) {
+        if (localServices.containsKey(service.getName())) {
+            log.info("The service was already categorized: " + service.getName());
+            return true;
+        } else return false;
+    }
+
+    void removeService(Service service){
+        localServices.remove(service.getName());
     }
 }
 

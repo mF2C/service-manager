@@ -103,7 +103,7 @@ public class ServiceManager implements ApplicationRunner {
             @Override
             public Boolean call() {
                 if (CimiInterface.startSession()) {
-                    initializeComponents();
+                    categorizer.initializeServices();
                     return true;
                 } else {
                     scheduledExecutorService.schedule(this, CIMI_RECONNECTION_TIME, TimeUnit.SECONDS);
@@ -126,7 +126,7 @@ public class ServiceManager implements ApplicationRunner {
             @Override
             public Boolean call() {
                 if (CimiInterface.checkCimiInterface()) {
-                    initializeComponents();
+                    categorizer.initializeServices();
                     return true;
                 } else {
                     scheduledExecutorService.schedule(this, CIMI_RECONNECTION_TIME, TimeUnit.SECONDS);
@@ -141,11 +141,6 @@ public class ServiceManager implements ApplicationRunner {
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
-    }
-
-    private void initializeComponents() {
-        ServiceManager.categorizer.storeServicesLocally(CimiInterface.getServices());
-        ServiceManager.categorizer.loadLocalServices();
     }
 
     @RequestMapping(method = RequestMethod.GET, path ="/", produces = MediaType.APPLICATION_JSON_VALUE)
