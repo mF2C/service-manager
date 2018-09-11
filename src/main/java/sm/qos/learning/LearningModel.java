@@ -26,6 +26,7 @@ import sm.elements.Service;
 
 import java.util.List;
 
+import static sm.Parameters.EPSILON;
 import static sm.Parameters.QOS_TRAINING;
 
 public class LearningModel {
@@ -33,9 +34,11 @@ public class LearningModel {
     private DeepQ deepQ;
     private int[] output;
     private final double THRESHOLD = 1.0;
+    private int numOfAgents;
 
     public LearningModel(int numOfAgents) {
-        int inputLength = 2 + numOfAgents;
+        this.numOfAgents = numOfAgents;
+        int inputLength = 2 + numOfAgents + 1;
         int hiddenLayerOut = 150;
         output = new int[numOfAgents];
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
@@ -68,14 +71,14 @@ public class LearningModel {
         for (int i = 0; i < agents.size(); i++)
             agentsIds[i] = agents.get(i).getId().hashCode();
         float[] input = generateInput(service.getId().hashCode(), slaRatio, agentsIds);
-        int[] environment = generateEnvironment(agentsIds);
+        int[] environment = generateEnvironment();
         for (int i = 0; i < QOS_TRAINING; i++)
             learn(input, environment, i);
     }
 
     public void train(int service, double slaRatio, int[] agentsIds) {
         float[] input = generateInput(service, slaRatio, agentsIds);
-        int[] environment = generateEnvironment(agentsIds);
+        int[] environment = generateEnvironment();
         for (int i = 0; i < QOS_TRAINING; i++)
             learn(input, environment, i);
     }
@@ -85,18 +88,18 @@ public class LearningModel {
         for (int i = 0; i < agents.size(); i++)
             agentsIds[i] = agents.get(i).getId().hashCode();
         float[] input = generateInput(service.getId().hashCode(), slaRatio, agentsIds);
-        int[] environment = generateEnvironment(agentsIds);
-        reason(input, environment, 0);
+        int[] environment = generateEnvironment();
+        reason(input, environment);
     }
 
     public void evaluate(int service, double slaRatio, int[] agentsIds) {
         float[] input = generateInput(service, slaRatio, agentsIds);
-        int[] environment = generateEnvironment(agentsIds);
-        reason(input, environment, 0);
+        int[] environment = generateEnvironment();
+        reason(input, environment);
     }
 
     private float[] generateInput(int service, double slaRatio, int[] agentsIds) {
-        float[] input = new float[2 + agentsIds.length];
+        float[] input = new float[2 + agentsIds.length + 1];
         input[0] = service;
         input[1] = (float) slaRatio;
         for (int i = 0; i < agentsIds.length; i++)
@@ -104,60 +107,64 @@ public class LearningModel {
         return input;
     }
 
-    private int[] generateEnvironment(int[] agentsIds) {
-        return new int[agentsIds.length + 1];
+    private int[] generateEnvironment() {
+        return new int[numOfAgents];
     }
 
     private void learn(float[] input, int[] environment, int iteration) {
         int[] localEnvironment = environment.clone();
-        INDArray inputIndArray = Nd4j.create(input);
-        boolean optimal = false;
         int timeStep = 0;
-        while (!optimal) {
-            int[] actionMask = generateActionMask(localEnvironment);
-            int action = deepQ.getAction(inputIndArray, actionMask, 1);
+        int action = -1;
+        while (true) {
+            INDArray inputIndArray = Nd4j.create(input);
+            int[] actionMask = generateActionMask(localEnvironment, action);
+            action = deepQ.getAction(inputIndArray, actionMask, 1);
             modifyEnvironment(localEnvironment, action);
+            int[] nextActionMask = generateActionMask(localEnvironment, action);
             double reward = computeReward(input[1]);
             timeStep++;
             input[input.length - 1] = timeStep;
-            float maxReward = computeMaxReward(input[1], input.length - 2);
+            float maxReward = computeMaxReward(input[1]);
             if (reward >= maxReward * THRESHOLD) {
-                deepQ.observeReward(inputIndArray, null, reward, actionMask);
-                optimal = true;
+                deepQ.observeReward(inputIndArray, null, reward, nextActionMask);
+                break;
             } else
-                deepQ.observeReward(inputIndArray, Nd4j.create(input), reward, actionMask);
+                deepQ.observeReward(inputIndArray, Nd4j.create(input), reward, nextActionMask);
         }
         log.info("iteration " + iteration + " -> " + timeStep + " steps");
     }
 
-    private void reason(float[] input, int[] environment, double epsilon) {
+    private void reason(float[] input, int[] environment) {
         int[] localEnvironment = environment.clone();
-        INDArray inputIndArray = Nd4j.create(input);
-        boolean optimal = false;
         int timeStep = 0;
-        double reward = 0;
-        while (!optimal) {
-            int[] actionMask = generateActionMask(localEnvironment);
-            int action = deepQ.getAction(inputIndArray, actionMask, epsilon);
+        int action = -1;
+        while (true) {
+            INDArray inputIndArray = Nd4j.create(input);
+            int[] actionMask = generateActionMask(localEnvironment, action);
+            action = deepQ.getAction(inputIndArray, actionMask, EPSILON);
             modifyEnvironment(localEnvironment, action);
-            reward = computeReward(input[1]);
+            int[] nextActionMask = generateActionMask(localEnvironment, action);
+            double reward = computeReward(input[1]);
             timeStep++;
-            float maxReward = computeMaxReward(input[1], input.length - 2);
+            input[input.length - 1] = timeStep;
+            float maxReward = computeMaxReward(input[1]);
             if (reward >= maxReward * THRESHOLD)
-                optimal = true;
+                break;
             else {
-                deepQ.observeReward(inputIndArray, Nd4j.create(input), reward, actionMask);
-                if (timeStep > 15)
+                deepQ.observeReward(inputIndArray, Nd4j.create(input), reward, nextActionMask);
+                if (timeStep == Math.pow(2, numOfAgents))
                     break;
             }
         }
         log.info("reasoning in -> " + timeStep + " steps");
     }
 
-    private int[] generateActionMask(int[] environment) {
-        int[] actionMask = new int[environment.length - 1];
+    private int[] generateActionMask(int[] environment, int pastAction) {
+        int[] actionMask = new int[environment.length];
         for (int i = 0; i < actionMask.length; i++)
             actionMask[i] = 1;
+        if (pastAction != -1)
+            actionMask[pastAction] = 0;
         return actionMask;
     }
 
@@ -165,25 +172,24 @@ public class LearningModel {
         if (environment[action] == 1)
             environment[action] = 0;
         else environment[action] = 1;
-        System.arraycopy(environment, 0, output, 0, environment.length - 1);
+        System.arraycopy(environment, 0, output, 0, environment.length);
     }
 
-    private double computeReward(double slaRatio) {
+    private double computeReward(float slaRatio) {
         float reward = 0;
         for (int anOutput : output) {
             if (anOutput == 1)
-                reward += -2 * slaRatio + 1;
+                reward += -slaRatio + 1;
             else
-                reward += slaRatio - 1;
+                reward += slaRatio;
         }
-        return reward;
+        if (reward == computeMaxReward(slaRatio))
+            return reward;
+        else return -1;
     }
 
-    private float computeMaxReward(float slaRatio, int numOfAgents) {
-        float maxReward = (-2 * slaRatio + 1) * numOfAgents;
-        if (maxReward < 0)
-            maxReward = 0;
-        return maxReward;
+    private float computeMaxReward(float slaRatio) {
+        return (-slaRatio + 1) * numOfAgents;
     }
 
     public int[] getOutput() {

@@ -13,7 +13,7 @@ public class QosProviderTest {
     public void testLearningModel() {
         LearningModel learningModel = new LearningModel(4);
         int serviceId = 0;
-        double slaRatio = 0.5;
+        double slaRatio = 0;
         int[] agentsIds = new int[4];
         agentsIds[0] = 0;
         agentsIds[1] = 1;
@@ -21,6 +21,5 @@ public class QosProviderTest {
         agentsIds[3] = 3;
         learningModel.train(serviceId, slaRatio, agentsIds);
         learningModel.evaluate(serviceId, slaRatio, agentsIds);
-        int[] output = learningModel.getOutput();
     }
 }
