@@ -43,15 +43,13 @@ public class CimiInterface {
             ResponseEntity<String> responseEntity = restTemplate.exchange(cimiUrl + CIMI_ENDPOINTS, HttpMethod.GET, entity, String.class);
             if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
                 sessionStarted = true;
+                log.info("Connection established to CIMI [" + cimiUrl + "]");
+                return true;
             }
-        } catch (Exception ignored) { }
-        if(!sessionStarted){
+        } catch (Exception e) {
             log.error("No connection to CIMI [" + cimiUrl + "]");
-            return false;
-        } else {
-            log.info("Connection established to CIMI [" + cimiUrl + "]");
-            return true;
         }
+        return false;
     }
 
     public static Boolean startSession() {

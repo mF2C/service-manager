@@ -78,7 +78,9 @@ public class Categorizer {
     }
 
     private boolean checkServiceFormat(Service s) {
-        return s.getName() != null && s.getDescription() != null && s.getExec() != null && s.getExecType() != null && s.getCategory() != null;
+        return s.getName() != null && s.getDescription() != null && s.getExec() != null
+                && s.getExecType() != null && s.getCpuArch() != null && s.getOs() != null
+                && s.getAgentType() != null;
     }
 
     public static Service getServiceById(String id) {

@@ -1,7 +1,7 @@
 version: '3'
 services:
   service-manager:
-    image: mf2c/service-manager
+    image: mf2c/service-manager:1.5-SNAPSHOT
     environment:
       - JAVA_OPTS=-Xms32m -Xmx256m
       - CIMI_URL=https://dashboard.mf2c-project.eu/api

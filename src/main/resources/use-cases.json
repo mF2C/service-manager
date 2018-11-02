@@ -4,16 +4,16 @@
     "description": "Hello World Service",
     "exec": "hello-world",
     "exec_type": "docker",
-    "exec_ports": [
-      8080
-    ],
-    "category": {
-      "cpu": "low",
-      "memory": "low",
-      "storage": "low",
-      "disk": "low",
-      "network": "low"
-    }
+    "exec_ports": [8080],
+    "agent_type": "cloud",
+    "cpu_arch": "x86-64",
+    "os": "linux",
+    "memory_min": 1000,
+    "storage_min": 100,
+    "disk": 100,
+    "req_resource": [],
+    "opt_resource": [],
+    "category": 1
   },
   {
     "name": "use-case-1-fog",
@@ -21,17 +21,15 @@
     "exec": "http://162.13.179.15:40080/fog/docker-compose.yml",
     "exec_type": "docker-compose",
     "exec_ports": [],
-    "category": {
-      "cpu": "low",
-      "memory": "low",
-      "storage": "low",
-      "disk": "low",
-      "network": "low",
-      "inclinometer": true,
-      "temperature": true,
-      "jammer": true,
-      "location": true
-    }
+    "agent_type": "agent",
+    "cpu_arch": "x86-64",
+    "os": "linux",
+    "memory_min": 1000,
+    "storage_min": 100,
+    "disk": 100,
+    "req_resource": ["inclinometer", "temperature", "jammer", "location"],
+    "opt_resource": [],
+    "category": 2
   },
   {
     "name": "use-case-1-cloud",
@@ -39,38 +37,31 @@
     "exec": "http://162.13.179.15:40080/cloud/docker-compose.yml",
     "exec_type": "docker-compose",
     "exec_ports": [],
-    "category": {
-      "cpu": "low",
-      "memory": "low",
-      "storage": "low",
-      "disk": "low",
-      "network": "low"
-    }
+    "agent_type": "cloud",
+    "cpu_arch": "x86-64",
+    "os": "linux",
+    "memory_min": 1000,
+    "storage_min": 100,
+    "disk": 100,
+    "req_resource": [],
+    "opt_resource": [],
+    "category": 1
   },
   {
     "name": "use-case-2",
     "description": "Smart Boats",
     "exec": "use-case-2",
     "exec_type": "compss",
-    "exec_ports": [
-      8080
-    ],
-    "category": {
-      "cpu": "low",
-      "memory": "low",
-      "storage": "low",
-      "disk": "low",
-      "network": "low",
-      "temperature": true,
-      "location": true,
-      "battery_level": true,
-      "door_sensor": true,
-      "pump_sensor": true,
-      "accelerometer": true,
-      "humidity": true,
-      "air_pressure": true,
-      "ir_motion": true
-    }
+    "exec_ports": [8080],
+    "agent_type": "agent",
+    "cpu_arch": "x86-64",
+    "os": "linux",
+    "memory_min": 1000,
+    "storage_min": 100,
+    "disk": 100,
+    "req_resource": ["temperature", "location", "battery_level", "door_sensor", "pump_sensor", "accelerometer", "humidity", "air_pressure", "ir_motion"],
+    "opt_resource": [],
+    "category": 2
   },
   {
     "name": "use-case-3",
@@ -80,14 +71,15 @@
     "exec_ports": [
       8080
     ],
-    "category": {
-      "cpu": "low",
-      "memory": "low",
-      "storage": "low",
-      "disk": "low",
-      "network": "low",
-      "location": true
-    }
+    "agent_type": "agent",
+    "cpu_arch": "x86-64",
+    "os": "linux",
+    "memory_min": 1000,
+    "storage_min": 100,
+    "disk": 100,
+    "req_resource": ["location"],
+    "opt_resource": [],
+    "category": 2
   },
   {
     "name": "emergency-ambulance-demo",
@@ -95,13 +87,15 @@
     "exec": "upcuc1/uc1-emergency1:latest",
     "exec_type": "docker",
     "exec_ports": [],
-    "category": {
-      "cpu": "low",
-      "memory": "low",
-      "storage": "low",
-      "disk": "low",
-      "network": "low"
-    }
+    "agent_type": "agent",
+    "cpu_arch": "x86-64",
+    "os": "linux",
+    "memory_min": 1000,
+    "storage_min": 100,
+    "disk": 100,
+    "req_resource": [],
+    "opt_resource": [],
+    "category": 2
   },
   {
     "name": "emergency-firemen-demo",
@@ -109,13 +103,15 @@
     "exec": "upcuc1/uc1-emergency2:latest",
     "exec_type": "docker",
     "exec_ports": [],
-    "category": {
-      "cpu": "low",
-      "memory": "low",
-      "storage": "low",
-      "disk": "low",
-      "network": "low"
-    }
+    "agent_type": "agent",
+    "cpu_arch": "x86-64",
+    "os": "linux",
+    "memory_min": 1000,
+    "storage_min": 100,
+    "disk": 100,
+    "req_resource": [],
+    "opt_resource": [],
+    "category": 2
   },
   {
     "name": "emergency-traffic-demo",
@@ -123,12 +119,14 @@
     "exec": "upcuc1/uc1-emergency3:latest",
     "exec_type": "docker",
     "exec_ports": [],
-    "category": {
-      "cpu": "low",
-      "memory": "low",
-      "storage": "low",
-      "disk": "low",
-      "network": "low"
-    }
+    "agent_type": "agent",
+    "cpu_arch": "x86-64",
+    "os": "linux",
+    "memory_min": 1000,
+    "storage_min": 100,
+    "disk": 100,
+    "req_resource": [],
+    "opt_resource": [],
+    "category": 2
   }
 ]

@@ -17,18 +17,32 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Service {
 
+    // JSON parameters
     private String id;
     private String name;
     private String description;
-    private String created;
-    private String updated;
     private String exec;
     @JsonProperty("exec_type")
     private String execType;
     @JsonProperty("exec_ports")
     private int[] execPorts;
-    private String resourceURI;
-    private Category category;
+    @JsonProperty("cpu_arch")
+    private String cpuArch;
+    private String os;
+    @JsonProperty("memory_min")
+    private int memoryMin;
+    @JsonProperty("storage_min")
+    private int storageMin;
+    private int disk;
+    @JsonProperty("agent_type")
+    private String agentType;
+    @JsonProperty("req_resource")
+    private String[] reqResource;
+    @JsonProperty("opt_resource")
+    private String[] optResource;
+    private int category;
+
+    // other parameters
     @JsonIgnore
     private int executionsCounter;
     @JsonIgnore
@@ -43,6 +57,14 @@ public class Service {
 
     public void increaseServiceFailureCounter(float ratio) {
         serviceFailureRatioCounter = serviceFailureRatioCounter + ratio;
+    }
+
+    public int getExecutionsCounter() {
+        return executionsCounter;
+    }
+
+    public float getServiceFailureRatioCounter() {
+        return serviceFailureRatioCounter;
     }
 
     public String getId() {
@@ -69,22 +91,6 @@ public class Service {
         this.description = description;
     }
 
-    public String getCreated() {
-        return created;
-    }
-
-    public void setCreated(String created) {
-        this.created = created;
-    }
-
-    public String getUpdated() {
-        return updated;
-    }
-
-    public void setUpdated(String updated) {
-        this.updated = updated;
-    }
-
     public String getExec() {
         return exec;
     }
@@ -109,27 +115,75 @@ public class Service {
         this.execPorts = execPorts;
     }
 
-    public String getResourceURI() {
-        return resourceURI;
+    public String getCpuArch() {
+        return cpuArch;
     }
 
-    public void setResourceURI(String resourceURI) {
-        this.resourceURI = resourceURI;
+    public void setCpuArch(String cpuArch) {
+        this.cpuArch = cpuArch;
     }
 
-    public Category getCategory() {
+    public String getOs() {
+        return os;
+    }
+
+    public void setOs(String os) {
+        this.os = os;
+    }
+
+    public int getMemoryMin() {
+        return memoryMin;
+    }
+
+    public void setMemoryMin(int memoryMin) {
+        this.memoryMin = memoryMin;
+    }
+
+    public int getStorageMin() {
+        return storageMin;
+    }
+
+    public void setStorageMin(int storageMin) {
+        this.storageMin = storageMin;
+    }
+
+    public int getDisk() {
+        return disk;
+    }
+
+    public void setDisk(int disk) {
+        this.disk = disk;
+    }
+
+    public String getAgentType() {
+        return agentType;
+    }
+
+    public void setAgentType(String agentType) {
+        this.agentType = agentType;
+    }
+
+    public String[] getReqResource() {
+        return reqResource;
+    }
+
+    public void setReqResource(String[] reqResource) {
+        this.reqResource = reqResource;
+    }
+
+    public String[] getOptResource() {
+        return optResource;
+    }
+
+    public void setOptResource(String[] optResource) {
+        this.optResource = optResource;
+    }
+
+    public int getCategory() {
         return category;
     }
 
-    public void setCategory(Category category) {
+    public void setCategory(int category) {
         this.category = category;
-    }
-
-    public int getExecutionsCounter() {
-        return executionsCounter;
-    }
-
-    public float getServiceFailureRatioCounter() {
-        return serviceFailureRatioCounter;
     }
 }

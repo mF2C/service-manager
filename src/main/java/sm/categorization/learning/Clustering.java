@@ -26,38 +26,31 @@ public class Clustering {
     }
 
     public float[][] generateInput(List<Service> services) {
-        float[][] input = new float[services.size()][17];
+        float[][] input = new float[services.size()][8 + getMaxLengthService(services)];
         for (int s = 0; s < services.size(); s++) {
             input[s][0] = services.get(s).getExecType().hashCode();
             input[s][1] = services.get(s).getExecPorts().length;
-            input[s][2] = services.get(s).getCategory().getCpu().hashCode();
-            input[s][3] = services.get(s).getCategory().getMemory().hashCode();
-            input[s][4] = services.get(s).getCategory().getStorage().hashCode();
-            input[s][5] = services.get(s).getCategory().getDisk().hashCode();
-            if (services.get(s).getCategory().isTemperature())
-                input[s][6] = 1;
-            if (services.get(s).getCategory().isInclinometer())
-                input[s][7] = 1;
-            if (services.get(s).getCategory().isJammer())
-                input[s][8] = 1;
-            if (services.get(s).getCategory().isLocation())
-                input[s][9] = 1;
-            if (services.get(s).getCategory().isBatteryLevel())
-                input[s][10] = 1;
-            if (services.get(s).getCategory().isDoorSensor())
-                input[s][11] = 1;
-            if (services.get(s).getCategory().isPumpSensor())
-                input[s][12] = 1;
-            if (services.get(s).getCategory().isAccelerometer())
-                input[s][13] = 1;
-            if (services.get(s).getCategory().isHumidity())
-                input[s][14] = 1;
-            if (services.get(s).getCategory().isAirPressure())
-                input[s][15] = 1;
-            if (services.get(s).getCategory().isIrMotion())
-                input[s][16] = 1;
+            input[s][2] = services.get(s).getAgentType().hashCode();
+            if (services.get(s).getCpuArch() != null)
+                input[s][3] = services.get(s).getCpuArch().hashCode();
+            if (services.get(s).getOs() != null)
+                input[s][4] = services.get(s).getOs().hashCode();
+            if (services.get(s).getMemoryMin() != 0)
+                input[s][5] = services.get(s).getMemoryMin();
+            if (services.get(s).getStorageMin() != 0)
+                input[s][6] = services.get(s).getStorageMin();
+            if (services.get(s).getDisk() != 0)
+                input[s][7] = services.get(s).getDisk();
         }
         return input;
+    }
+
+    private int getMaxLengthService(List<Service> services) {
+        int maxLength = 0;
+        for (Service s : services)
+            if (s.getReqResource().length + s.getOptResource().length > maxLength)
+                maxLength = s.getReqResource().length + s.getOptResource().length;
+        return maxLength;
     }
 
     public List<Point> generatePoints(float[][] input) {
