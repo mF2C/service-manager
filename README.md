@@ -18,21 +18,30 @@ After waiting some time to start, check `http://localhost:46200/api/service-mana
 
 ## Interfaces
 
-#### Categorizer
--	URI: `http://localhost:46200/api/service-management/categorizer/`
+-	Base URI: `http://localhost:46200/api/service-management/`
+
+Retrieve all services: 
+-	Method: GET.
+-   Returns: a list of all services.
+
+Retrieve a service: 
+-	Method: GET.
+-   Params: `<service_id>` of the service.
+-   Returns: the requested service.
 
 Submit a new service: 
 -	Method: POST.
--   Body: JSON object representing a service.
+-   Body: JSON object representing a [Service](https://github.com/mF2C/cimi/tree/master/_demo)
 
-Retrieve or delete an existing service: 
--	Method: GET, DELETE.
+Update an existing service: 
+-	Method: PUT.
+-   Body: JSON object representing a [Service](https://github.com/mF2C/cimi/tree/master/_demo).
+
+Delete an existing service: 
+-	Method: DELETE.
 -   Params: `<service_id>` of the service.
 
-#### QoS Provider
--	URI: `http://localhost:46200/api/service-management/qos/`
+Check QoS provider:
 -	Method: GET
--   Params: `<service_instance_id>` of the service instance.
--   Returns a service instance.
-  
-
+-   Params: `<service_instance_id>` from an existing service instance.
+-   Returns: the same service instance.

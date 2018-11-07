@@ -29,22 +29,24 @@ public class Categorizer {
 
     public Categorizer() {
         localServices = new HashMap<>();
+        List<Service> servicesFromFile = readFromFile();
+        storeLocally(servicesFromFile);
     }
 
-    public void initializeServices() {
-        List<Service> services = CimiInterface.getServices();
-        setServices(services);
-        postServiceFromFile();
+    public void synchronizeWithCimi() {
+        storeLocally(CimiInterface.getServices());
+        postToCimi();
     }
 
-    private void setServices(List<Service> services) {
+    private void storeLocally(List<Service> services) {
         if (services != null)
-            for (Service service : services)
-                if (!localServices.containsKey(service.getName()))
-                    localServices.put(service.getName(), service);
+            for (Service service : services) {
+                localServices.put(service.getName(), service);
+                service.setId("service/local_id_" + service.getName());
+            }
     }
 
-    private void postServiceFromFile() {
+    private List<Service> readFromFile() {
         TypeReference<List<Service>> typeReference = new TypeReference<List<Service>>() {
         };
         InputStream inputStream = TypeReference.class.getResourceAsStream("/use-cases.json");
@@ -56,17 +58,31 @@ public class Categorizer {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        setServices(servicesFromFile);
-        if (servicesFromFile != null)
-            for (Service service : servicesFromFile) {
-                String id = CimiInterface.postService(service);
-                service.setId(id);
-            }
+        return servicesFromFile;
     }
 
-    Service submit(Service service) {
-        String id = null;
-        if (checkServiceFormat(service) & CimiInterface.isSessionStarted())
+    private void postToCimi() {
+        for (Service service : localServices.values()) {
+            String id = CimiInterface.postService(service);
+            service.setId(id);
+        }
+    }
+
+    public List<Service> getAll() {
+        return new ArrayList<>(localServices.values());
+    }
+
+    public static Service get(String id) {
+        List<Service> servicesList = new ArrayList<>(localServices.values());
+        for (Service service : servicesList)
+            if (service.getId().equals(id))
+                return service;
+        return null;
+    }
+
+    public Service submit(Service service) {
+        String id = service.getId();
+        if (checkFormat(service) & CimiInterface.isSessionStarted())
             id = CimiInterface.postService(service);
         if (id != null) {
             service.setId(id);
@@ -77,33 +93,30 @@ public class Categorizer {
         return null;
     }
 
-    private boolean checkServiceFormat(Service s) {
+    public Service update(Service service) {
+
+        log.info("Service updated: " + service.getName());
+        return null;
+    }
+
+    public void removeService(Service service) {
+        localServices.remove(service.getName());
+        log.info("Service removed: " + service.getName());
+    }
+
+    private boolean checkFormat(Service s) {
         return s.getName() != null && s.getDescription() != null && s.getExec() != null
                 && s.getExecType() != null && s.getCpuArch() != null && s.getOs() != null
                 && s.getAgentType() != null;
     }
 
-    public static Service getServiceById(String id) {
-        List<Service> servicesList = new ArrayList<>(localServices.values());
-        for (Service service : servicesList)
-            if (service.getId().equals(id))
-                return service;
-        return null;
-    }
-
-    List<Service> getServices() {
-        return new ArrayList<>(localServices.values());
-    }
-
-    boolean checkService(Service service) {
+    public boolean checkService(Service service) {
         if (localServices.containsKey(service.getName())) {
-            log.info("The service was already categorized: " + service.getName());
+            log.info("The service was already submitted: " + service.getName());
             return true;
         } else return false;
     }
 
-    void removeService(Service service){
-        localServices.remove(service.getName());
-    }
+
 }
 

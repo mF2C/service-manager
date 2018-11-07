@@ -25,7 +25,7 @@ public class QosProvider {
         learningModels = new HashMap<>();
     }
 
-    ServiceInstance check(Service service, ServiceInstance serviceInstance, Agreement agreement, List<SlaViolation> slaViolations) {
+    public ServiceInstance check(Service service, ServiceInstance serviceInstance, Agreement agreement, List<SlaViolation> slaViolations) {
         service.increaseExecutionsCounter();
         if (slaViolations != null) {
             float slaRatio = calculateSlaViolationRatio(service, agreement, slaViolations);

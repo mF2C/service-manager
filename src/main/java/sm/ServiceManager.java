@@ -25,13 +25,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import sm.categorization.Categorizer;
-import sm.categorization.CategorizerInterface;
 import sm.cimi.CimiInterface;
 import sm.cimi.CimiSession;
 import sm.cimi.CimiSession.SessionTemplate;
 import sm.elements.Response;
 import sm.qos.QosProvider;
-import sm.qos.QosProviderInterface;
 
 import java.util.concurrent.*;
 
@@ -52,8 +50,7 @@ import static sm.Parameters.SERVICE_MANAGEMENT_ROOT;
         ServerPropertiesAutoConfiguration.class,
         WebMvcAutoConfiguration.class,
         WebSocketAutoConfiguration.class,
-        QosProviderInterface.class,
-        CategorizerInterface.class,
+        ServiceManagerInterface.class,
         CimiInterface.class,
         CimiSession.class,
         SessionTemplate.class
@@ -61,8 +58,8 @@ import static sm.Parameters.SERVICE_MANAGEMENT_ROOT;
 @Controller
 public class ServiceManager implements ApplicationRunner {
 
-    public static Categorizer categorizer;
-    public static QosProvider qosProvider;
+    static Categorizer categorizer;
+    static QosProvider qosProvider;
 
     public ServiceManager() {
         categorizer = new Categorizer();
@@ -103,7 +100,7 @@ public class ServiceManager implements ApplicationRunner {
             @Override
             public Boolean call() {
                 if (CimiInterface.startSession()) {
-                    categorizer.initializeServices();
+                    categorizer.synchronizeWithCimi();
                     return true;
                 } else {
                     scheduledExecutorService.schedule(this, CIMI_RECONNECTION_TIME, TimeUnit.SECONDS);
@@ -126,7 +123,7 @@ public class ServiceManager implements ApplicationRunner {
             @Override
             public Boolean call() {
                 if (CimiInterface.checkCimiInterface()) {
-                    categorizer.initializeServices();
+                    categorizer.synchronizeWithCimi();
                     return true;
                 } else {
                     scheduledExecutorService.schedule(this, CIMI_RECONNECTION_TIME, TimeUnit.SECONDS);
@@ -141,14 +138,6 @@ public class ServiceManager implements ApplicationRunner {
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
-    }
-
-    @RequestMapping(method = RequestMethod.GET, path ="/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody Response home() {
-        Response response = new Response(null, SERVICE_MANAGEMENT_ROOT);
-        response.setMessage("Info - Welcome to the mF2C Service Manager!");
-        response.setStatus(HttpStatus.OK.value());
-        return response;
     }
 }
 

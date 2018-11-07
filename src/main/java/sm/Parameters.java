@@ -23,8 +23,8 @@ public class Parameters {
     public static final String SERVICE_MANAGEMENT_ROOT = "/api/service-management";
     public static final String SERVICE_INSTANCE_ID = "/{service_instance_id}";
     public static final String SERVICE_ID = "/{service_id}";
-    public static final String QOS = "/qos";
-    public static final String CATEGORIZER = "/categorizer";
+//    public static final String QOS = "/qos";
+//    public static final String CATEGORIZER = "/categorizer";
 
     /*********** Aux values ************/
     public static final int QOS_TRAINING = 300;
