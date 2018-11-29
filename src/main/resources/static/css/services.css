@@ -1,31 +1,8 @@
-html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,h7,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,dl,dt,dd,ol,nav ul,nav li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{margin:0;padding:0;border:0;font-size:100%;font:inherit;vertical-align:baseline;}
-article, aside, details, figcaption, figure,footer, header, hgroup, menu, nav, section {display: block;}
-ol,ul{list-style:none;margin:0;padding:0;}
-blockquote,q{quotes:none;}
-blockquote:before,blockquote:after,q:before,q:after{content:'';content:none;}
-table{border-collapse:collapse;border-spacing:0;}
-a{text-decoration:none; color: yellow;}
-.txt-rt{text-align:right;}
-.txt-lt{text-align:left;}
-.txt-center{text-align:center;}
-.float-rt{float:right;}
-.float-lt{float:left;}
-.clear{clear:both;}
-.pos-relative{position:relative;}
-.pos-absolute{position:absolute;}
-.vertical-base{vertical-align:baseline;}
-.vertical-top{vertical-align:top;}
-
 .underline
 {
-  padding-bottom:5px;
   border-bottom: 1px solid #eee;
   margin:0 0 20px 0;
 }
-
-nav.vertical ul li{display:block;}
-nav.horizontal ul li{display: inline-block;}
-img{max-width:100%;}
 
 body
 {
@@ -65,51 +42,20 @@ body
   text-align: center;
 }
 
-.content h2
-{
-  font-size: 25px;
-  font-weight: 600;
-  color: whitesmoke;
-  display: inline-block;
-}
-
 .content h3
 {
   color: whitesmoke;
   font-size: 15px;
-  margin: 25px 0px 0px 0px;
   text-shadow: 1px 1px #000;
-}
-
-.content h4
-{
-  color: black;
-  font-size: 18px;
-  text-align: left;
-  font-weight: bold;
-}
-
-.content h5
-{
-  color: yellowgreen;
-  font-size: 14px;
-  text-shadow: 1px 1px #000;
-  text-align: left;
-  margin: 5px 0px 0px 0px;
-}
-
-.content h6
-{
-  color: #2195F3;
-  font-size: 20px;
-  text-align: center;
 }
 
 form {
     display: table;
+    width:100%;
 }
 p {
     display: table-row;
+
 }
 label {
    display: table-cell;
@@ -119,6 +65,7 @@ label {
    width: 50%;
 }
 input {
+    width:100%;
     display: table-cell;
     outline: none;
     font-size: 13px;
@@ -141,13 +88,13 @@ input {
 .content select
 {
     font-size: 13px;
-    font-weight: 400;
     color: white;
+    width:100%;
     text-align: center;
-    padding: 5px 5px 5px 5px;
+    padding: 5px;
     margin: 10px 0px 10px 0px;
-    border: 1px solid #ccc;   
-    background: no-repeat 7px 7px;
+    border: 1px solid #ccc;
+    background:  url(../images/arrow.png) right center no-repeat;
     -webkit-appearance: none;
 }
 
@@ -170,30 +117,27 @@ input {
   border-radius: 5px 5px 0 0;
 }
 
-.button {
+.content .button {
   border: none;
   color: white;
-  width: 150px;
   padding: 10px;
-  float: center;
+  width: 49%;
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
-  margin: 4px 2px;
+  margin-top: 20px;
   cursor: pointer;
   -webkit-transition-duration: 0.4s; /* Safari */
   transition-duration: 0.4s;
+  border-radius: 4px;
 }
 
 .button-submit{
   background-color: yellowgreen;
-  margin-top: 20px;
-  border-radius: 4px;
 }
 
 .button-cancel{
   background-color: gray;
-  border-radius: 4px;
 }
 
 .button-launch{
