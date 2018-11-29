@@ -16,25 +16,23 @@ import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.*;
 import org.springframework.boot.autoconfigure.websocket.WebSocketAutoConfiguration;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import sm.categorization.Categorizer;
 import sm.cimi.CimiInterface;
 import sm.cimi.CimiSession;
 import sm.cimi.CimiSession.SessionTemplate;
-import sm.elements.Response;
 import sm.qos.QosProvider;
 
 import java.util.concurrent.*;
 
 import static sm.Parameters.CIMI_RECONNECTION_TIME;
-import static sm.Parameters.SERVICE_MANAGEMENT_ROOT;
 
 //@SpringBootApplication
 @Configuration
@@ -56,88 +54,93 @@ import static sm.Parameters.SERVICE_MANAGEMENT_ROOT;
         SessionTemplate.class
 })
 @Controller
-public class ServiceManager implements ApplicationRunner {
+public class ServiceManager extends SpringBootServletInitializer implements ApplicationRunner {
 
-    static Categorizer categorizer;
-    static QosProvider qosProvider;
+   static Categorizer categorizer;
+   static QosProvider qosProvider;
 
-    public ServiceManager() {
-        categorizer = new Categorizer();
-        qosProvider = new QosProvider();
-        new CimiInterface();
-    }
+   public ServiceManager() {
+      categorizer = new Categorizer();
+      qosProvider = new QosProvider();
+      new CimiInterface();
+   }
 
-    public static void main(String[] args) {
-        SpringApplication.run(ServiceManager.class, args);
-    }
+   @Override
+   protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+      return application.sources(ServiceManager.class);
+   }
 
-    @Override
-    public void run(ApplicationArguments applicationArguments) {
-        String cimiKey = null;
-        String cimiSecret = null;
-        String cimiUrl = null;
-        for (String name : applicationArguments.getOptionNames()) {
-            if (name.equals("cimi.api.key"))
-                cimiKey = applicationArguments.getOptionValues(name).get(0);
-            if (name.equals("cimi.api.secret"))
-                cimiSecret = applicationArguments.getOptionValues(name).get(0);
-            if (name.equals("cimi.url"))
-                cimiUrl = applicationArguments.getOptionValues(name).get(0);
-        }
-        if (cimiUrl != null)
-            Parameters.cimiUrl = cimiUrl;
+   public static void main(String[] args) {
+      SpringApplication.run(ServiceManager.class, args);
+   }
 
-        if (cimiKey != null && cimiSecret != null)
-            stablishSesionToCimi(cimiKey, cimiSecret);
-        else
-            checkConnectionToCimi();
-    }
+   @Override
+   public void run(ApplicationArguments applicationArguments) {
+      String cimiKey = null;
+      String cimiSecret = null;
+      String cimiUrl = null;
+      for (String name : applicationArguments.getOptionNames()) {
+         if (name.equals("cimi.api.key"))
+            cimiKey = applicationArguments.getOptionValues(name).get(0);
+         if (name.equals("cimi.api.secret"))
+            cimiSecret = applicationArguments.getOptionValues(name).get(0);
+         if (name.equals("cimi.url"))
+            cimiUrl = applicationArguments.getOptionValues(name).get(0);
+      }
+      if (cimiUrl != null)
+         Parameters.cimiUrl = cimiUrl;
 
-    private void stablishSesionToCimi(String key, String secret) {
-        new CimiInterface(new CimiSession(new SessionTemplate(key, secret)));
-        ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-        Callable<Boolean> callable = new Callable<Boolean>() {
-            @Override
-            public Boolean call() {
-                if (CimiInterface.startSession()) {
-                    categorizer.synchronizeWithCimi();
-                    return true;
-                } else {
-                    scheduledExecutorService.schedule(this, CIMI_RECONNECTION_TIME, TimeUnit.SECONDS);
-                    return false;
-                }
+      if (cimiKey != null && cimiSecret != null)
+         stablishSesionToCimi(cimiKey, cimiSecret);
+      else
+         checkConnectionToCimi();
+   }
+
+   private void stablishSesionToCimi(String key, String secret) {
+      new CimiInterface(new CimiSession(new SessionTemplate(key, secret)));
+      ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+      Callable<Boolean> callable = new Callable<Boolean>() {
+         @Override
+         public Boolean call() {
+            if (CimiInterface.startSession()) {
+               categorizer.synchronizeWithCimi();
+               return true;
+            } else {
+               scheduledExecutorService.schedule(this, CIMI_RECONNECTION_TIME, TimeUnit.SECONDS);
+               return false;
             }
-        };
-        Future<Boolean> connected = scheduledExecutorService.schedule(callable, CIMI_RECONNECTION_TIME, TimeUnit.SECONDS);
-        try {
-            if (connected.get())
-                scheduledExecutorService.shutdown();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-    }
+         }
+      };
+      Future<Boolean> connected = scheduledExecutorService.schedule(callable, CIMI_RECONNECTION_TIME, TimeUnit.SECONDS);
+      try {
+         if (connected.get())
+            scheduledExecutorService.shutdown();
+      } catch (InterruptedException | ExecutionException e) {
+         e.printStackTrace();
+      }
+   }
 
-    private void checkConnectionToCimi() {
-        ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-        Callable<Boolean> callable = new Callable<Boolean>() {
-            @Override
-            public Boolean call() {
-                if (CimiInterface.checkCimiInterface()) {
-                    categorizer.synchronizeWithCimi();
-                    return true;
-                } else {
-                    scheduledExecutorService.schedule(this, CIMI_RECONNECTION_TIME, TimeUnit.SECONDS);
-                    return false;
-                }
+   private void checkConnectionToCimi() {
+      ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+      Callable<Boolean> callable = new Callable<Boolean>() {
+         @Override
+         public Boolean call() {
+            if (CimiInterface.checkCimiInterface()) {
+               categorizer.synchronizeWithCimi();
+               return true;
+            } else {
+               scheduledExecutorService.schedule(this, CIMI_RECONNECTION_TIME, TimeUnit.SECONDS);
+               return false;
             }
-        };
-        Future<Boolean> connected = scheduledExecutorService.schedule(callable, CIMI_RECONNECTION_TIME, TimeUnit.SECONDS);
-        try {
-            if (connected.get())
-                scheduledExecutorService.shutdown();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-    }
+         }
+      };
+      Future<Boolean> connected = scheduledExecutorService.schedule(callable, CIMI_RECONNECTION_TIME, TimeUnit.SECONDS);
+      try {
+         if (connected.get())
+            scheduledExecutorService.shutdown();
+      } catch (InterruptedException | ExecutionException e) {
+         e.printStackTrace();
+      }
+   }
 }
 

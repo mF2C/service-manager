@@ -1,0 +1,111 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>mF2C - Driving Through the Edge</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="icon" type="image/png" href="images/favicons/favicon-72x72.png" sizes="72x72">
+    <link rel="icon" type="image/png" href="images/favicons/favicon-64x64.png" sizes="64x64">
+    <link rel="icon" type="image/png" href="images/favicons/favicon-48x48.png" sizes="48x48">
+    <link rel="icon" type="image/png" href="images/favicons/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="images/favicons/favicon-114x114.png" sizes="114x114">
+    <link href="css/services.css" rel="stylesheet" type="text/css" media="all"/>
+</head>
+<body>
+<div class="content content_thick">
+    <h1>Service Registration</h1>
+    <span class="line"> </span>
+    <h3>Fill the required information for submitting your service into mF2C</h3><br>
+    <form>
+        <p>
+            <label>Name: </label>
+            <input type="text" id="name" placeholder="ex: Hello World"/>
+        </p>
+        <p>
+            <label>Description: </label>
+            <input type="text" id="description" placeholder="ex: This is a hello world test"/>
+        </p>
+        <p>
+            <label>Name of the executable: </label>
+            <input type="text" id="exec" placeholder="ex: hello-world"/>
+        </p>
+        <p>
+            <label>Type of executable: </label>
+            <select id="exec_type" onchange="execTypeFunction()">
+                <option value="docker">docker</option>
+                <option value="compss">compss</option>
+                <option value="docker-compose">docker-compose</option>
+                <option value="docker-swarm">docker-swarm</option>
+                <option value="kubernetes">kubernetes</option>
+            </select>
+        </p>
+        <p>
+            <label>Ports (if required): </label>
+            <input type="text" id="exec_ports" disabled
+                   placeholder="ex: 8080, 8081"/>
+        </p>
+        <p>
+            <label>Agent type: </label>
+            <select id="agent_type" onchange="">
+                <option value="normal">normal</option>
+                <option value="cloud">cloud</option>
+                <option value="micro">micro</option>
+            </select>
+        </p>
+        <p>
+            <label>Number of agents: </label>
+            <input type="text" id="num_agents" disabled placeholder="ex: 5"/>
+        </p>
+        <p>
+            <label>CPU architecture: </label>
+            <select id="cpu_arch">
+                <option value="x86-64">x86-64</option>
+                <option value="arm">arm</option>
+            </select>
+        </p>
+        <p>
+            <label>Operating system: </label>
+            <select id="os">
+                <option value="linux">linux</option>
+                <option value="mac">mac</option>
+                <option value="windows">windows</option>
+            </select>
+        </p>
+        <p>
+            <label>Memory: </label>
+            <input type="text" id="memory_min" disabled placeholder="ex: 1000"/>
+        </p>
+        <p>
+            <label>Storage: </label>
+            <input type="text" id="storage_min" disabled placeholder="ex: 1000"/>
+        </p>
+        <p>
+            <label>Disk: </label>
+            <input type="text" id="disk" disabled placeholder="ex: 100"/>
+        </p>
+        <p>
+            <label>Required resources: </label>
+            <input type="text" id="req_resource" disabled placeholder="ex: Location, Ambulance"/>
+        </p>
+        <p>
+            <label>Optional resources: </label>
+            <input type="text" id="opt_resource" disabled placeholder="ex: SenseHat, GP-20U7"/>
+        </p>
+        <p>
+        <button class="button button-submit" onClick="registerService()">Register</button>
+        <button class="button button-cancel" onClick="registerServiceCancel()">Cancel</button>
+        </p>
+    </form>
+</div>
+<footer class="footer-distributed">
+    <img src="images/logomF2C.png" alt="mF2C Project" width="60px">
+    <img src="images/logoEUH2020.png" alt="European Union's Horizon 2020" width="100px">
+    <h5>This project has received funding from the European Union's Horizon 2020 research and innovation programme under
+        grant agreement No 730929. The content of this site reflects only the mF2C Consortium view and not the official
+        opinion of the European Commission. Responsibility for the use of the information therein lies entirely with the
+        authors.</h5>
+</footer>
+<script src="scripts/js/service_register.js"></script>
+<script src="scripts/js/jquery.min.js"></script>
+</body>
+</html>

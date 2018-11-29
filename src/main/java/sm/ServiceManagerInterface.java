@@ -19,6 +19,7 @@ import java.util.List;
 import static sm.Parameters.*;
 
 @RestController
+@RequestMapping(value="/api/service-management")
 public class ServiceManagerInterface {
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
