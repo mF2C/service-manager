@@ -26,6 +26,10 @@ public class Service {
     private String execType;
     @JsonProperty("exec_ports")
     private int[] execPorts;
+    @JsonProperty("agent_type")
+    private String agentType;
+    @JsonProperty("num_agents")
+    private int numAgents;
     @JsonProperty("cpu_arch")
     private String cpuArch;
     private String os;
@@ -34,8 +38,6 @@ public class Service {
     @JsonProperty("storage_min")
     private int storageMin;
     private int disk;
-    @JsonProperty("agent_type")
-    private String agentType;
     @JsonProperty("req_resource")
     private String[] reqResource;
     @JsonProperty("opt_resource")
@@ -107,6 +109,22 @@ public class Service {
         this.execType = execType;
     }
 
+    public String getAgentType() {
+        return agentType;
+    }
+
+    public void setAgentType(String agentType) {
+        this.agentType = agentType;
+    }
+
+    public int getNumAgents() {
+        return numAgents;
+    }
+
+    public void setNumAgents(int numAgents) {
+        this.numAgents = numAgents;
+    }
+
     public int[] getExecPorts() {
         return execPorts;
     }
@@ -153,14 +171,6 @@ public class Service {
 
     public void setDisk(int disk) {
         this.disk = disk;
-    }
-
-    public String getAgentType() {
-        return agentType;
-    }
-
-    public void setAgentType(String agentType) {
-        this.agentType = agentType;
     }
 
     public String[] getReqResource() {
