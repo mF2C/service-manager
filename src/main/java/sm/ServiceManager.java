@@ -79,6 +79,7 @@ public class ServiceManager extends SpringBootServletInitializer implements Appl
       String cimiKey = null;
       String cimiSecret = null;
       String cimiUrl = null;
+      String localServicesPath = null;
       for (String name : applicationArguments.getOptionNames()) {
          if (name.equals("cimi.api.key"))
             cimiKey = applicationArguments.getOptionValues(name).get(0);
@@ -86,10 +87,13 @@ public class ServiceManager extends SpringBootServletInitializer implements Appl
             cimiSecret = applicationArguments.getOptionValues(name).get(0);
          if (name.equals("cimi.url"))
             cimiUrl = applicationArguments.getOptionValues(name).get(0);
+         if (name.equals("local.services"))
+            localServicesPath = applicationArguments.getOptionValues(name).get(0);
       }
+      if (localServicesPath != null)
+         categorizer.readFromFile(localServicesPath);
       if (cimiUrl != null)
          Parameters.cimiUrl = cimiUrl;
-
       if (cimiKey != null && cimiSecret != null)
          stablishSesionToCimi(cimiKey, cimiSecret);
       else

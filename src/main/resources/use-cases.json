@@ -13,8 +13,7 @@
     "storage_min": 100,
     "disk": 100,
     "req_resource": [],
-    "opt_resource": [],
-    "category": 1
+    "opt_resource": []
   },
   {
     "name": "use-case-1-fog",
@@ -30,8 +29,7 @@
     "storage_min": 100,
     "disk": 100,
     "req_resource": ["inclinometer", "temperature", "jammer", "location"],
-    "opt_resource": [],
-    "category": 2
+    "opt_resource": []
   },
   {
     "name": "use-case-1-cloud",
@@ -47,8 +45,7 @@
     "storage_min": 100,
     "disk": 100,
     "req_resource": [],
-    "opt_resource": [],
-    "category": 1
+    "opt_resource": []
   },
   {
     "name": "use-case-2",
@@ -64,8 +61,7 @@
     "storage_min": 100,
     "disk": 100,
     "req_resource": ["temperature", "location", "battery_level", "door_sensor", "pump_sensor", "accelerometer", "humidity", "air_pressure", "ir_motion"],
-    "opt_resource": [],
-    "category": 2
+    "opt_resource": []
   },
   {
     "name": "use-case-3",
@@ -83,8 +79,7 @@
     "storage_min": 100,
     "disk": 100,
     "req_resource": ["location"],
-    "opt_resource": [],
-    "category": 2
+    "opt_resource": []
   },
   {
     "name": "emergency-ambulance-demo",
@@ -100,8 +95,7 @@
     "storage_min": 100,
     "disk": 100,
     "req_resource": [],
-    "opt_resource": [],
-    "category": 2
+    "opt_resource": []
   },
   {
     "name": "emergency-firemen-demo",
@@ -117,8 +111,7 @@
     "storage_min": 100,
     "disk": 100,
     "req_resource": [],
-    "opt_resource": [],
-    "category": 2
+    "opt_resource": []
   },
   {
     "name": "emergency-traffic-demo",
@@ -134,7 +127,6 @@
     "storage_min": 100,
     "disk": 100,
     "req_resource": [],
-    "opt_resource": [],
-    "category": 2
+    "opt_resource": []
   }
 ]
