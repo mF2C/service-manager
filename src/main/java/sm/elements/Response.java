@@ -53,6 +53,11 @@ public class Response {
         setStatus(HttpStatus.CREATED.value());
     }
 
+    public void setAccepted(){
+        setMessage(HttpStatus.ACCEPTED.getReasonPhrase());
+        setStatus(HttpStatus.ACCEPTED.value());
+    }
+
     public void setBadRequest(){
         setMessage(HttpStatus.BAD_REQUEST.getReasonPhrase());
         setStatus(HttpStatus.BAD_REQUEST.value());

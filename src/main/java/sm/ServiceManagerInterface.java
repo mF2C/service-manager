@@ -66,8 +66,10 @@ public class ServiceManagerInterface {
             if (serviceCategorized != null) {
                 response.setService(serviceCategorized);
                 response.setCreated();
-            } else
-                response.setNotFound();
+            } else {
+                response.setService(service);
+                response.setAccepted();
+            }
         } catch (Exception e) {
             response.setBadRequest();
         }
@@ -81,6 +83,7 @@ public class ServiceManagerInterface {
         try {
             if (ServiceManager.categorizer.checkService(service)) {
                 ServiceManager.categorizer.submit(service);
+                response.setService(service);
                 response.setOk();
             } else
                 response.setNotFound();
@@ -99,6 +102,7 @@ public class ServiceManagerInterface {
         try {
             if ((service = Categorizer.get(serviceId)) != null) {
                 ServiceManager.categorizer.removeService(service);
+                response.setService(service);
                 response.setOk();
             } else
                 response.setNotFound();
