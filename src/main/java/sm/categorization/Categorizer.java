@@ -33,39 +33,23 @@ public class Categorizer {
       localServices = new HashMap<>();
    }
 
-   public void synchronizeWithCimi() {
-      storeLocally(CimiInterface.getServices());
-      postToCimi();
-   }
-
-   private void storeLocally(List<Service> services) {
+   public void readFromFile(String filePath) {
+      TypeReference<List<Service>> typeReference = new TypeReference<List<Service>>() {
+      };
+      List<Service> services = null;
+      try {
+         byte[] jsonData = Files.readAllBytes(Paths.get(filePath));
+         ObjectMapper mapper = new ObjectMapper();
+         log.info("Reading local services from: " + filePath);
+         services = mapper.readValue(jsonData, typeReference);
+      } catch (IOException e) {
+         e.printStackTrace();
+      }
       if (services != null)
          for (Service service : services) {
             localServices.put(service.getName(), service);
             service.setId("service/local_id_" + service.getName());
          }
-   }
-
-   public void readFromFile(String filePath) {
-      TypeReference<List<Service>> typeReference = new TypeReference<List<Service>>() {
-      };
-      List<Service> servicesFromFile = null;
-      try {
-         byte[] jsonData = Files.readAllBytes(Paths.get(filePath));
-         ObjectMapper mapper = new ObjectMapper();
-         log.info("Reading local services from: " + filePath);
-         servicesFromFile = mapper.readValue(jsonData, typeReference);
-      } catch (IOException e) {
-         e.printStackTrace();
-      }
-      storeLocally(servicesFromFile);
-   }
-
-   private void postToCimi() {
-      for (Service service : localServices.values()) {
-         String id = CimiInterface.postService(service);
-         service.setId(id);
-      }
    }
 
    public List<Service> getAll() {
@@ -81,21 +65,15 @@ public class Categorizer {
    }
 
    public Service submit(Service service) {
-      String id = service.getId();
-      if (checkFormat(service) & CimiInterface.isSessionStarted())
-         id = CimiInterface.postService(service);
-      if (id != null) {
-         service.setId(id);
+      if (checkFormat(service)) {
+         service.setCategory(0);
          localServices.put(service.getName(), service);
          log.info("Service submitted: " + service.getName());
          return service;
+      } else {
+         log.error("Error submitting service: " + service.getName());
+         return null;
       }
-      return null;
-   }
-
-   public Service update(Service service) {
-      log.info("Service updated: " + service.getName());
-      return null;
    }
 
    public void removeService(Service service) {
@@ -104,9 +82,8 @@ public class Categorizer {
    }
 
    private boolean checkFormat(Service s) {
-      return s.getName() != null && s.getDescription() != null && s.getExec() != null
-              && s.getExecType() != null && s.getCpuArch() != null && s.getOs() != null
-              && s.getAgentType() != null;
+      return s.getId() != null && s.getName() != null && s.getExec() != null
+              && s.getExecType() != null && s.getAgentType() != null;
    }
 
    public boolean checkService(Service service) {
@@ -115,7 +92,5 @@ public class Categorizer {
          return true;
       } else return false;
    }
-
-
 }
 

@@ -121,14 +121,14 @@ public class ServiceManagerInterface {
             ServiceInstance serviceInstance = CimiInterface.getServiceInstance(serviceId);
             if (serviceInstance == null) {
                 response.setNotFound();
-                response.setMessage("Error: service-instance does not exist");
+                response.setMessage("the service-instance does not exist");
                 return response;
             }
             Agreement agreement = CimiInterface.getAgreement(serviceInstance.getAgreement());
             Service service = Categorizer.get(serviceInstance.getService());
             if (agreement == null | service == null) {
                 response.setNotFound();
-                response.setMessage("Error: the agreement or the service does not exist");
+                response.setMessage("the agreement or the service does not exist");
                 return response;
             }
             List<SlaViolation> slaViolations = CimiInterface.getSlaViolations(serviceInstance.getAgreement());

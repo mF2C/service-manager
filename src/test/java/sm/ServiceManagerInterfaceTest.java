@@ -26,50 +26,57 @@ public class ServiceManagerInterfaceTest {
    @BeforeClass
    public static void setUp() {
       restTemplate = new TestRestTemplate();
-      Response response = restTemplate.getForObject(URI, Response.class);
-      serviceTest = response.getServices().get(0);
+      serviceTest = new Service();
+      serviceTest.setId("service/id-test");
+      serviceTest.setName("name-test");
+      serviceTest.setDescription("description-test");
+      serviceTest.setExec("exec-test");
+      serviceTest.setExecType("docker");
+      serviceTest.setAgentType("normal");
    }
 
    @Test
-   public void _1_getAll() {
+   public void _1_submit() {
+      Response response = restTemplate.postForObject(URI, serviceTest, Response.class);
+      assertThat(response.getService(), hasProperty("category", is(0)));
+      assertThat(response, hasProperty("status", is(HttpStatus.CREATED.value())));
+   }
+
+   @Test
+   public void _2_getAll() {
       Response response = restTemplate.getForObject(URI, Response.class);
       assertThat(response.getServices().size(), greaterThan(0));
    }
 
    @Test
-   public void _2_get() {
+   public void _3_get() {
       Response response = restTemplate.getForObject(URI + serviceTest.getId(), Response.class);
       assertThat(response.getService(), hasProperty("id", is(serviceTest.getId())));
    }
 
    @Test
-   public void _3_delete() {
-      Response response = restTemplate.getForObject(URI, Response.class);
-      restTemplate.delete(URI + serviceTest.getId());
-      assertThat(response, hasProperty("status", is(HttpStatus.OK.value())));
-      response = restTemplate.getForObject(URI + serviceTest.getId(), Response.class);
+   public void _4_update() {
+      String descriptionUpdate = "description_test UPDATED";
+      serviceTest.setDescription(descriptionUpdate);
+      restTemplate.put(URI, serviceTest);
+      Response response = restTemplate.getForObject(URI + serviceTest.getId(), Response.class);
+      assertThat(response.getService(), hasProperty("description", is(descriptionUpdate)));
+   }
+
+   @Test
+   public void _5_checkQoS() {
+      ServiceInstance serviceInstance = new ServiceInstance();
+      serviceInstance.setId("service-instance/test");
+      Response response = restTemplate.getForObject(URI + serviceInstance.getId(), Response.class);
       assertThat(response, hasProperty("status", is(HttpStatus.NOT_FOUND.value())));
    }
 
    @Test
-   public void _3_submit() {
-      Response response = restTemplate.postForObject(URI, serviceTest, Response.class);
-      assertThat(response, hasProperty("status", is(HttpStatus.CREATED.value())));
-   }
-
-   @Test
-   public void _4_update() {
-      serviceTest.setDescription("description updated");
-      restTemplate.put(URI, serviceTest);
-      Response response = restTemplate.getForObject(URI + serviceTest.getId(), Response.class);
-      assertThat(response.getService(), hasProperty("description", is("description updated")));
-   }
-
-   @Test
-   public void _6_checkQoS() {
-      ServiceInstance serviceInstance = new ServiceInstance();
-      serviceInstance.setId("service-instance/test");
-      Response response = restTemplate.getForObject(URI + serviceInstance.getId(), Response.class);
+   public void _6_delete() {
+      Response response = restTemplate.getForObject(URI, Response.class);
+      restTemplate.delete(URI + serviceTest.getId());
+      assertThat(response, hasProperty("status", is(HttpStatus.OK.value())));
+      response = restTemplate.getForObject(URI + serviceTest.getId(), Response.class);
       assertThat(response, hasProperty("status", is(HttpStatus.NOT_FOUND.value())));
    }
 }

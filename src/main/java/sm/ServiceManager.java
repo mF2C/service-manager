@@ -106,10 +106,9 @@ public class ServiceManager extends SpringBootServletInitializer implements Appl
       Callable<Boolean> callable = new Callable<Boolean>() {
          @Override
          public Boolean call() {
-            if (CimiInterface.startSession()) {
-               categorizer.synchronizeWithCimi();
+            if (CimiInterface.startSession())
                return true;
-            } else {
+            else {
                scheduledExecutorService.schedule(this, CIMI_RECONNECTION_TIME, TimeUnit.SECONDS);
                return false;
             }
@@ -129,10 +128,9 @@ public class ServiceManager extends SpringBootServletInitializer implements Appl
       Callable<Boolean> callable = new Callable<Boolean>() {
          @Override
          public Boolean call() {
-            if (CimiInterface.checkCimiInterface()) {
-               categorizer.synchronizeWithCimi();
+            if (CimiInterface.checkCimiInterface())
                return true;
-            } else {
+            else {
                scheduledExecutorService.schedule(this, CIMI_RECONNECTION_TIME, TimeUnit.SECONDS);
                return false;
             }
