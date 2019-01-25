@@ -14,7 +14,6 @@ public class Parameters {
     public static final int CIMI_RECONNECTION_TIME = 10;
     public static String cimiUrl = "https://localhost/api";
     public static final String SESSION = "/session";
-    public static final String CIMI_ENDPOINTS = "/cloud-entry-point";
     public static final String SERVICE = "/service";
     public static final String SERVICE_INSTANCE = "/service-instance";
 
@@ -27,5 +26,7 @@ public class Parameters {
     /*********** Aux values ************/
     public static final int QOS_TRAINING = 300;
     public static final double EPSILON = 0.0;
-    public static final int NUM_OF_CATEGORIES = 2;
+    public static final int CLUSTER_COUNT = 3;
+    public static final int MAX_ITERATION_COUNT = 100;
+    public static final int RETRAINING_TIME = 60;
 }

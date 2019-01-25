@@ -8,89 +8,117 @@
  */
 package sm.categorization;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.deeplearning4j.clustering.cluster.ClusterSet;
+import org.deeplearning4j.clustering.cluster.Point;
+import org.deeplearning4j.clustering.cluster.PointClassification;
+import org.deeplearning4j.clustering.kmeans.KMeansClustering;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sm.cimi.CimiInterface;
 import sm.elements.Service;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.*;
+
+import static sm.Parameters.*;
 
 public class Categorizer {
 
    private static Logger log = LoggerFactory.getLogger(Categorizer.class);
-   private static Map<String, Service> localServices;
+   private KMeansClustering kMeansClustering;
+   private ClusterSet clusterSet;
 
    public Categorizer() {
-      localServices = new HashMap<>();
-   }
-
-   public void readFromFile(String filePath) {
-      TypeReference<List<Service>> typeReference = new TypeReference<List<Service>>() {
-      };
-      List<Service> services = null;
-      try {
-         byte[] jsonData = Files.readAllBytes(Paths.get(filePath));
-         ObjectMapper mapper = new ObjectMapper();
-         log.info("Reading local services from: " + filePath);
-         services = mapper.readValue(jsonData, typeReference);
-      } catch (IOException e) {
-         e.printStackTrace();
-      }
-      if (services != null)
-         for (Service service : services) {
-            localServices.put(service.getName(), service);
-            service.setId("service/local_id_" + service.getName());
+      kMeansClustering = KMeansClustering.setup(CLUSTER_COUNT, MAX_ITERATION_COUNT, "euclidean");
+      ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+      Runnable task = () -> {
+         List<Service> services = CimiInterface.getServices();
+         if (services.size() > CLUSTER_COUNT) {
+            log.info("Running clustering...");
+            float[][] inputServices = createInputForServices(services);
+            List<Point> points = generatePoints(inputServices);
+            clusterSet = runClustering(points);
+            for (int i = 0; i < clusterSet.getClusters().size(); i++)
+               clusterSet.getClusters().get(i).setId(String.valueOf(i));
+            for (int i = 0; i < points.size(); i++) {
+               PointClassification pointClassification = clusterSet.classifyPoint(points.get(i));
+               services.get(i).setCategory(Integer.valueOf(pointClassification.getCluster().getId()));
+               log.info(services.get(i) + " -> " + pointClassification.getCluster().getId());
+               CimiInterface.putService(services.get(i));
+            }
          }
+      };
+      scheduledExecutorService.scheduleAtFixedRate(task, 0, RETRAINING_TIME, TimeUnit.SECONDS);
    }
 
-   public List<Service> getAll() {
-      return new ArrayList<>(localServices.values());
-   }
-
-   public static Service get(String id) {
-      List<Service> servicesList = new ArrayList<>(localServices.values());
-      for (Service service : servicesList)
-         if (service.getId().equals(id))
-            return service;
-      return null;
-   }
-
-   public Service submit(Service service) {
+   public Service run(Service service) {
       if (checkFormat(service)) {
-         service.setCategory(0);
-         localServices.put(service.getName(), service);
-         log.info("Service submitted: " + service.getName());
+         float[] inputService = createInputForService(service);
+         List<Point> points = generatePoints(inputService);
+         if (clusterSet != null) {
+            PointClassification pointClassification = clusterSet.classifyPoint(points.get(0));
+            service.setCategory(Integer.valueOf(pointClassification.getCluster().getId()));
+         } else {
+            service.setCategory(0);
+         }
+         log.info("Service categorized: " + service.getName());
          return service;
       } else {
-         log.error("Error submitting service: " + service.getName());
+         log.error("Error categorizing the service: " + service.getName());
          return null;
       }
    }
 
-   public void removeService(Service service) {
-      localServices.remove(service.getName());
-      log.info("Service removed: " + service.getName());
-   }
-
    private boolean checkFormat(Service s) {
-      return s.getId() != null && s.getName() != null && s.getExec() != null
-              && s.getExecType() != null && s.getAgentType() != null;
+      return s.getExecType() != null && s.getAgentType() != null;
    }
 
-   public boolean checkService(Service service) {
-      if (localServices.containsKey(service.getName())) {
-         log.info("The service was already submitted: " + service.getName());
-         return true;
-      } else return false;
+   float[][] createInputForServices(List<Service> services) {
+      float[][] inputServices = new float[services.size()][11];
+      for (int s = 0; s < services.size(); s++)
+         inputServices[s] = createInputForService(services.get(s));
+      return inputServices;
+   }
+
+   private float[] createInputForService(Service service) {
+      float[] inputService = new float[11];
+      inputService[0] = service.getExecType().hashCode();
+      inputService[1] = service.getAgentType().hashCode();
+      if (service.getExecPorts() != null)
+         inputService[2] = service.getExecPorts().length;
+      if (service.getNumAgents() != 0)
+         inputService[3] = service.getNumAgents();
+      if (service.getCpuArch() != null)
+         inputService[4] = service.getCpuArch().hashCode();
+      if (service.getOs() != null)
+         inputService[5] = service.getOs().hashCode();
+      if (service.getMemoryMin() != 0)
+         inputService[6] = service.getMemoryMin();
+      if (service.getStorageMin() != 0)
+         inputService[7] = service.getStorageMin();
+      if (service.getDisk() != 0)
+         inputService[8] = service.getDisk();
+      if (service.getReqResource() != null)
+         inputService[9] = service.getReqResource().length;
+      if (service.getOptResource() != null)
+         inputService[10] = service.getOptResource().length;
+      return inputService;
+   }
+
+   List<Point> generatePoints(float[][] input) {
+      INDArray serviceINDArray = Nd4j.create(input);
+      return Point.toPoints(serviceINDArray);
+   }
+
+   List<Point> generatePoints(float[] input) {
+      INDArray serviceINDArray = Nd4j.create(input);
+      return Point.toPoints(serviceINDArray);
+   }
+
+   ClusterSet runClustering(List<Point> points) {
+      return kMeansClustering.applyTo(points);
    }
 }
 

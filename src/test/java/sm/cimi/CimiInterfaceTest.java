@@ -27,26 +27,4 @@ public class CimiInterfaceTest {
         new CimiInterface(new CimiSession(new CimiSession.SessionTemplate(KEY, SECRET)));
         assertThat(CimiInterface.requestSession(), is(HttpStatus.CREATED.value()));
     }
-
-    @Test
-    public void _2_postService() {
-        TypeReference<List<Service>> typeReference = new TypeReference<List<Service>>() {
-        };
-        InputStream inputStream = TypeReference.class.getResourceAsStream("/use-cases.json");
-        ObjectMapper mapper = new ObjectMapper();
-        List<Service> rServices = new ArrayList<>();
-        try {
-            rServices = mapper.readValue(inputStream, typeReference);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        assertNotNull(CimiInterface.postService(rServices.get(0)));
-    }
-
-    @Test
-    public void _3_getServices() {
-        List<Service> services = CimiInterface.getServices();
-        assertTrue(services.size() > 0);
-    }
-
 }

@@ -27,9 +27,7 @@ public class ServiceManagerInterfaceTest {
    public static void setUp() {
       restTemplate = new TestRestTemplate();
       serviceTest = new Service();
-      serviceTest.setId("service/id-test");
-      serviceTest.setName("name-test");
-      serviceTest.setDescription("description-test");
+      serviceTest.setName("test");
       serviceTest.setExec("exec-test");
       serviceTest.setExecType("docker");
       serviceTest.setAgentType("normal");
@@ -55,28 +53,10 @@ public class ServiceManagerInterfaceTest {
    }
 
    @Test
-   public void _4_update() {
-      String descriptionUpdate = "description_test UPDATED";
-      serviceTest.setDescription(descriptionUpdate);
-      restTemplate.put(URI, serviceTest);
-      Response response = restTemplate.getForObject(URI + serviceTest.getId(), Response.class);
-      assertThat(response.getService(), hasProperty("description", is(descriptionUpdate)));
-   }
-
-   @Test
-   public void _5_checkQoS() {
+   public void _4_checkQoS() {
       ServiceInstance serviceInstance = new ServiceInstance();
       serviceInstance.setId("service-instance/test");
       Response response = restTemplate.getForObject(URI + serviceInstance.getId(), Response.class);
-      assertThat(response, hasProperty("status", is(HttpStatus.NOT_FOUND.value())));
-   }
-
-   @Test
-   public void _6_delete() {
-      Response response = restTemplate.getForObject(URI, Response.class);
-      restTemplate.delete(URI + serviceTest.getId());
-      assertThat(response, hasProperty("status", is(HttpStatus.OK.value())));
-      response = restTemplate.getForObject(URI + serviceTest.getId(), Response.class);
       assertThat(response, hasProperty("status", is(HttpStatus.NOT_FOUND.value())));
    }
 }

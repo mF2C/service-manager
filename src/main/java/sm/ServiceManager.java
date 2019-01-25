@@ -79,7 +79,6 @@ public class ServiceManager extends SpringBootServletInitializer implements Appl
       String cimiKey = null;
       String cimiSecret = null;
       String cimiUrl = null;
-      String localServicesPath = null;
       for (String name : applicationArguments.getOptionNames()) {
          if (name.equals("cimi.api.key"))
             cimiKey = applicationArguments.getOptionValues(name).get(0);
@@ -87,17 +86,11 @@ public class ServiceManager extends SpringBootServletInitializer implements Appl
             cimiSecret = applicationArguments.getOptionValues(name).get(0);
          if (name.equals("cimi.url"))
             cimiUrl = applicationArguments.getOptionValues(name).get(0);
-         if (name.equals("local.services"))
-            localServicesPath = applicationArguments.getOptionValues(name).get(0);
       }
-      if (localServicesPath != null)
-         categorizer.readFromFile(localServicesPath);
       if (cimiUrl != null)
          Parameters.cimiUrl = cimiUrl;
       if (cimiKey != null && cimiSecret != null)
          stablishSesionToCimi(cimiKey, cimiSecret);
-      else
-         checkConnectionToCimi();
    }
 
    private void stablishSesionToCimi(String key, String secret) {
@@ -107,28 +100,6 @@ public class ServiceManager extends SpringBootServletInitializer implements Appl
          @Override
          public Boolean call() {
             if (CimiInterface.startSession())
-               return true;
-            else {
-               scheduledExecutorService.schedule(this, CIMI_RECONNECTION_TIME, TimeUnit.SECONDS);
-               return false;
-            }
-         }
-      };
-      Future<Boolean> connected = scheduledExecutorService.schedule(callable, CIMI_RECONNECTION_TIME, TimeUnit.SECONDS);
-      try {
-         if (connected.get())
-            scheduledExecutorService.shutdown();
-      } catch (InterruptedException | ExecutionException e) {
-         e.printStackTrace();
-      }
-   }
-
-   private void checkConnectionToCimi() {
-      ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-      Callable<Boolean> callable = new Callable<Boolean>() {
-         @Override
-         public Boolean call() {
-            if (CimiInterface.checkCimiInterface())
                return true;
             else {
                scheduledExecutorService.schedule(this, CIMI_RECONNECTION_TIME, TimeUnit.SECONDS);

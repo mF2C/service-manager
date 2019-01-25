@@ -22,145 +22,150 @@ import static sm.Parameters.*;
 
 public class CimiInterface {
 
-    private static final Logger log = LoggerFactory.getLogger(CimiInterface.class);
-    private static HttpHeaders headers;
-    private static RestTemplate restTemplate = new RestTemplate();
-    private static boolean sessionStarted;
-    private static CimiSession cimiSession;
+   private static final Logger log = LoggerFactory.getLogger(CimiInterface.class);
+   private static HttpHeaders headers;
+   private static RestTemplate restTemplate = new RestTemplate();
+   private static boolean sessionStarted;
+   private static CimiSession cimiSession;
 
-    public CimiInterface(){
-        headers = new HttpHeaders();
-        headers.set("slipstream-authn-info", "super ADMIN");
-    }
+   public CimiInterface() {
+      headers = new HttpHeaders();
+      headers.set("slipstream-authn-info", "super ADMIN");
+   }
 
-    public CimiInterface(CimiSession cimiSession) {
-        CimiInterface.cimiSession = cimiSession;
-    }
+   public CimiInterface(CimiSession cimiSession) {
+      CimiInterface.cimiSession = cimiSession;
+   }
 
-    public static boolean checkCimiInterface() {
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        try {
-            ResponseEntity<String> responseEntity = restTemplate.exchange(cimiUrl + CIMI_ENDPOINTS, HttpMethod.GET, entity, String.class);
-            if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
-                sessionStarted = true;
-                log.info("Connection established to CIMI [" + cimiUrl + "]");
-                return true;
-            }
-        } catch (Exception e) {
-            log.error("No connection to CIMI [" + cimiUrl + "]");
-        }
-        return false;
-    }
+   public static Boolean startSession() {
+      if (!sessionStarted)
+         if (requestSession() == HttpStatus.CREATED.value())
+            sessionStarted = true;
+      return sessionStarted;
+   }
 
-    public static Boolean startSession() {
-        if (!sessionStarted)
-            if (requestSession() == HttpStatus.CREATED.value())
-                sessionStarted = true;
-        return sessionStarted;
-    }
+   public static int requestSession() {
+      headers.setContentType(MediaType.APPLICATION_JSON);
+      HttpEntity<CimiSession> entity = new HttpEntity<>(cimiSession, headers);
+      try {
+         ResponseEntity<Map> responseEntity = restTemplate.exchange(cimiUrl + SESSION, HttpMethod.POST
+                 , entity, Map.class);
+         if (responseEntity.getStatusCodeValue() == HttpStatus.CREATED.value()) {
+            String cookie = responseEntity.getHeaders().getFirst(HttpHeaders.SET_COOKIE);
+            headers.add("Cookie", cookie);
+            log.info("Session started - Cookie: " + cookie);
+         } else
+            log.error("Session could not be started");
+         return responseEntity.getStatusCodeValue();
+      } catch (Exception e) {
+         log.error("Error starting the session");
+         return HttpStatus.FORBIDDEN.value();
+      }
+   }
 
-    public static int requestSession() {
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<CimiSession> entity = new HttpEntity<>(cimiSession, headers);
-        try {
-            ResponseEntity<Map> responseEntity = restTemplate.exchange(cimiUrl + SESSION, HttpMethod.POST, entity, Map.class);
-            if (responseEntity.getStatusCodeValue() == HttpStatus.CREATED.value()) {
-                String cookie = responseEntity.getHeaders().getFirst(HttpHeaders.SET_COOKIE);
-                headers.add("Cookie", cookie);
-                log.info("Session started - Cookie: " + cookie);
-            } else
-                log.error("Session could not be started");
-            return responseEntity.getStatusCodeValue();
-        } catch (Exception e) {
-            log.error("Error starting the session");
-            return HttpStatus.FORBIDDEN.value();
-        }
-    }
+   public static boolean putService(Service service) {
+      headers.setContentType(MediaType.APPLICATION_JSON);
+      HttpEntity<Service> entity = new HttpEntity<>(service, headers);
+      boolean isUpdated = false;
+      try {
+         ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + SERVICE, HttpMethod.PUT
+                 , entity, Response.class);
+         if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
+            log.info("Service updated: " + service.getName());
+            isUpdated = true;
+         }
+      } catch (Exception e) {
+         log.error("Error updating the service: " + service.getName());
+      }
+      return isUpdated;
+   }
 
-    public static String postService(Service service) {
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<Service> entity = new HttpEntity<>(service, headers);
-        String id = null;
-        try {
-            ResponseEntity<Map> responseEntity = restTemplate.exchange(cimiUrl + SERVICE, HttpMethod.POST, entity, Map.class);
-            if (responseEntity.getStatusCodeValue() == HttpStatus.CREATED.value()) {
-                log.info("Service submitted: " + service.getName());
-                Map<String, String> body = responseEntity.getBody();
-                id = body.get("resource-id");
-            }
-        } catch (Exception e) {
-            log.error("Error submitting service: " + service.getName());
-        }
-        return id;
-    }
+   public static List<Service> getServices() {
+      HttpEntity<String> entity = new HttpEntity<>(headers);
+      List<Service> services = new ArrayList<>();
+      try {
+         ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + SERVICE, HttpMethod.GET
+                 , entity, Response.class);
+         if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
+            log.info("Services retrieved");
+            Response response = responseEntity.getBody();
+            services = response.getServices();
+         }
+         return services;
+      } catch (Exception e) {
+         log.error("Error retrieving services");
+         return services;
+      }
+   }
 
-    public static List<Service> getServices() {
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        List<Service> services = new ArrayList<>();
-        try {
-            ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + SERVICE, HttpMethod.GET, entity, Response.class);
-            if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
-                log.info("Services retrieved");
-                Response response = responseEntity.getBody();
-                services = response.getServices();
-            }
-            return services;
-        } catch (Exception e) {
-            log.error("Error retrieving services");
-            return null;
-        }
-    }
+   public static Service getService(String id) {
+      HttpEntity<String> entity = new HttpEntity<>(headers);
+      Service service = null;
+      try {
+         ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + "/" + id, HttpMethod.GET
+                 , entity, Response.class);
+         if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
+            log.info("The service is retrieved");
+            Response response = responseEntity.getBody();
+            service = response.getService();
+         }
+         return service;
+      } catch (Exception e) {
+         log.error("Error retrieving the service");
+         return null;
+      }
+   }
 
-    public static ServiceInstance getServiceInstance(String serviceInstanceId) {
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        ServiceInstance serviceInstance = null;
-        try {
-            ResponseEntity<ServiceInstance> responseEntity = restTemplate.exchange(cimiUrl + "/" + serviceInstanceId, HttpMethod.GET, entity, ServiceInstance.class);
-            if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
-                log.info("Service instance retrieved");
-                serviceInstance = responseEntity.getBody();
-            }
-            return serviceInstance;
-        } catch (Exception e) {
-            log.error("Error retrieving service instance");
-            return null;
-        }
-    }
+   public static ServiceInstance getServiceInstance(String id) {
+      HttpEntity<String> entity = new HttpEntity<>(headers);
+      ServiceInstance serviceInstance = null;
+      try {
+         ResponseEntity<ServiceInstance> responseEntity = restTemplate.exchange(cimiUrl + "/" + id, HttpMethod.GET
+                 , entity, ServiceInstance.class);
+         if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
+            log.info("Service instance retrieved");
+            serviceInstance = responseEntity.getBody();
+         }
+         return serviceInstance;
+      } catch (Exception e) {
+         log.error("Error retrieving service instance");
+         return null;
+      }
+   }
 
-    public static Agreement getAgreement(String agreementId) {
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        Agreement agreement = null;
-        try {
-            ResponseEntity<Agreement> responseEntity = restTemplate.exchange(cimiUrl + "/" + agreementId, HttpMethod.GET, entity, Agreement.class);
-            if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
-                log.info("Agreement retrieved");
-                agreement = responseEntity.getBody();
-            }
-            return agreement;
-        } catch (Exception e) {
-            log.error("Error retrieving agreement");
-            return null;
-        }
-    }
+   public static Agreement getAgreement(String id) {
+      HttpEntity<String> entity = new HttpEntity<>(headers);
+      Agreement agreement = null;
+      try {
+         ResponseEntity<Agreement> responseEntity = restTemplate.exchange(cimiUrl + "/" + id, HttpMethod.GET
+                 , entity, Agreement.class);
+         if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
+            log.info("Agreement retrieved");
+            agreement = responseEntity.getBody();
+         }
+         return agreement;
+      } catch (Exception e) {
+         log.error("Error retrieving agreement");
+         return null;
+      }
+   }
 
-    public static List<SlaViolation> getSlaViolations(String agreementId) {
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        List<SlaViolation> slaViolations = new ArrayList<>();
-        try {
-            ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + "/sla-violation?$filter=agreement_id/href='" + agreementId + "'", HttpMethod.GET, entity, Response.class);
-            if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
-                log.info("SLA violations retrieved");
-                Response response = responseEntity.getBody();
-                slaViolations = response.getSlaViolations();
-            }
-            return slaViolations;
-        } catch (Exception e) {
-            log.error("Error retrieving SLA violations");
-            return null;
-        }
-    }
-
-    public static boolean isSessionStarted() {
-        return sessionStarted;
-    }
+   public static List<SlaViolation> getSlaViolations(String id) {
+      HttpEntity<String> entity = new HttpEntity<>(headers);
+      List<SlaViolation> slaViolations = new ArrayList<>();
+      String filter = "/sla-violation?$filter=agreement_id/href='";
+      try {
+         ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + filter + id + "'", HttpMethod.GET
+                 , entity, Response.class);
+         if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
+            log.info("SLA violations retrieved");
+            Response response = responseEntity.getBody();
+            slaViolations = response.getSlaViolations();
+         }
+         return slaViolations;
+      } catch (Exception e) {
+         log.error("Error retrieving SLA violations");
+         return null;
+      }
+   }
 }

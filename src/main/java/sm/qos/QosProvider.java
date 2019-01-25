@@ -52,7 +52,7 @@ public class QosProvider {
         return service.getServiceFailureRatioCounter() / service.getExecutionsCounter();
     }
 
-    private void setAcceptedAgents(int acceptedAgents[], ServiceInstance serviceInstance) {
+    private void setAcceptedAgents(int[] acceptedAgents, ServiceInstance serviceInstance) {
         for (int i = 0; i < serviceInstance.getAgents().size(); i++)
             if (acceptedAgents[i] == 1)
                 serviceInstance.getAgents().get(i).setAllow(true);
