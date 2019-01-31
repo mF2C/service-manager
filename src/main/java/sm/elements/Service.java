@@ -8,7 +8,6 @@
  */
 package sm.elements;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -44,29 +43,7 @@ public class Service {
     private String[] optResource;
     private int category;
 
-    // other parameters
-    @JsonIgnore
-    private int executionsCounter;
-    @JsonIgnore
-    private float serviceFailureRatioCounter;
-
     public Service() {
-    }
-
-    public void increaseExecutionsCounter() {
-        executionsCounter++;
-    }
-
-    public void increaseServiceFailureCounter(float ratio) {
-        serviceFailureRatioCounter = serviceFailureRatioCounter + ratio;
-    }
-
-    public int getExecutionsCounter() {
-        return executionsCounter;
-    }
-
-    public float getServiceFailureRatioCounter() {
-        return serviceFailureRatioCounter;
     }
 
     public String getId() {

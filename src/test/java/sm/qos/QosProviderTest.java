@@ -12,6 +12,8 @@ public class QosProviderTest {
     @Test
     public void testLearningModel() {
         LearningModel learningModel = new LearningModel(4);
+        String modelJson = learningModel.getConf().toJson();
+        System.out.println(modelJson);
         int serviceId = 0;
         double slaRatio = 0;
         int[] agentsIds = new int[4];

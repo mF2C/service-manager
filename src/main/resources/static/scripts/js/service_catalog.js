@@ -68,7 +68,7 @@ function getServices()
 
 function createServiceInstance(serviceObject)
 {
-	var userId = getUserId();
+//	var userId = getUserId();
 	var agreementId = getAgreementId(serviceObject['name']);
 
 	if(agreementId == 0){
@@ -80,7 +80,8 @@ function createServiceInstance(serviceObject)
 
     var serviceInstanceJson = JSON.stringify({
         service_id: serviceObject['id'],
-        user_id: "user/" + userId,
+//        user_id: "user/" + userId,
+        user_id: "user/carpio",
         agreement_id: agreementId
     });
 
@@ -88,12 +89,10 @@ function createServiceInstance(serviceObject)
 }
 
 function getAgreementId(serviceName){
-
 	var agreementId = null;
 		$.ajax
 		({
-			data: {service : serviceName},
-			url:   "../php/get_agreement.php",
+			url:   "https://localhost/api/agreement?$filter=name=" + serviceName,
 			type:  "GET",
 			async: false, 
 			success: function(ans)
@@ -104,21 +103,20 @@ function getAgreementId(serviceName){
 	return agreementId;
 }
 
-function getUserId(){
-
-	var userId = null;
-		$.ajax
-		({
-			url:   "../php/get_user.php",
-			type:  "GET",
-			async: false, 
-			success: function(ans)
-			{
-				userId = ans;
-			}
-		});
-	return userId;
-}
+//function getUserId(){
+//	var userId = null;
+//		$.ajax
+//		({
+//			url:   "../php/get_user.php",
+//			type:  "GET",
+//			async: false,
+//			success: function(ans)
+//			{
+//				userId = ans;
+//			}
+//		});
+//	return userId;
+//}
 
 function launchService(serviceInstance)
 {

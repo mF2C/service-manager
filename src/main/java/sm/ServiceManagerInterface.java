@@ -8,9 +8,10 @@
  */
 package sm;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import sm.categorization.Categorizer;
 import sm.cimi.CimiInterface;
 import sm.elements.*;
 
@@ -22,6 +23,8 @@ import static sm.Parameters.*;
 @RequestMapping(value = "/api/service-management")
 public class ServiceManagerInterface {
 
+   private static final Logger log = LoggerFactory.getLogger(ServiceManagerInterface.class);
+
    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
    public @ResponseBody
    Response get() {
@@ -29,6 +32,7 @@ public class ServiceManagerInterface {
       try {
          response.setServices(CimiInterface.getServices());
          response.setOk();
+         log.info("Returning all services");
       } catch (Exception e) {
          response.setBadRequest();
       }
@@ -45,8 +49,11 @@ public class ServiceManagerInterface {
          if ((service = CimiInterface.getService(serviceId)) != null) {
             response.setService(service);
             response.setOk();
-         } else
+            log.info("Returning service: " + service.getName());
+         } else {
             response.setNotFound();
+            log.error("Service not found: " + service_id);
+         }
       } catch (Exception e) {
          response.setBadRequest();
       }
@@ -62,9 +69,11 @@ public class ServiceManagerInterface {
          if (serviceCategorized != null) {
             response.setService(serviceCategorized);
             response.setCreated();
+            log.info("Service submitted: " + service.getName());
          } else {
             response.setService(service);
             response.setAccepted();
+            log.error("Service accepted, not submitted: " + service.getName());
          }
       } catch (Exception e) {
          response.setBadRequest();
@@ -75,26 +84,37 @@ public class ServiceManagerInterface {
    @RequestMapping(method = RequestMethod.GET, value = SERVICE_INSTANCE + SERVICE_INSTANCE_ID, produces = MediaType.APPLICATION_JSON_VALUE)
    public @ResponseBody
    Response check(@PathVariable String service_instance_id) {
-      String serviceId = "service-instance/" + service_instance_id;
-      Response response = new Response(serviceId, SERVICE_MANAGEMENT_ROOT);
+      String serviceInstanceId = "service-instance/" + service_instance_id;
+      Response response = new Response(serviceInstanceId, SERVICE_MANAGEMENT_ROOT);
       try {
-         ServiceInstance serviceInstance = CimiInterface.getServiceInstance(serviceId);
+         ServiceInstance serviceInstance = CimiInterface.getServiceInstance(serviceInstanceId);
          if (serviceInstance == null) {
             response.setNotFound();
-            response.setMessage("the service-instance does not exist");
+            response.setMessage("service-instance not found");
+            log.error("Service-instance not found: " + service_instance_id);
             return response;
          }
          Agreement agreement = CimiInterface.getAgreement(serviceInstance.getAgreement());
-         Service service = CimiInterface.getService(serviceInstance.getService());
-         if (agreement == null | service == null) {
+         if (agreement == null) {
             response.setNotFound();
-            response.setMessage("the agreement or the service does not exist");
+            response.setMessage("agreement not found");
+            log.error("Agreement not found: " + serviceInstance.getAgreement());
+            return response;
+         }
+         Service service = CimiInterface.getService(serviceInstance.getService());
+         if (service == null) {
+            response.setNotFound();
+            response.setMessage("service not found");
+            log.error("Service not found: " + serviceInstance.getService());
             return response;
          }
          List<SlaViolation> slaViolations = CimiInterface.getSlaViolations(serviceInstance.getAgreement());
+         if (slaViolations == null)
+            log.info("No SLA violations found for agreement: " + serviceInstance.getAgreement());
          serviceInstance = ServiceManager.qosProvider.check(service, serviceInstance, agreement, slaViolations);
          response.setServiceInstance(serviceInstance);
          response.setOk();
+         log.info("QoS checked for service-instance: " + serviceInstance.getId());
       } catch (Exception e) {
          response.setBadRequest();
       }

@@ -14,49 +14,45 @@ import sm.elements.ServiceInstance;
 import sm.elements.SlaViolation;
 import sm.qos.learning.LearningModel;
 
-import java.util.HashMap;
 import java.util.List;
 
 public class QosProvider {
 
-    private HashMap<Integer, LearningModel> learningModels;
+   public ServiceInstance check(Service service, ServiceInstance serviceInstance, Agreement agreement, List<SlaViolation> slaViolations) {
+      if (slaViolations != null) {
+//            float slaRatio = calculateSlaViolationRatio(service, agreement, slaViolations);
+         int numOfAgents = serviceInstance.getAgents().size();
+//         LearningModel learningModel = new LearningModel(numOfAgents);
+//         String test = learningModel.getConf().toJson();
+//            if (!learningModels.containsKey(numOfAgents)) {
+//                learningModel = new LearningModel(numOfAgents);
+//                learningModels.put(numOfAgents, learningModel);
+//                learningModel.train(service, slaRatio, serviceInstance.getAgents());
+//            } else
+//                learningModel = learningModels.get(numOfAgents);
+//            learningModel.evaluate(service, slaRatio, serviceInstance.getAgents());
+//            int[] agents = learningModel.getOutput();
+         int[] agents = new int[numOfAgents];
+         for (int i = 0; i < agents.length; i++)
+            agents[i] = 1;
+         setAcceptedAgents(agents, serviceInstance);
+      }
+      return serviceInstance;
+   }
 
-    public QosProvider() {
-        learningModels = new HashMap<>();
-    }
+//    private float calculateSlaViolationRatio(Service service, Agreement agreement, List<SlaViolation> slaViolations) {
+//        int numberOfGuarantees = agreement.getDetails().getGuarantees().size();
+//        float ratioOfServiceFailure = (float) slaViolations.size() / numberOfGuarantees;
+//        if (ratioOfServiceFailure > 0)
+//            service.increaseServiceFailureCounter(ratioOfServiceFailure);
+//        return service.getServiceFailureRatioCounter() / service.getExecutionsCounter();
+//    }
 
-    public ServiceInstance check(Service service, ServiceInstance serviceInstance, Agreement agreement, List<SlaViolation> slaViolations) {
-        service.increaseExecutionsCounter();
-        if (slaViolations != null) {
-            float slaRatio = calculateSlaViolationRatio(service, agreement, slaViolations);
-            int numOfAgents = serviceInstance.getAgents().size();
-            LearningModel learningModel;
-            if (!learningModels.containsKey(numOfAgents)) {
-                learningModel = new LearningModel(numOfAgents);
-                learningModels.put(numOfAgents, learningModel);
-                learningModel.train(service, slaRatio, serviceInstance.getAgents());
-            } else
-                learningModel = learningModels.get(numOfAgents);
-            learningModel.evaluate(service, slaRatio, serviceInstance.getAgents());
-            int[] agents = learningModel.getOutput();
-            setAcceptedAgents(agents, serviceInstance);
-        }
-        return serviceInstance;
-    }
-
-    private float calculateSlaViolationRatio(Service service, Agreement agreement, List<SlaViolation> slaViolations) {
-        int numberOfGuarantees = agreement.getDetails().getGuarantees().size();
-        float ratioOfServiceFailure = (float) slaViolations.size() / numberOfGuarantees;
-        if (ratioOfServiceFailure > 0)
-            service.increaseServiceFailureCounter(ratioOfServiceFailure);
-        return service.getServiceFailureRatioCounter() / service.getExecutionsCounter();
-    }
-
-    private void setAcceptedAgents(int[] acceptedAgents, ServiceInstance serviceInstance) {
-        for (int i = 0; i < serviceInstance.getAgents().size(); i++)
-            if (acceptedAgents[i] == 1)
-                serviceInstance.getAgents().get(i).setAllow(true);
-            else
-                serviceInstance.getAgents().get(i).setAllow(false);
-    }
+   private void setAcceptedAgents(int[] acceptedAgents, ServiceInstance serviceInstance) {
+      for (int i = 0; i < serviceInstance.getAgents().size(); i++)
+         if (acceptedAgents[i] == 1)
+            serviceInstance.getAgents().get(i).setAllow(true);
+         else
+            serviceInstance.getAgents().get(i).setAllow(false);
+   }
 }

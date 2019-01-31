@@ -102,12 +102,11 @@ public class CimiInterface {
       HttpEntity<String> entity = new HttpEntity<>(headers);
       Service service = null;
       try {
-         ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + "/" + id, HttpMethod.GET
-                 , entity, Response.class);
+         ResponseEntity<Service> responseEntity = restTemplate.exchange(cimiUrl + "/" + id, HttpMethod.GET
+                 , entity, Service.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
             log.info("The service is retrieved");
-            Response response = responseEntity.getBody();
-            service = response.getService();
+            service = responseEntity.getBody();
          }
          return service;
       } catch (Exception e) {
