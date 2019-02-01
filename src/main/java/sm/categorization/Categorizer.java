@@ -63,7 +63,6 @@ public class Categorizer {
          } else {
             service.setCategory(0);
          }
-         log.info("Service categorized: " + service.getName());
          return service;
       } else {
          log.error("Error categorizing the service: " + service.getName());

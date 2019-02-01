@@ -19,7 +19,7 @@
     <form>
         <p>
             <label>Name *</label>
-            <input type="text" id="name" placeholder="ex: Hello World" required/>
+            <input type="text" id="name" value="Hello World" required/>
         </p>
         <p>
             <label>Description</label>
@@ -27,13 +27,13 @@
         </p>
         <p>
             <label>Executable name *</label>
-            <input type="text" id="exec" placeholder="ex: hello-world"/>
+            <input type="text" id="exec" value="mf2c/compss-test:it2"/>
         </p>
         <p>
             <label>Type of executable *</label>
             <select id="exec_type" onchange="execTypeFunction()">
-                <option value="docker">docker</option>
                 <option value="compss">compss</option>
+                <option value="docker">docker</option>
                 <option value="docker-compose">docker-compose</option>
                 <option value="docker-swarm">docker-swarm</option>
                 <option value="kubernetes">kubernetes</option>
@@ -59,6 +59,7 @@
         <p>
             <label>CPU architecture</label>
             <select id="cpu_arch">
+                <option value=""></option>
                 <option value="x86-64">x86-64</option>
                 <option value="arm">arm</option>
             </select>
@@ -66,6 +67,7 @@
         <p>
             <label>Operating system</label>
             <select id="os">
+                <option value=""></option>
                 <option value="linux">linux</option>
                 <option value="mac">mac</option>
                 <option value="windows">windows</option>
@@ -103,7 +105,7 @@
         opinion of the European Commission. Responsibility for the use of the information therein lies entirely with the
         authors.</h5>
 </footer>
-<script src="scripts/js/jquery.min.js"></script>
-<script src="scripts/js/service_register.js"></script>
+<script src="js/jquery.min.js"></script>
+<script src="js/service_register.js"></script>
 </body>
 </html>

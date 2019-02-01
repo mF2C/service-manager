@@ -70,14 +70,12 @@ function createServiceInstance(serviceObject)
 {
 //	var userId = getUserId();
 	var agreementId = getAgreementId(serviceObject['name']);
-
 	if(agreementId == 0){
 		agreementId = getAgreementId("*");
 		if(agreementId == 0){
 		agreementId = "no agreement found";
 		}
 	}
-
     var serviceInstanceJson = JSON.stringify({
         service_id: serviceObject['id'],
 //        user_id: "user/" + userId,
@@ -92,7 +90,7 @@ function getAgreementId(serviceName){
 	var agreementId = null;
 		$.ajax
 		({
-			url:   "https://localhost/api/agreement?$filter=name=" + serviceName,
+			url:   "http://localhost:46200/api/agreement/" + serviceName,
 			type:  "GET",
 			async: false, 
 			success: function(ans)
@@ -103,21 +101,6 @@ function getAgreementId(serviceName){
 	return agreementId;
 }
 
-//function getUserId(){
-//	var userId = null;
-//		$.ajax
-//		({
-//			url:   "../php/get_user.php",
-//			type:  "GET",
-//			async: false,
-//			success: function(ans)
-//			{
-//				userId = ans;
-//			}
-//		});
-//	return userId;
-//}
-
 function launchService(serviceInstance)
 {
 	try
@@ -126,7 +109,7 @@ function launchService(serviceInstance)
 		$.ajax
 		({
 			data: {serviceInstance : serviceInstance},
-			url:   "../php/cimi_launch_service.php",
+			url:   "http://localhost:46000/api/v2/lm/service",
 			type:  "POST",
 			async: false, 
 			success: function(ans)
@@ -136,35 +119,9 @@ function launchService(serviceInstance)
 		});
 		if (message == 200){
 			alert("Service started correctly");
-			window.location = 'service_catalog.php';
+			window.location.href = "../index.html";
 		} else{
 			alert(message + "\nService was unable to start correctly");
-		}
-	}
-	catch (e){return 0;}
-}
-
-function deleteService(service)
-{
-	try
-	{	
-		var service = service.id;
-		var message = null;
-		$.ajax
-		({
-			data: {service : service},
-			url:   "../php/cimi_delete_service.php",
-			type:  "POST",
-			async: false, 
-			success: function(ans)
-			{
-				message = ans;
-			}
-		});
-		if (message == 200){
-			window.location = 'service_catalog.php';
-		} else{
-			alert("Error deleting the service");
 		}
 	}
 	catch (e){return 0;}

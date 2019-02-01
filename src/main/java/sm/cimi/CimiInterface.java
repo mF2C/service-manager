@@ -63,21 +63,36 @@ public class CimiInterface {
       }
    }
 
-   public static boolean putService(Service service) {
+   public static int postService(Service service) {
       headers.setContentType(MediaType.APPLICATION_JSON);
       HttpEntity<Service> entity = new HttpEntity<>(service, headers);
-      boolean isUpdated = false;
+      try {
+         ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + SERVICE, HttpMethod.POST
+                 , entity, Response.class);
+         if (responseEntity.getStatusCodeValue() == HttpStatus.CREATED.value()) {
+            log.info("Service submitted: " + service.getName());
+            return responseEntity.getStatusCodeValue();
+         }
+      } catch (Exception e) {
+         log.error("Error submitting service: " + service.getName());
+      }
+      return -1;
+   }
+
+   public static int putService(Service service) {
+      headers.setContentType(MediaType.APPLICATION_JSON);
+      HttpEntity<Service> entity = new HttpEntity<>(service, headers);
       try {
          ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + SERVICE, HttpMethod.PUT
                  , entity, Response.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
             log.info("Service updated: " + service.getName());
-            isUpdated = true;
+            return responseEntity.getStatusCodeValue();
          }
       } catch (Exception e) {
          log.error("Error updating the service: " + service.getName());
       }
-      return isUpdated;
+      return -1;
    }
 
    public static List<Service> getServices() {
@@ -167,4 +182,24 @@ public class CimiInterface {
          return null;
       }
    }
+
+   public static String getAgreementId(String service_name) {
+      HttpEntity<String> entity = new HttpEntity<>(headers);
+      String agreementId = null;
+      String filter = "/agreement/?$filter=name=service/";
+      try {
+         ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + filter + service_name, HttpMethod.GET
+                 , entity, Response.class);
+         if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
+            log.info("Agreement retrieved");
+            Response response = responseEntity.getBody();
+            agreementId = response.getMessage();
+         }
+         return agreementId;
+      } catch (Exception e) {
+         log.error("Error retrieving agreement id");
+         return null;
+      }
+   }
+
 }

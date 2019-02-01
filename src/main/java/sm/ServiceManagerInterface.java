@@ -10,6 +10,7 @@ package sm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import sm.cimi.CimiInterface;
@@ -20,14 +21,14 @@ import java.util.List;
 import static sm.Parameters.*;
 
 @RestController
-@RequestMapping(value = "/api/service-management")
+@RequestMapping(value = SERVICE_MANAGEMENT_ROOT)
 public class ServiceManagerInterface {
 
    private static final Logger log = LoggerFactory.getLogger(ServiceManagerInterface.class);
 
-   @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
    public @ResponseBody
-   Response get() {
+   Response getServices() {
       Response response = new Response(null, SERVICE_MANAGEMENT_ROOT);
       try {
          response.setServices(CimiInterface.getServices());
@@ -39,9 +40,9 @@ public class ServiceManagerInterface {
       return response;
    }
 
-   @RequestMapping(method = RequestMethod.GET, value = SERVICE + SERVICE_ID, produces = MediaType.APPLICATION_JSON_VALUE)
+   @GetMapping(value = SERVICE + SERVICE_ID, produces = MediaType.APPLICATION_JSON_VALUE)
    public @ResponseBody
-   Response get(@PathVariable String service_id) {
+   Response getService(@PathVariable String service_id) {
       String serviceId = "service/" + service_id;
       Response response = new Response(serviceId, SERVICE_MANAGEMENT_ROOT);
       Service service;
@@ -60,16 +61,16 @@ public class ServiceManagerInterface {
       return response;
    }
 
-   @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+   @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
    public @ResponseBody
-   Response submit(@RequestBody Service service) {
+   Response postService(@RequestBody Service service) {
       Response response = new Response(service.getName(), SERVICE_MANAGEMENT_ROOT);
       try {
          Service serviceCategorized = ServiceManager.categorizer.run(service);
          if (serviceCategorized != null) {
             response.setService(serviceCategorized);
             response.setCreated();
-            log.info("Service submitted: " + service.getName());
+            log.info("Service categorized: " + service.getName());
          } else {
             response.setService(service);
             response.setAccepted();
@@ -81,9 +82,9 @@ public class ServiceManagerInterface {
       return response;
    }
 
-   @RequestMapping(method = RequestMethod.GET, value = SERVICE_INSTANCE + SERVICE_INSTANCE_ID, produces = MediaType.APPLICATION_JSON_VALUE)
+   @GetMapping(value = SERVICE_INSTANCE + SERVICE_INSTANCE_ID, produces = MediaType.APPLICATION_JSON_VALUE)
    public @ResponseBody
-   Response check(@PathVariable String service_instance_id) {
+   Response checkQos(@PathVariable String service_instance_id) {
       String serviceInstanceId = "service-instance/" + service_instance_id;
       Response response = new Response(serviceInstanceId, SERVICE_MANAGEMENT_ROOT);
       try {
@@ -119,5 +120,39 @@ public class ServiceManagerInterface {
          response.setBadRequest();
       }
       return response;
+   }
+
+   @PostMapping(value = GUI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+   public @ResponseBody
+   Response postFromGUI(@RequestBody Service service) {
+      Response response = new Response(service.getName(), SERVICE_MANAGEMENT_ROOT);
+      try {
+         int status = CimiInterface.postService(service);
+         if (status == HttpStatus.CREATED.value()) {
+            response.setCreated();
+            log.info("Service submitted to CIMI: " + service.getName());
+         } else {
+            response.setMessage("error submitting service to CIMI");
+            response.setStatus(status);
+         }
+      } catch (Exception e) {
+         response.setBadRequest();
+      }
+      return response;
+   }
+
+   @GetMapping(value = AGREEMENT + SERVICE_NAME)
+   public @ResponseBody
+   String getAgreementId(@PathVariable String service_name) {
+      String agreementId = "";
+      try {
+         if ((agreementId = CimiInterface.getAgreementId(service_name)) != null) {
+            log.info("Returning agreement id: " + agreementId);
+         } else {
+            log.error("Agreement not found: " + service_name);
+         }
+      } catch (Exception e) {
+      }
+      return agreementId;
    }
 }

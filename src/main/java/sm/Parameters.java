@@ -10,23 +10,25 @@ package sm;
 
 public class Parameters {
 
-    /********* CIMI resources **********/
-    public static final int CIMI_RECONNECTION_TIME = 10;
-    public static String cimiUrl = "https://localhost/api";
-    public static final String SESSION = "/session";
-    public static final String SERVICE = "/service";
-    public static final String SERVICE_INSTANCE = "/service-instance";
-
-    /********* Local resources *********/
     public static final String SERVICE_MANAGEMENT_URL = "http://localhost:46200";
     public static final String SERVICE_MANAGEMENT_ROOT = "/api/service-management";
-    public static final String SERVICE_INSTANCE_ID = "/{service_instance_id}";
+    public static String cimiUrl = "https://localhost/api";
+
+    /********* resources **********/
+    public static final String SESSION = "/session";
+    public static final String SERVICE = "/service";
     public static final String SERVICE_ID = "/{service_id}";
+    public static final String SERVICE_INSTANCE = "/service-instance";
+    public static final String SERVICE_INSTANCE_ID = "/{service_instance_id}";
+    public static final String AGREEMENT = "/agreement";
+    public static final String SERVICE_NAME = "/{service_name}";
+    public static final String GUI = "/gui";
 
     /*********** Aux values ************/
+    public static final int CIMI_RECONNECTION_TIME = 10;
     public static final int QOS_TRAINING = 300;
     public static final double EPSILON = 0.0;
     public static final int CLUSTER_COUNT = 3;
     public static final int MAX_ITERATION_COUNT = 100;
-    public static final int RETRAINING_TIME = 60;
+    public static final int RETRAINING_TIME = 500;
 }
