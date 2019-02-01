@@ -24,15 +24,12 @@ public class Response {
     private String message;
     private String resourceURI;
     private int status;
-
-    // from CIMI
     private List<Service> services;
     private List<SlaViolation> slaViolations;
-
-    // to others
     private Service service;
     @JsonProperty("service-instance")
     private ServiceInstance serviceInstance;
+    private Agreement agreement;
 
     public Response() {
         services = new ArrayList<>();
@@ -135,5 +132,13 @@ public class Response {
 
     public void setServiceInstance(ServiceInstance serviceInstance) {
         this.serviceInstance = serviceInstance;
+    }
+
+    public Agreement getAgreement() {
+        return agreement;
+    }
+
+    public void setAgreement(Agreement agreement) {
+        this.agreement = agreement;
     }
 }

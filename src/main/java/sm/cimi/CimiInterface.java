@@ -58,7 +58,7 @@ public class CimiInterface {
             log.error("Session could not be started");
          return responseEntity.getStatusCodeValue();
       } catch (Exception e) {
-         log.error("Error starting the session");
+         log.error("Error starting the session: " + e.getMessage());
          return HttpStatus.FORBIDDEN.value();
       }
    }
@@ -74,7 +74,7 @@ public class CimiInterface {
             return responseEntity.getStatusCodeValue();
          }
       } catch (Exception e) {
-         log.error("Error submitting service: " + service.getName());
+         log.error("Error submitting service: " + e.getMessage());
       }
       return -1;
    }
@@ -90,7 +90,7 @@ public class CimiInterface {
             return responseEntity.getStatusCodeValue();
          }
       } catch (Exception e) {
-         log.error("Error updating the service: " + service.getName());
+         log.error("Error updating the service: " + e.getMessage());
       }
       return -1;
    }
@@ -108,7 +108,7 @@ public class CimiInterface {
          }
          return services;
       } catch (Exception e) {
-         log.error("Error retrieving services");
+         log.error("Error retrieving services: " + e.getMessage());
          return services;
       }
    }
@@ -125,7 +125,7 @@ public class CimiInterface {
          }
          return service;
       } catch (Exception e) {
-         log.error("Error retrieving the service");
+         log.error("Error retrieving the service: " + e.getMessage());
          return null;
       }
    }
@@ -142,7 +142,7 @@ public class CimiInterface {
          }
          return serviceInstance;
       } catch (Exception e) {
-         log.error("Error retrieving service instance");
+         log.error("Error retrieving service instance:" + e.getMessage());
          return null;
       }
    }
@@ -159,7 +159,7 @@ public class CimiInterface {
          }
          return agreement;
       } catch (Exception e) {
-         log.error("Error retrieving agreement");
+         log.error("Error retrieving agreement: " + e.getMessage());
          return null;
       }
    }
@@ -178,28 +178,26 @@ public class CimiInterface {
          }
          return slaViolations;
       } catch (Exception e) {
-         log.error("Error retrieving SLA violations");
+         log.error("Error retrieving SLA violations: " + e.getMessage());
          return null;
       }
    }
 
-   public static String getAgreementId(String service_name) {
+   public static Agreement getAgreementId(String service_name) {
       HttpEntity<String> entity = new HttpEntity<>(headers);
-      String agreementId = null;
-      String filter = "/agreement/?$filter=name=service/";
+      Agreement agreement = null;
+      String filter = "/agreement?$filter=name='" + service_name + "'";
       try {
-         ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + filter + service_name, HttpMethod.GET
-                 , entity, Response.class);
+         ResponseEntity<Agreement> responseEntity = restTemplate.exchange(cimiUrl + filter, HttpMethod.GET
+                 , entity, Agreement.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
             log.info("Agreement retrieved");
-            Response response = responseEntity.getBody();
-            agreementId = response.getMessage();
+            agreement = responseEntity.getBody();
          }
-         return agreementId;
+         return agreement;
       } catch (Exception e) {
-         log.error("Error retrieving agreement id");
+         log.error("Error retrieving agreement id:" + e.getMessage());
          return null;
       }
    }
-
 }

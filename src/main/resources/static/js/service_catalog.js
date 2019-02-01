@@ -87,17 +87,22 @@ function createServiceInstance(serviceObject)
 }
 
 function getAgreementId(serviceName){
-	var agreementId = null;
+	var response = null;
 		$.ajax
 		({
-			url:   "http://localhost:46200/api/agreement/" + serviceName,
+			url:   "http://localhost:46200/api/service-management/agreement/" + serviceName,
 			type:  "GET",
 			async: false, 
 			success: function(ans)
 			{
-				agreementId = ans;
+				response = ans;
 			}
-		});	
+		});
+		var agreementId;
+		if (response != null){
+		    var agreement = response['agreement'];
+		    agreementId = agreement['id'];
+		}
 	return agreementId;
 }
 

@@ -33,9 +33,9 @@ public class ServiceManagerInterface {
       try {
          response.setServices(CimiInterface.getServices());
          response.setOk();
-         log.info("Returning all services");
       } catch (Exception e) {
          response.setBadRequest();
+         response.setMessage(e.getMessage());
       }
       return response;
    }
@@ -50,13 +50,12 @@ public class ServiceManagerInterface {
          if ((service = CimiInterface.getService(serviceId)) != null) {
             response.setService(service);
             response.setOk();
-            log.info("Returning service: " + service.getName());
          } else {
             response.setNotFound();
-            log.error("Service not found: " + service_id);
          }
       } catch (Exception e) {
          response.setBadRequest();
+         response.setMessage(e.getMessage());
       }
       return response;
    }
@@ -70,14 +69,13 @@ public class ServiceManagerInterface {
          if (serviceCategorized != null) {
             response.setService(serviceCategorized);
             response.setCreated();
-            log.info("Service categorized: " + service.getName());
          } else {
             response.setService(service);
             response.setAccepted();
-            log.error("Service accepted, not submitted: " + service.getName());
          }
       } catch (Exception e) {
          response.setBadRequest();
+         response.setMessage(e.getMessage());
       }
       return response;
    }
@@ -92,21 +90,18 @@ public class ServiceManagerInterface {
          if (serviceInstance == null) {
             response.setNotFound();
             response.setMessage("service-instance not found");
-            log.error("Service-instance not found: " + service_instance_id);
             return response;
          }
          Agreement agreement = CimiInterface.getAgreement(serviceInstance.getAgreement());
          if (agreement == null) {
             response.setNotFound();
             response.setMessage("agreement not found");
-            log.error("Agreement not found: " + serviceInstance.getAgreement());
             return response;
          }
          Service service = CimiInterface.getService(serviceInstance.getService());
          if (service == null) {
             response.setNotFound();
             response.setMessage("service not found");
-            log.error("Service not found: " + serviceInstance.getService());
             return response;
          }
          List<SlaViolation> slaViolations = CimiInterface.getSlaViolations(serviceInstance.getAgreement());
@@ -118,6 +113,7 @@ public class ServiceManagerInterface {
          log.info("QoS checked for service-instance: " + serviceInstance.getId());
       } catch (Exception e) {
          response.setBadRequest();
+         response.setMessage(e.getMessage());
       }
       return response;
    }
@@ -128,31 +124,27 @@ public class ServiceManagerInterface {
       Response response = new Response(service.getName(), SERVICE_MANAGEMENT_ROOT);
       try {
          int status = CimiInterface.postService(service);
-         if (status == HttpStatus.CREATED.value()) {
+         if (status == HttpStatus.CREATED.value())
             response.setCreated();
-            log.info("Service submitted to CIMI: " + service.getName());
-         } else {
-            response.setMessage("error submitting service to CIMI");
-            response.setStatus(status);
-         }
       } catch (Exception e) {
          response.setBadRequest();
+         response.setMessage(e.getMessage());
       }
       return response;
    }
 
    @GetMapping(value = AGREEMENT + SERVICE_NAME)
    public @ResponseBody
-   String getAgreementId(@PathVariable String service_name) {
-      String agreementId = "";
+   Response getAgreementId(@PathVariable String service_name) {
+      Response response = new Response(service_name, SERVICE_MANAGEMENT_ROOT + AGREEMENT);
       try {
-         if ((agreementId = CimiInterface.getAgreementId(service_name)) != null) {
-            log.info("Returning agreement id: " + agreementId);
-         } else {
-            log.error("Agreement not found: " + service_name);
-         }
+         Agreement agreement = CimiInterface.getAgreementId(service_name);
+         response.setAgreement(agreement);
+         response.setOk();
       } catch (Exception e) {
+         response.setBadRequest();
+         response.setMessage(e.getMessage());
       }
-      return agreementId;
+      return response;
    }
 }

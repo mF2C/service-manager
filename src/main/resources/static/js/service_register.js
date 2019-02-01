@@ -1,4 +1,5 @@
 function registerService(){
+
 	var name = document.getElementById("name").value;
 	var description = document.getElementById("description").value;
 	var exec = document.getElementById("exec").value;
@@ -6,9 +7,7 @@ function registerService(){
 	var agent_type = document.getElementById("agent_type").value;
 	var exec_ports;
 	var exec_ports_string = document.getElementById("exec_ports").value;
-	if(exec_ports_string == "")
-        exec_ports = [];
-    else
+	if(exec_ports_string !== "")
         exec_ports = exec_ports_string.split(',').map(function(item) {return parseInt(item, 10);});
 	var num_agents = document.getElementById("num_agents").value;
 	var cpu_arch = document.getElementById("cpu_arch").value;
@@ -18,18 +17,14 @@ function registerService(){
 	var disk = document.getElementById("disk").value;
 	var req_resource_string = document.getElementById("req_resource").value;
 	var req_resource;
-	if(req_resource_string == "")
-        req_resource = [];
-    else
+	if(req_resource_string !== "")
         req_resource = req_resource_string.split(',');
     var opt_resource;
 	var opt_resource_string = document.getElementById("opt_resource").value;
-	if(opt_resource_string == "")
-        opt_resource = [];
-    else
+	if(opt_resource_string !== "")
         opt_resource = opt_resource_string.split(',');
 
-	var serviceJson = JSON.stringify({
+	var serviceJson = {
 		name: name,
 		description: description,
 		exec: exec,
@@ -44,8 +39,11 @@ function registerService(){
 		disk: disk,
 		req_resource: req_resource,
 		opt_resource: opt_resource
-	});
-	createService(serviceJson);
+	}
+	var refactoredService = JSON.stringify(serviceJson, (key, value) => {
+      if (value !== "" && value !== null) return value
+    })
+	createService(refactoredService);
 }
 
 function createService(service)

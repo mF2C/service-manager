@@ -63,6 +63,7 @@ public class Categorizer {
          } else {
             service.setCategory(0);
          }
+         log.info("Service categorized: " + service.getName());
          return service;
       } else {
          log.error("Error categorizing the service: " + service.getName());
@@ -87,17 +88,17 @@ public class Categorizer {
       inputService[1] = service.getAgentType().hashCode();
       if (service.getExecPorts() != null)
          inputService[2] = service.getExecPorts().length;
-      if (service.getNumAgents() != 0)
+      if (service.getNumAgents() != null)
          inputService[3] = service.getNumAgents();
       if (service.getCpuArch() != null)
          inputService[4] = service.getCpuArch().hashCode();
       if (service.getOs() != null)
          inputService[5] = service.getOs().hashCode();
-      if (service.getMemoryMin() != 0)
+      if (service.getMemoryMin() != null)
          inputService[6] = service.getMemoryMin();
-      if (service.getStorageMin() != 0)
+      if (service.getStorageMin() != null)
          inputService[7] = service.getStorageMin();
-      if (service.getDisk() != 0)
+      if (service.getDisk() != null)
          inputService[8] = service.getDisk();
       if (service.getReqResource() != null)
          inputService[9] = service.getReqResource().length;
