@@ -201,4 +201,22 @@ public class CimiInterface {
          return null;
       }
    }
+
+   public static QosModel getQosModel(String serviceId, String agreementId, List<String> agentsIds) {
+      HttpEntity<String> entity = new HttpEntity<>(headers);
+      QosModel qosModel = null;
+      String filter = "";
+      try {
+         ResponseEntity<QosModel> responseEntity = restTemplate.exchange(cimiUrl + filter, HttpMethod.GET
+                 , entity, QosModel.class);
+         if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
+            log.info("Qos model retrieved");
+            qosModel = responseEntity.getBody();
+         }
+         return qosModel;
+      } catch (Exception e) {
+         log.error("Error retrieving qos model: " + e.getMessage());
+         return null;
+      }
+   }
 }

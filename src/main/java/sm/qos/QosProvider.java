@@ -8,30 +8,19 @@
  */
 package sm.qos;
 
-import sm.elements.Agreement;
-import sm.elements.Service;
-import sm.elements.ServiceInstance;
-import sm.elements.SlaViolation;
+import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
+import sm.cimi.CimiInterface;
+import sm.elements.*;
 import sm.qos.learning.LearningModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class QosProvider {
 
-   public ServiceInstance check(Service service, ServiceInstance serviceInstance, Agreement agreement, List<SlaViolation> slaViolations) {
+   public ServiceInstance check(ServiceInstance serviceInstance, List<SlaViolation> slaViolations) {
       if (slaViolations != null) {
-//            float slaRatio = calculateSlaViolationRatio(service, agreement, slaViolations);
          int numOfAgents = serviceInstance.getAgents().size();
-//         LearningModel learningModel = new LearningModel(numOfAgents);
-//         String test = learningModel.getConf().toJson();
-//            if (!learningModels.containsKey(numOfAgents)) {
-//                learningModel = new LearningModel(numOfAgents);
-//                learningModels.put(numOfAgents, learningModel);
-//                learningModel.train(service, slaRatio, serviceInstance.getAgents());
-//            } else
-//                learningModel = learningModels.get(numOfAgents);
-//            learningModel.evaluate(service, slaRatio, serviceInstance.getAgents());
-//            int[] agents = learningModel.getOutput();
          int[] agents = new int[numOfAgents];
          for (int i = 0; i < agents.length; i++)
             agents[i] = 1;
@@ -40,19 +29,42 @@ public class QosProvider {
       return serviceInstance;
    }
 
-//    private float calculateSlaViolationRatio(Service service, Agreement agreement, List<SlaViolation> slaViolations) {
-//        int numberOfGuarantees = agreement.getDetails().getGuarantees().size();
-//        float ratioOfServiceFailure = (float) slaViolations.size() / numberOfGuarantees;
-//        if (ratioOfServiceFailure > 0)
-//            service.increaseServiceFailureCounter(ratioOfServiceFailure);
-//        return service.getServiceFailureRatioCounter() / service.getExecutionsCounter();
-//    }
-
    private void setAcceptedAgents(int[] acceptedAgents, ServiceInstance serviceInstance) {
       for (int i = 0; i < serviceInstance.getAgents().size(); i++)
          if (acceptedAgents[i] == 1)
             serviceInstance.getAgents().get(i).setAllow(true);
          else
             serviceInstance.getAgents().get(i).setAllow(false);
+   }
+
+   public ServiceInstance check(Service service, ServiceInstance serviceInstance, Agreement agreement, List<SlaViolation> slaViolations) {
+      LearningModel learningModel;
+      List<String> agentsIds = new ArrayList<>();
+      for (int i = 0; i < serviceInstance.getAgents().size(); i++)
+         agentsIds.add(serviceInstance.getAgents().get(i).getId());
+      QosModel qosModel = CimiInterface.getQosModel(service.getId(), agreement.getId(), agentsIds);
+      if (qosModel == null) {
+         qosModel = new QosModel();
+         learningModel = new LearningModel(serviceInstance.getAgents().size());
+         learningModel.train(service, calculateSlaViolationRatio(slaViolations, qosModel), serviceInstance.getAgents());
+      } else {
+         MultiLayerConfiguration conf = MultiLayerConfiguration.fromJson(qosModel.getConfig());
+         learningModel = new LearningModel(conf, serviceInstance.getAgents().size());
+         learningModel.evaluate(service, calculateSlaViolationRatio(slaViolations, qosModel), serviceInstance.getAgents());
+      }
+      int[] agents = learningModel.getOutput();
+      setAcceptedAgents(agents, serviceInstance);
+      return serviceInstance;
+   }
+
+   private float calculateSlaViolationRatio(List<SlaViolation> slaViolations, QosModel qosModel) {
+      int numServiceFailures = qosModel.getNumServiceFailures();
+      numServiceFailures += slaViolations.size();
+      qosModel.setNumServiceFailures(numServiceFailures);
+      int numServiceInstances = qosModel.getNumServiceInstances();
+      numServiceInstances++;
+      qosModel.setNumServiceInstances(numServiceInstances);
+      float ratio = (float) numServiceFailures / numServiceInstances;
+      return ratio;
    }
 }

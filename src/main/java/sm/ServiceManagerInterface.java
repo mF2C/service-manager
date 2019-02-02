@@ -107,7 +107,7 @@ public class ServiceManagerInterface {
          List<SlaViolation> slaViolations = CimiInterface.getSlaViolations(serviceInstance.getAgreement());
          if (slaViolations == null)
             log.info("No SLA violations found for agreement: " + serviceInstance.getAgreement());
-         serviceInstance = ServiceManager.qosProvider.check(service, serviceInstance, agreement, slaViolations);
+         serviceInstance = ServiceManager.qosProvider.check(serviceInstance, slaViolations);
          response.setServiceInstance(serviceInstance);
          response.setOk();
          log.info("QoS checked for service-instance: " + serviceInstance.getId());
