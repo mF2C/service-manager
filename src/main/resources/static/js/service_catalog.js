@@ -110,23 +110,24 @@ function launchService(serviceInstance)
 {
 	try
 	{	
-		var message = null;
+		var response = null;
 		$.ajax
 		({
-			data: {serviceInstance : serviceInstance},
+			data: serviceInstance,
 			url:   "http://localhost:46000/api/v2/lm/service",
 			type:  "POST",
+			contentType: "application/json",
 			async: false, 
 			success: function(ans)
 			{
-				message = ans;
+				response = ans;
 			}
 		});
-		if (message == 200){
-			alert("Service started correctly");
+		if (response['error'] == false){
+			alert(response['message']);
 			window.location.href = "../index.html";
 		} else{
-			alert(message + "\nService was unable to start correctly");
+			alert("Error: " + response['message']);
 		}
 	}
 	catch (e){return 0;}

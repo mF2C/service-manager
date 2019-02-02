@@ -30,6 +30,7 @@ public class Response {
     @JsonProperty("service-instance")
     private ServiceInstance serviceInstance;
     private Agreement agreement;
+    private List<Agreement> agreements;
 
     public Response() {
         services = new ArrayList<>();
@@ -140,5 +141,13 @@ public class Response {
 
     public void setAgreement(Agreement agreement) {
         this.agreement = agreement;
+    }
+
+    public List<Agreement> getAgreements() {
+        return agreements;
+    }
+
+    public void setAgreements(List<Agreement> agreements) {
+        this.agreements = agreements;
     }
 }

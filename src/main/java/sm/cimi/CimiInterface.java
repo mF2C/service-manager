@@ -164,12 +164,12 @@ public class CimiInterface {
       }
    }
 
-   public static List<SlaViolation> getSlaViolations(String id) {
+   public static List<SlaViolation> getSlaViolations(String agreementId) {
       HttpEntity<String> entity = new HttpEntity<>(headers);
       List<SlaViolation> slaViolations = new ArrayList<>();
-      String filter = "/sla-violation?$filter=agreement_id/href='";
+      String filter = "/sla-violation?$filter=agreement_id/href='" + agreementId + "'";
       try {
-         ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + filter + id + "'", HttpMethod.GET
+         ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + filter, HttpMethod.GET
                  , entity, Response.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
             log.info("SLA violations retrieved");
@@ -183,20 +183,21 @@ public class CimiInterface {
       }
    }
 
-   public static Agreement getAgreementId(String service_name) {
+   public static List<Agreement> getAgreementId(String service_name) {
       HttpEntity<String> entity = new HttpEntity<>(headers);
-      Agreement agreement = null;
+      List<Agreement> agreements = new ArrayList<>();
       String filter = "/agreement?$filter=name='" + service_name + "'";
       try {
-         ResponseEntity<Agreement> responseEntity = restTemplate.exchange(cimiUrl + filter, HttpMethod.GET
-                 , entity, Agreement.class);
+         ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + filter, HttpMethod.GET
+                 , entity, Response.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
-            log.info("Agreement retrieved");
-            agreement = responseEntity.getBody();
+            log.info("Agreements retrieved");
+            Response response = responseEntity.getBody();
+            agreements = response.getAgreements();
          }
-         return agreement;
+         return agreements;
       } catch (Exception e) {
-         log.error("Error retrieving agreement id:" + e.getMessage());
+         log.error("Error retrieving agreements: " + e.getMessage());
          return null;
       }
    }

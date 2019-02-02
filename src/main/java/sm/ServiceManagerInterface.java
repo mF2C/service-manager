@@ -138,9 +138,15 @@ public class ServiceManagerInterface {
    Response getAgreementId(@PathVariable String service_name) {
       Response response = new Response(service_name, SERVICE_MANAGEMENT_ROOT + AGREEMENT);
       try {
-         Agreement agreement = CimiInterface.getAgreementId(service_name);
-         response.setAgreement(agreement);
-         response.setOk();
+         List<Agreement> agreements = CimiInterface.getAgreementId(service_name);
+         if (agreements == null)
+            response.setBadRequest();
+         else if (agreements.size() == 0)
+            response.setNotFound();
+         else {
+            response.setAgreement(agreements.get(0));
+            response.setOk();
+         }
       } catch (Exception e) {
          response.setBadRequest();
          response.setMessage(e.getMessage());
