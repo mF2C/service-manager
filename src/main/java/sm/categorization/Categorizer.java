@@ -31,7 +31,7 @@ public class Categorizer {
    private ClusterSet clusterSet;
 
    public Categorizer() {
-      kMeansClustering = KMeansClustering.setup(CLUSTER_COUNT, MAX_ITERATION_COUNT, "euclidean");
+      kMeansClustering = KMeansClustering.setup(CLUSTER_COUNT, CATEGORIZER_MAX_ITERATION_COUNT, "euclidean");
       ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
       Runnable task = () -> {
          List<Service> services = CimiInterface.getServices();

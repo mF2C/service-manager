@@ -18,13 +18,13 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class QosModel {
 
-   @JsonProperty("agents_ids")
-   private List<String> agentsIds;
-   private String config;
    @JsonProperty("service_id")
    private String serviceId;
    @JsonProperty("agreement_id")
    private String agreementId;
+   @JsonProperty("agents_ids")
+   private List<String> agentsIds;
+   private String config;
    @JsonProperty("violation_ratio")
    private float violationRatio;
    @JsonProperty("num_service_instances")
@@ -33,6 +33,15 @@ public class QosModel {
    private Integer numServiceFailures;
 
    public QosModel() {
+   }
+
+   public QosModel(String serviceId, String agreementId, List<String> agentsIds) {
+      this.serviceId = serviceId;
+      this.agreementId = agreementId;
+      this.agentsIds = agentsIds;
+      this.violationRatio = 0;
+      this.numServiceInstances = 1;
+      this.numServiceFailures = 0;
    }
 
    public List<String> getAgentsIds() {

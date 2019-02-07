@@ -6,12 +6,12 @@
  *
  * @author Francisco Carpio - TUBS
  */
-package sm.qos;
+package sm.providing;
 
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import sm.cimi.CimiInterface;
 import sm.elements.*;
-import sm.qos.learning.LearningModel;
+import sm.providing.learning.LearningModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,20 +37,21 @@ public class QosProvider {
             serviceInstance.getAgents().get(i).setAllow(false);
    }
 
-   public ServiceInstance check(Service service, ServiceInstance serviceInstance, Agreement agreement, List<SlaViolation> slaViolations) {
+   public ServiceInstance check(String serviceId, String agreementId, ServiceInstance serviceInstance, List<SlaViolation> slaViolations) {
       LearningModel learningModel;
       List<String> agentsIds = new ArrayList<>();
       for (int i = 0; i < serviceInstance.getAgents().size(); i++)
          agentsIds.add(serviceInstance.getAgents().get(i).getId());
-      QosModel qosModel = CimiInterface.getQosModel(service.getId(), agreement.getId(), agentsIds);
+      QosModel qosModel = CimiInterface.getQosModel(serviceId, agreementId, agentsIds);
       if (qosModel == null) {
-         qosModel = new QosModel();
-         learningModel = new LearningModel(serviceInstance.getAgents().size());
-         learningModel.train(service, calculateSlaViolationRatio(slaViolations, qosModel), serviceInstance.getAgents());
+         qosModel = new QosModel(serviceId, agreementId, agentsIds);
+         learningModel = new LearningModel(qosModel, null, serviceInstance.getAgents().size());
+         learningModel.run();
+         qosModel.setConfig(learningModel.getConf().toJson());
       } else {
          MultiLayerConfiguration conf = MultiLayerConfiguration.fromJson(qosModel.getConfig());
-         learningModel = new LearningModel(conf, serviceInstance.getAgents().size());
-         learningModel.evaluate(service, calculateSlaViolationRatio(slaViolations, qosModel), serviceInstance.getAgents());
+         learningModel = new LearningModel(qosModel, conf, serviceInstance.getAgents().size());
+         learningModel.run();
       }
       int[] agents = learningModel.getOutput();
       setAcceptedAgents(agents, serviceInstance);

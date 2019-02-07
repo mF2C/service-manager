@@ -16,26 +16,31 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Agent {
 
-    @JsonProperty("url")
-    private String id;
-    private boolean allow;
+   @JsonProperty("url")
+   private String id;
+   private boolean allow;
 
-    public Agent() {
-    }
+   public Agent() {
+   }
 
-    public String getId() {
-        return id;
-    }
+   public Agent(String id) {
+      this.id = id;
+      this.allow = false;
+   }
 
-    public boolean isAllow() {
-        return allow;
-    }
+   public String getId() {
+      return id;
+   }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+   public boolean isAllow() {
+      return allow;
+   }
 
-    public void setAllow(boolean allow) {
-        this.allow = allow;
-    }
+   public void setId(String id) {
+      this.id = id;
+   }
+
+   public void setAllow(boolean allow) {
+      this.allow = allow;
+   }
 }

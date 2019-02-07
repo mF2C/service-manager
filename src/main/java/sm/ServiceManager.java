@@ -21,14 +21,11 @@ import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import sm.categorization.Categorizer;
 import sm.cimi.CimiInterface;
 import sm.cimi.CimiSession;
 import sm.cimi.CimiSession.SessionTemplate;
-import sm.qos.QosProvider;
+import sm.providing.QosProvider;
 
 import java.util.concurrent.*;
 
@@ -48,10 +45,7 @@ import static sm.Parameters.CIMI_RECONNECTION_TIME;
         ServerPropertiesAutoConfiguration.class,
         WebMvcAutoConfiguration.class,
         WebSocketAutoConfiguration.class,
-        ServiceManagerInterface.class,
-        CimiInterface.class,
-        CimiSession.class,
-        SessionTemplate.class
+        ServiceManagerInterface.class
 })
 @Controller
 public class ServiceManager extends SpringBootServletInitializer implements ApplicationRunner {

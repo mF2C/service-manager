@@ -6,7 +6,7 @@
  *
  * @author Francisco Carpio - TUBS
  */
-package sm.qos.learning;
+package sm.providing.learning;
 
 
 import org.nd4j.linalg.api.ndarray.INDArray;
