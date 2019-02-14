@@ -53,7 +53,7 @@ function getServices()
 		var message = null;
 		$.ajax
 		({
-			url:   "http://localhost:46200/api/service-management",
+			url:   "api/service-management",
 			type:  "GET",
 			async: false,
 			success: function(ans)
@@ -69,28 +69,22 @@ function getServices()
 function createServiceInstance(serviceObject)
 {
 //	var userId = getUserId();
+    var userId = "carpio";
 	var agreementId = getAgreementId(serviceObject['name']);
-	if(agreementId == 0){
-		agreementId = getAgreementId("*");
-		if(agreementId == 0){
-		agreementId = "no agreement found";
-		}
-	}
     var serviceInstanceJson = JSON.stringify({
         service_id: serviceObject['id'],
-//        user_id: "user/" + userId,
-        user_id: "user/carpio",
+        user_id: "user/" + userId,
         agreement_id: agreementId
     });
-
-    launchService(serviceInstanceJson);
+	if (agreementId != null && userId != null)
+        launchService(serviceInstanceJson);
 }
 
 function getAgreementId(serviceName){
 	var response = null;
 		$.ajax
 		({
-			url:   "http://localhost:46200/api/service-management/agreement/" + serviceName,
+			url:   "api/service-management/agreement/" + serviceName,
 			type:  "GET",
 			async: false, 
 			success: function(ans)
@@ -100,8 +94,12 @@ function getAgreementId(serviceName){
 		});
 		var agreementId;
 		if (response != null){
-		    var agreement = response['agreement'];
-		    agreementId = agreement['id'];
+		    if(response['status'] == 200) {
+                var agreement = response['agreement'];
+                agreementId = agreement['id'];
+		    } else {
+		        alert("Agreement error: " + response['message']);
+		    }
 		}
 	return agreementId;
 }
@@ -114,7 +112,7 @@ function launchService(serviceInstance)
 		$.ajax
 		({
 			data: serviceInstance,
-			url:   "http://localhost:46000/api/v2/lm/service",
+			url:   "api/v2/lm/service",
 			type:  "POST",
 			contentType: "application/json",
 			async: false, 
@@ -123,11 +121,13 @@ function launchService(serviceInstance)
 				response = ans;
 			}
 		});
-		if (response['error'] == false){
-			alert(response['message']);
-			window.location.href = "../index.html";
-		} else{
-			alert("Error: " + response['message']);
+		if (response != null){
+            if (response['error'] == false){
+                alert(response['message']);
+                window.location.href = "index.html";
+            } else{
+                alert("Error: " + response['message']);
+            }
 		}
 	}
 	catch (e){return 0;}

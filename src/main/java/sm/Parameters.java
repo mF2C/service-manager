@@ -27,7 +27,7 @@ public class Parameters {
    /*********** Aux values ************/
    public static final int CIMI_RECONNECTION_TIME = 10;
    public static final int PROVIDER_TRAINING_ITERATIONS = 10;
-   public static final double EPSILON = 0.0;
+   public static final double EPSILON = 1.0;
    public static final int CLUSTER_COUNT = 3;
    public static final int CATEGORIZER_MAX_ITERATION_COUNT = 100;
    public static final int RETRAINING_TIME = 500;

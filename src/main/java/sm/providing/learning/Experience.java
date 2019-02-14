@@ -16,14 +16,14 @@ class Experience {
     private INDArray inputIndArray, nextInputIndArray;
     private int action;
     private float reward;
-    private int[] nextActionMask;
+//    private int[] nextActionMask;
 
-    Experience(INDArray inputIndArray, INDArray nextInputIndArray, int action, float reward, int[] nextActionMask){
+    Experience(INDArray inputIndArray, INDArray nextInputIndArray, int action, float reward){
         this.inputIndArray = inputIndArray;
         this.nextInputIndArray = nextInputIndArray;
         this.action = action;
         this.reward = reward;
-        this.nextActionMask = nextActionMask;
+//        this.nextActionMask = nextActionMask;
     }
 
     INDArray getInputIndArray() {
@@ -42,7 +42,7 @@ class Experience {
         return reward;
     }
 
-    int[] getNextActionMask() {
-        return nextActionMask;
-    }
+//    int[] getNextActionMask() {
+//        return nextActionMask;
+//    }
 }

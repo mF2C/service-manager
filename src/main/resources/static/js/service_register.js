@@ -54,7 +54,7 @@ function createService(service)
 		$.ajax
 		({
 			data: service,
-			url:   "http://localhost:46200/api/service-management/gui",
+			url:   "api/service-management/gui",
 			type:  "POST",
 			contentType: "application/json",
 			async: false,
@@ -65,7 +65,7 @@ function createService(service)
 		});
 		if (response['status'] == 201){
 			alert("service registered correctly");
-			window.location.href = "../index.html";
+			window.location.href = "index.html";
 		} else{
 			alert(response['message']);
 		}
@@ -74,7 +74,7 @@ function createService(service)
 }
 
 function registerServiceCancel(){
-	window.location.href = "../index.html";
+	window.location.href = "index.html";
 }
 
 window.onload=function(){
