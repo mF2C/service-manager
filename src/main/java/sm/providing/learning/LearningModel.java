@@ -29,11 +29,11 @@ public class LearningModel {
    private static final Logger log = LoggerFactory.getLogger(LearningModel.class);
    private DeepQ deepQ;
    private MultiLayerConfiguration conf;
-   private double slaRatio;
+   private double violationRatio;
    private float[] output;
 
    public LearningModel(QosModel qosModel, MultiLayerConfiguration conf, int outputLength) {
-      this.slaRatio = qosModel.getViolationRatio();
+      this.violationRatio = qosModel.getViolationRatio();
       if (conf == null) initializeModel(outputLength + 1, outputLength);
       else initializeModel(conf, outputLength + 1, outputLength);
    }
@@ -75,15 +75,16 @@ public class LearningModel {
       return new float[output.length + 1];
    }
 
-   public void run(int trainingIterations, double epsilon) {
+   public void run(boolean isTraining) {
       float[] environment = generateEnvironment();
       initializeModel(environment.length, environment.length - 1);
-      for (int i = 0; i < trainingIterations; i++)
-         run(environment, i, epsilon);
-      run(environment, -1, 0);
+      if (isTraining)
+         run(environment, EPSILON);
+      else
+         run(environment, 0);
    }
 
-   private void run(float[] environment, int iteration, double epsilon) {
+   private void run(float[] environment, double epsilon) {
       float maxReward = computeMaxReward();
       float[] localEnvironment = environment.clone();
       int timeStep = 0;
@@ -103,11 +104,6 @@ public class LearningModel {
          } else
             deepQ.observeReward(inputIndArray, Nd4j.create(localEnvironment), reward);
       }
-      if (iteration > -1)
-         log.info("iteration " + iteration + " -> " + timeStep + " steps");
-      else {
-         log.info("reasoning in -> " + timeStep + " steps");
-      }
    }
 
    private void modifyEnvironment(float[] environment, int action) {
@@ -120,9 +116,9 @@ public class LearningModel {
       float reward = 0;
       for (int i = 0; i < environment.length - 1; i++) {
          if (environment[i] == 0)
-            reward += -slaRatio + 1;
+            reward += -violationRatio + 1;
          else
-            reward += 2 * slaRatio - 1;
+            reward += 2 * violationRatio - 1;
       }
       return reward;
    }
@@ -131,10 +127,10 @@ public class LearningModel {
       float reward = 0;
       float intersectionPoint = 2.f / 3;
       for (int i = 0; i < output.length; i++) {
-         if (slaRatio <= intersectionPoint)
-            reward += -slaRatio + 1;
+         if (violationRatio <= intersectionPoint)
+            reward += -violationRatio + 1;
          else
-            reward += 2 * slaRatio - 1;
+            reward += 2 * violationRatio - 1;
       }
       return reward;
    }

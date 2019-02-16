@@ -7,13 +7,11 @@ import org.slf4j.LoggerFactory;
 import sm.elements.Agent;
 import sm.elements.QosModel;
 import sm.elements.ServiceInstance;
-import sm.elements.SlaViolation;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
 
 public class QosProviderTest {
 
@@ -36,13 +34,19 @@ public class QosProviderTest {
 
    @Test
    public void testSetToFalse() {
-      int numServiceFailures = 2;
-      List<SlaViolation> slaViolationList = new ArrayList<>();
-      for (int i = 0; i < numServiceFailures; i++)
-         slaViolationList.add(new SlaViolation());
+      int serviceExecutions = 10;
+      int[] serviceFailures = new int[]{0, 0, 1, 0, 1, 0, 0, 1, 0, 0};
       QosProvider qosProvider = new QosProvider();
-      QosModel qosModel = qosProvider.getQosModel(serviceId, agreementId, serviceInstance, slaViolationList);
-      serviceInstance = qosProvider.check(qosModel, serviceInstance, 70);
+      QosModel qosModel = qosProvider.getQosModel(serviceId, agreementId, serviceInstance);
+
+
+      for (int i = 0; i < serviceExecutions; i++) {
+         if (serviceFailures[i] == 1)
+            serviceInstance = qosProvider.check(qosModel, serviceInstance, true, true);
+         else
+            serviceInstance = qosProvider.check(qosModel, serviceInstance, true, false);
+      }
+
       for (Agent a : serviceInstance.getAgents()) {
          log.info("agent: " + a.getId() + " is set " + a.isAllow());
          assertFalse(a.isAllow());

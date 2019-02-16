@@ -10,14 +10,13 @@ package sm.providing;
 
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import sm.cimi.CimiInterface;
-import sm.elements.*;
+import sm.elements.QosModel;
+import sm.elements.ServiceInstance;
+import sm.elements.SlaViolation;
 import sm.providing.learning.LearningModel;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static sm.Parameters.EPSILON;
-import static sm.Parameters.PROVIDER_TRAINING_ITERATIONS;
 
 public class QosProvider {
 
@@ -40,42 +39,40 @@ public class QosProvider {
             serviceInstance.getAgents().get(i).setAllow(false);
    }
 
-   public QosModel getQosModel(String serviceId, String agreementId, ServiceInstance serviceInstance, List<SlaViolation> slaViolations) {
+   public QosModel getQosModel(String serviceId, String agreementId, ServiceInstance serviceInstance) {
       List<String> agentsIds = new ArrayList<>();
       for (int i = 0; i < serviceInstance.getAgents().size(); i++)
          agentsIds.add(serviceInstance.getAgents().get(i).getId());
       QosModel qosModel = CimiInterface.getQosModel(serviceId, agreementId, agentsIds);
-      if (qosModel == null) {
+      if (qosModel == null)
          qosModel = new QosModel(serviceId, agreementId, agentsIds);
-         qosModel.setViolationRatio(calculateSlaViolationRatio(slaViolations, qosModel));
-      }
       return qosModel;
    }
 
-   public ServiceInstance check(QosModel qosModel, ServiceInstance serviceInstance, int trainingIterations) {
+   public ServiceInstance check(QosModel qosModel, ServiceInstance serviceInstance, boolean isTraining, boolean isFailure) {
       LearningModel learningModel;
-      if (trainingIterations > 0) {
-         learningModel = new LearningModel(qosModel, null, serviceInstance.getAgents().size());
-         learningModel.run(trainingIterations, EPSILON);
-      } else {
+      if (qosModel.getConfig() != null) {
          MultiLayerConfiguration conf = MultiLayerConfiguration.fromJson(qosModel.getConfig());
          learningModel = new LearningModel(qosModel, conf, serviceInstance.getAgents().size());
-         learningModel.run(0, 0);
-      }
+      } else
+         learningModel = new LearningModel(qosModel, null, serviceInstance.getAgents().size());
+      learningModel.run(isTraining);
+      qosModel.setViolationRatio(calculateViolationRatio(isFailure, qosModel));
       qosModel.setConfig(learningModel.getConf().toJson());
       float[] agents = learningModel.getOutput();
       setAcceptedAgents(agents, serviceInstance);
       return serviceInstance;
    }
 
-   private float calculateSlaViolationRatio(List<SlaViolation> slaViolations, QosModel qosModel) {
-      int numServiceFailures = qosModel.getNumServiceFailures();
-      numServiceFailures += slaViolations.size();
-      qosModel.setNumServiceFailures(numServiceFailures);
+   private float calculateViolationRatio(boolean isFailure, QosModel qosModel) {
+      if (isFailure) {
+         int numServiceFailures = qosModel.getNumServiceFailures();
+         numServiceFailures++;
+         qosModel.setNumServiceFailures(numServiceFailures);
+      }
       int numServiceInstances = qosModel.getNumServiceInstances();
       numServiceInstances++;
       qosModel.setNumServiceInstances(numServiceInstances);
-      float ratio = (float) numServiceFailures / numServiceInstances;
-      return ratio;
+      return (float) qosModel.getNumServiceFailures() / numServiceInstances;
    }
 }

@@ -40,7 +40,7 @@ public class QosModel {
       this.agreementId = agreementId;
       this.agentsIds = agentsIds;
       this.violationRatio = 0;
-      this.numServiceInstances = 1;
+      this.numServiceInstances = 0;
       this.numServiceFailures = 0;
    }
 
