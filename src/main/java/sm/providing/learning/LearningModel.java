@@ -19,27 +19,22 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import sm.elements.QosModel;
 
 import static sm.Parameters.*;
 
 public class LearningModel {
-   private static final Logger log = LoggerFactory.getLogger(LearningModel.class);
    private DeepQ deepQ;
    private MultiLayerConfiguration conf;
-   private double violationRatio;
-   private float[] output;
+   private QosModel qosModel;
 
    public LearningModel(QosModel qosModel, MultiLayerConfiguration conf, int outputLength) {
-      this.violationRatio = qosModel.getViolationRatio();
+      this.qosModel = qosModel;
       if (conf == null) initializeModel(outputLength + 1, outputLength);
-      else initializeModel(conf, outputLength + 1, outputLength);
+      else initializeModel(conf, outputLength + 1);
    }
 
    private void initializeModel(int inputLength, int outputLength) {
-      output = new float[outputLength];
       conf = new NeuralNetConfiguration.Builder()
               .seed(123)
               .iterations(1)
@@ -65,78 +60,44 @@ public class LearningModel {
       deepQ = new DeepQ(conf, MEMORY_CAPACITY, DISCOUNT_FACTOR, BATCH_SIZE, FREQUENCY, START_SIZE, inputLength);
    }
 
-   private void initializeModel(MultiLayerConfiguration conf, int inputLength, int outputLength) {
+   private void initializeModel(MultiLayerConfiguration conf, int inputLength) {
       this.conf = conf;
-      output = new float[outputLength];
       deepQ = new DeepQ(conf, MEMORY_CAPACITY, DISCOUNT_FACTOR, BATCH_SIZE, FREQUENCY, START_SIZE, inputLength);
    }
 
-   private float[] generateEnvironment() {
-      return new float[output.length + 1];
-   }
-
-   public void run(boolean isTraining) {
-      float[] environment = generateEnvironment();
+   public float[] run(boolean isTraining, float[] environment) {
       initializeModel(environment.length, environment.length - 1);
+      double epsilon = 0;
       if (isTraining)
-         run(environment, EPSILON);
-      else
-         run(environment, 0);
+         epsilon = EPSILON;
+      INDArray inputIndArray = Nd4j.create(environment);
+      int action = deepQ.getAction(inputIndArray, epsilon);
+      return modifyEnvironment(environment, action);
    }
 
-   private void run(float[] environment, double epsilon) {
-      float maxReward = computeMaxReward();
-      float[] localEnvironment = environment.clone();
-      int timeStep = 0;
-      int action;
-      while (true) {
-         INDArray inputIndArray = Nd4j.create(localEnvironment);
-         action = deepQ.getAction(inputIndArray, epsilon);
-         modifyEnvironment(localEnvironment, action);
-         double reward = computeReward(localEnvironment);
-         timeStep++;
-         localEnvironment[localEnvironment.length - 1] = timeStep;
-         if (reward >= maxReward * THRESHOLD) {
-            deepQ.observeReward(inputIndArray, null, reward);
-            if (localEnvironment.length - 1 >= 0)
-               System.arraycopy(localEnvironment, 0, output, 0, localEnvironment.length - 1);
-            break;
-         } else
-            deepQ.observeReward(inputIndArray, Nd4j.create(localEnvironment), reward);
-      }
+   public void observeReward(float[] environment, float[] nextEnvironment) {
+      float reward = computeReward(environment);
+      deepQ.observeReward(Nd4j.create(environment), Nd4j.create(nextEnvironment), reward);
    }
 
-   private void modifyEnvironment(float[] environment, int action) {
+   private float[] modifyEnvironment(float[] environment, int action) {
+      float[] nextEnvironment = new float[environment.length];
       if (environment[action] == 1)
-         environment[action] = 0;
-      else environment[action] = 1;
+         nextEnvironment[action] = 0;
+      else nextEnvironment[action] = 1;
+      nextEnvironment[nextEnvironment.length - 1] = nextEnvironment[nextEnvironment.length - 1] + 1;
+      return nextEnvironment;
    }
 
    private float computeReward(float[] environment) {
       float reward = 0;
       for (int i = 0; i < environment.length - 1; i++) {
          if (environment[i] == 0)
-            reward += -violationRatio + 1;
+            reward += -qosModel.getViolationRatio() + 1;
          else
-            reward += 2 * violationRatio - 1;
+            reward += 2 * qosModel.getViolationRatio() - 1;
       }
       return reward;
-   }
-
-   private float computeMaxReward() {
-      float reward = 0;
-      float intersectionPoint = 2.f / 3;
-      for (int i = 0; i < output.length; i++) {
-         if (violationRatio <= intersectionPoint)
-            reward += -violationRatio + 1;
-         else
-            reward += 2 * violationRatio - 1;
-      }
-      return reward;
-   }
-
-   public float[] getOutput() {
-      return output;
    }
 
    public MultiLayerConfiguration getConf() {

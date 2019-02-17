@@ -26,17 +26,22 @@ public class QosProvider {
          float[] agents = new float[numOfAgents];
          for (int i = 0; i < agents.length; i++)
             agents[i] = 1;
-         setAcceptedAgents(agents, serviceInstance);
+         setAcceptedAgentsToServiceInstance(agents, serviceInstance);
       }
       return serviceInstance;
    }
 
-   private void setAcceptedAgents(float[] acceptedAgents, ServiceInstance serviceInstance) {
+   private void setAcceptedAgentsToServiceInstance(float[] environment, ServiceInstance serviceInstance) {
       for (int i = 0; i < serviceInstance.getAgents().size(); i++)
-         if (acceptedAgents[i] == 0.0)
+         if (environment[i] == 0.0)
             serviceInstance.getAgents().get(i).setAllow(true);
          else
             serviceInstance.getAgents().get(i).setAllow(false);
+   }
+
+   private void setBlockedAgentsToQosModel(float[] environment, QosModel qosModel) {
+      for (int i = 0; i < qosModel.getBlockedAgents().length; i++)
+         qosModel.getBlockedAgents()[i] = environment[i] == 1;
    }
 
    public QosModel getQosModel(String serviceId, String agreementId, ServiceInstance serviceInstance) {
@@ -56,12 +61,24 @@ public class QosProvider {
          learningModel = new LearningModel(qosModel, conf, serviceInstance.getAgents().size());
       } else
          learningModel = new LearningModel(qosModel, null, serviceInstance.getAgents().size());
-      learningModel.run(isTraining);
+      float[] environment = createEnvironment(qosModel.getBlockedAgents(), qosModel.getNumServiceInstances());
+      float[] nextEnvironment = learningModel.run(isTraining, environment);
       qosModel.setViolationRatio(calculateViolationRatio(isFailure, qosModel));
+      learningModel.observeReward(environment, nextEnvironment);
       qosModel.setConfig(learningModel.getConf().toJson());
-      float[] agents = learningModel.getOutput();
-      setAcceptedAgents(agents, serviceInstance);
+      if (!isTraining)
+         setAcceptedAgentsToServiceInstance(nextEnvironment, serviceInstance);
+      setBlockedAgentsToQosModel(nextEnvironment, qosModel);
       return serviceInstance;
+   }
+
+   private float[] createEnvironment(boolean[] blockedAgents, int numOfServiceInstances) {
+      float[] environment = new float[blockedAgents.length + 1];
+      for (int i = 0; i < blockedAgents.length; i++)
+         if (blockedAgents[i])
+            environment[i] = 1;
+      environment[environment.length - 1] = numOfServiceInstances;
+      return environment;
    }
 
    private float calculateViolationRatio(boolean isFailure, QosModel qosModel) {

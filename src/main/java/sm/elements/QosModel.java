@@ -24,6 +24,8 @@ public class QosModel {
    private String agreementId;
    @JsonProperty("agents_ids")
    private List<String> agentsIds;
+   @JsonProperty("used_agents")
+   private boolean[] blockedAgents;
    private String config;
    @JsonProperty("violation_ratio")
    private float violationRatio;
@@ -39,25 +41,10 @@ public class QosModel {
       this.serviceId = serviceId;
       this.agreementId = agreementId;
       this.agentsIds = agentsIds;
+      this.blockedAgents = new boolean[agentsIds.size()];
       this.violationRatio = 0;
       this.numServiceInstances = 0;
       this.numServiceFailures = 0;
-   }
-
-   public List<String> getAgentsIds() {
-      return agentsIds;
-   }
-
-   public void setAgentsIds(List<String> agentsIds) {
-      this.agentsIds = agentsIds;
-   }
-
-   public String getConfig() {
-      return config;
-   }
-
-   public void setConfig(String config) {
-      this.config = config;
    }
 
    public String getServiceId() {
@@ -74,6 +61,30 @@ public class QosModel {
 
    public void setAgreementId(String agreementId) {
       this.agreementId = agreementId;
+   }
+
+   public List<String> getAgentsIds() {
+      return agentsIds;
+   }
+
+   public void setAgentsIds(List<String> agentsIds) {
+      this.agentsIds = agentsIds;
+   }
+
+   public boolean[] getBlockedAgents() {
+      return blockedAgents;
+   }
+
+   public void setBlockedAgents(boolean[] blockedAgents) {
+      this.blockedAgents = blockedAgents;
+   }
+
+   public String getConfig() {
+      return config;
+   }
+
+   public void setConfig(String config) {
+      this.config = config;
    }
 
    public float getViolationRatio() {

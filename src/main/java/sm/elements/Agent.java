@@ -25,7 +25,7 @@ public class Agent {
 
    public Agent(String id) {
       this.id = id;
-      this.allow = false;
+      this.allow = true;
    }
 
    public String getId() {
