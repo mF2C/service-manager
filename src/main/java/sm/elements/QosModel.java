@@ -24,15 +24,19 @@ public class QosModel {
    private String agreementId;
    @JsonProperty("agents_ids")
    private List<String> agentsIds;
-   @JsonProperty("used_agents")
-   private boolean[] blockedAgents;
    private String config;
-   @JsonProperty("violation_ratio")
-   private float violationRatio;
    @JsonProperty("num_service_instances")
    private Integer numServiceInstances;
    @JsonProperty("num_service_failures")
    private Integer numServiceFailures;
+   private float[] state;
+   @JsonProperty("next_state")
+   private float[] nextState;
+   @JsonProperty("sla_violation_ratio")
+   private float slaViolationRatio;
+   @JsonProperty("last_action")
+   private int lastAction;
+   private int counter;
 
    public QosModel() {
    }
@@ -41,10 +45,9 @@ public class QosModel {
       this.serviceId = serviceId;
       this.agreementId = agreementId;
       this.agentsIds = agentsIds;
-      this.blockedAgents = new boolean[agentsIds.size()];
-      this.violationRatio = 0;
       this.numServiceInstances = 0;
       this.numServiceFailures = 0;
+      this.state = new float[agentsIds.size() + 2];
    }
 
    public String getServiceId() {
@@ -71,28 +74,12 @@ public class QosModel {
       this.agentsIds = agentsIds;
    }
 
-   public boolean[] getBlockedAgents() {
-      return blockedAgents;
-   }
-
-   public void setBlockedAgents(boolean[] blockedAgents) {
-      this.blockedAgents = blockedAgents;
-   }
-
    public String getConfig() {
       return config;
    }
 
    public void setConfig(String config) {
       this.config = config;
-   }
-
-   public float getViolationRatio() {
-      return violationRatio;
-   }
-
-   public void setViolationRatio(float violationRatio) {
-      this.violationRatio = violationRatio;
    }
 
    public Integer getNumServiceInstances() {
@@ -109,5 +96,45 @@ public class QosModel {
 
    public void setNumServiceFailures(Integer numServiceFailures) {
       this.numServiceFailures = numServiceFailures;
+   }
+
+   public float[] getState() {
+      return state;
+   }
+
+   public void setState(float[] state) {
+      this.state = state;
+   }
+
+   public float[] getNextState() {
+      return nextState;
+   }
+
+   public void setNextState(float[] nextState) {
+      this.nextState = nextState;
+   }
+
+   public float getSlaViolationRatio() {
+      return slaViolationRatio;
+   }
+
+   public void setSlaViolationRatio(float slaViolationRatio) {
+      this.slaViolationRatio = slaViolationRatio;
+   }
+
+   public int getLastAction() {
+      return lastAction;
+   }
+
+   public void setLastAction(int lastAction) {
+      this.lastAction = lastAction;
+   }
+
+   public int getCounter() {
+      return counter;
+   }
+
+   public void setCounter(int counter) {
+      this.counter = counter;
    }
 }

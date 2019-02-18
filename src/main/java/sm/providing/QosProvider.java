@@ -39,11 +39,6 @@ public class QosProvider {
             serviceInstance.getAgents().get(i).setAllow(false);
    }
 
-   private void setBlockedAgentsToQosModel(float[] environment, QosModel qosModel) {
-      for (int i = 0; i < qosModel.getBlockedAgents().length; i++)
-         qosModel.getBlockedAgents()[i] = environment[i] == 1;
-   }
-
    public QosModel getQosModel(String serviceId, String agreementId, ServiceInstance serviceInstance) {
       List<String> agentsIds = new ArrayList<>();
       for (int i = 0; i < serviceInstance.getAgents().size(); i++)
@@ -54,35 +49,39 @@ public class QosProvider {
       return qosModel;
    }
 
-   public ServiceInstance check(QosModel qosModel, ServiceInstance serviceInstance, boolean isTraining, boolean isFailure) {
-      LearningModel learningModel;
-      if (qosModel.getConfig() != null) {
-         MultiLayerConfiguration conf = MultiLayerConfiguration.fromJson(qosModel.getConfig());
-         learningModel = new LearningModel(qosModel, conf, serviceInstance.getAgents().size());
-      } else
-         learningModel = new LearningModel(qosModel, null, serviceInstance.getAgents().size());
-      float[] environment = createEnvironment(qosModel.getBlockedAgents(), qosModel.getNumServiceInstances());
-      float[] nextEnvironment = learningModel.run(isTraining, environment);
-      qosModel.setViolationRatio(calculateViolationRatio(isFailure, qosModel));
-      learningModel.observeReward(environment, nextEnvironment);
+   public ServiceInstance check(QosModel qosModel, ServiceInstance serviceInstance, boolean isTraining, float isFailure) {
+      LearningModel learningModel = getLearningModel(qosModel, serviceInstance);
+      float[] environment = qosModel.getState();
+      float[] nextEnvironment = qosModel.getNextState();
+      if (nextEnvironment != null) {
+         nextEnvironment[nextEnvironment.length - 2] = isFailure;
+         int counter = learningModel.observeReward(environment, nextEnvironment, qosModel.getLastAction(), qosModel.getCounter());
+         qosModel.setCounter(counter);
+         environment = nextEnvironment;
+      }
+      int action = learningModel.takeAction(isTraining, environment, qosModel.getLastAction());
+      nextEnvironment = learningModel.modifyEnvironment(environment, action);
+      qosModel.setState(environment);
+      qosModel.setNextState(nextEnvironment);
+      qosModel.setLastAction(action);
       qosModel.setConfig(learningModel.getConf().toJson());
-      if (!isTraining)
-         setAcceptedAgentsToServiceInstance(nextEnvironment, serviceInstance);
-      setBlockedAgentsToQosModel(nextEnvironment, qosModel);
+      qosModel.setSlaViolationRatio(calculateViolationRatio(isFailure, qosModel));
+      setAcceptedAgentsToServiceInstance(nextEnvironment, serviceInstance);
       return serviceInstance;
    }
 
-   private float[] createEnvironment(boolean[] blockedAgents, int numOfServiceInstances) {
-      float[] environment = new float[blockedAgents.length + 1];
-      for (int i = 0; i < blockedAgents.length; i++)
-         if (blockedAgents[i])
-            environment[i] = 1;
-      environment[environment.length - 1] = numOfServiceInstances;
-      return environment;
+   private LearningModel getLearningModel(QosModel qosModel, ServiceInstance serviceInstance) {
+      LearningModel learningModel;
+      if (qosModel.getConfig() != null) {
+         MultiLayerConfiguration conf = MultiLayerConfiguration.fromJson(qosModel.getConfig());
+         learningModel = new LearningModel(conf, serviceInstance.getAgents().size());
+      } else
+         learningModel = new LearningModel(null, serviceInstance.getAgents().size());
+      return learningModel;
    }
 
-   private float calculateViolationRatio(boolean isFailure, QosModel qosModel) {
-      if (isFailure) {
+   private float calculateViolationRatio(float isFailure, QosModel qosModel) {
+      if (isFailure == 1) {
          int numServiceFailures = qosModel.getNumServiceFailures();
          numServiceFailures++;
          qosModel.setNumServiceFailures(numServiceFailures);

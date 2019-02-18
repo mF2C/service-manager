@@ -30,38 +30,31 @@ public class QosProviderTest {
       serviceInstance.setAgents(agents);
    }
 
-   private boolean createConditionFirstAgentFails(ServiceInstance serviceInstance) {
-      boolean isFailure = false;
+   private float checkIfFirstAgentFails(ServiceInstance serviceInstance) {
+      float isFailure = 0;
       if (serviceInstance.getAgents().get(0).isAllow())
-         isFailure = true;
+         isFailure = 1;
       if (!serviceInstance.getAgents().get(1).isAllow() || !serviceInstance.getAgents().get(2).isAllow() || !serviceInstance.getAgents().get(3).isAllow())
-         isFailure = true;
+         isFailure = 1;
       return isFailure;
    }
 
    @Test
    public void testQosProvider() {
-      int serviceExecutions = 100;
+      int serviceExecutions = 200;
       QosProvider qosProvider = new QosProvider();
       QosModel qosModel = qosProvider.getQosModel(serviceId, agreementId, serviceInstance);
       log.info("Starting training period...");
       for (int j = 0; j < serviceExecutions; j++) {
          log.info("Service instance iteration " + j);
-         serviceInstance = qosProvider.check(qosModel, serviceInstance, true, createConditionFirstAgentFails(serviceInstance));
+         serviceInstance = qosProvider.check(qosModel, serviceInstance, true, checkIfFirstAgentFails(serviceInstance));
       }
-      for (Agent a : serviceInstance.getAgents())
-         a.setAllow(true);
       log.info("Starting evaluation period...");
-      for (int j = 0; j < serviceExecutions; j++) {
-         serviceInstance = qosProvider.check(qosModel, serviceInstance, false, createConditionFirstAgentFails(serviceInstance));
-         log.info("Service instance iteration " + j);
-         for (int i = 0; i < serviceInstance.getAgents().size(); i++) {
-            log.info("agent: " + i + " is set " + serviceInstance.getAgents().get(i).isAllow());
-//            if (i == 0)
-//               assertFalse(!serviceInstance.getAgents().get(i).isAllow());
-//            else
-//               assertTrue(serviceInstance.getAgents().get(i).isAllow());
-         }
-      }
+      int i = 0;
+      do {
+         log.info("Service instance iteration " + i);
+         serviceInstance = qosProvider.check(qosModel, serviceInstance, false, checkIfFirstAgentFails(serviceInstance));
+         i++;
+      } while (checkIfFirstAgentFails(serviceInstance) != 0);
    }
 }

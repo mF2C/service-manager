@@ -26,12 +26,12 @@ import static sm.Parameters.*;
 public class LearningModel {
    private DeepQ deepQ;
    private MultiLayerConfiguration conf;
-   private QosModel qosModel;
 
-   public LearningModel(QosModel qosModel, MultiLayerConfiguration conf, int outputLength) {
-      this.qosModel = qosModel;
-      if (conf == null) initializeModel(outputLength + 1, outputLength);
-      else initializeModel(conf, outputLength + 1);
+   public LearningModel(MultiLayerConfiguration conf, int numAgents) {
+      int inputLength = numAgents + 2;
+      int outputLength = numAgents * 2;
+      if (conf == null) initializeModel(inputLength, outputLength);
+      else initializeModel(conf, inputLength);
    }
 
    private void initializeModel(int inputLength, int outputLength) {
@@ -65,37 +65,57 @@ public class LearningModel {
       deepQ = new DeepQ(conf, MEMORY_CAPACITY, DISCOUNT_FACTOR, BATCH_SIZE, FREQUENCY, START_SIZE, inputLength);
    }
 
-   public float[] run(boolean isTraining, float[] environment) {
-      initializeModel(environment.length, environment.length - 1);
+   public int takeAction(boolean isTraining, float[] environment, int lastAction) {
       double epsilon = 0;
       if (isTraining)
          epsilon = EPSILON;
       INDArray inputIndArray = Nd4j.create(environment);
-      int action = deepQ.getAction(inputIndArray, epsilon);
-      return modifyEnvironment(environment, action);
+      int[] actionMask = generateActionMask(environment, lastAction);
+      return deepQ.getAction(inputIndArray, actionMask, epsilon, lastAction);
    }
 
-   public void observeReward(float[] environment, float[] nextEnvironment) {
-      float reward = computeReward(environment);
-      deepQ.observeReward(Nd4j.create(environment), Nd4j.create(nextEnvironment), reward);
+   public int observeReward(float[] environment, float[] nextEnvironment, int lastAction, int counter) {
+      float reward = computeReward(nextEnvironment);
+      int[] nextActionMask = generateActionMask(nextEnvironment, lastAction);
+      return deepQ.observeReward(Nd4j.create(environment), Nd4j.create(nextEnvironment), reward, nextActionMask, lastAction, counter);
    }
 
-   private float[] modifyEnvironment(float[] environment, int action) {
-      float[] nextEnvironment = new float[environment.length];
-      if (environment[action] == 1)
-         nextEnvironment[action] = 0;
-      else nextEnvironment[action] = 1;
+   private int[] generateActionMask(float[] environment, int lastAction) {
+      int[] actionMask = new int[(environment.length - 2) * 2];
+      for (int i = 0; i < environment.length - 2; i++) {
+         if (environment[i] == 0)
+            actionMask[i * 2 + 1] = 1;
+         else
+            actionMask[i * 2] = 1;
+      }
+      actionMask[lastAction] = 0;
+      return actionMask;
+   }
+
+   public float[] modifyEnvironment(float[] environment, int action) {
+      float[] nextEnvironment = environment.clone();
+      if (action % 2 == 1)
+         nextEnvironment[action / 2] = 1;
+      else nextEnvironment[action / 2] = 0;
       nextEnvironment[nextEnvironment.length - 1] = nextEnvironment[nextEnvironment.length - 1] + 1;
       return nextEnvironment;
    }
 
    private float computeReward(float[] environment) {
       float reward = 0;
-      for (int i = 0; i < environment.length - 1; i++) {
-         if (environment[i] == 0)
-            reward += -qosModel.getViolationRatio() + 1;
-         else
-            reward += 2 * qosModel.getViolationRatio() - 1;
+      for (int i = 0; i < environment.length - 2; i++) {
+         // is allowed and no failure
+         if (environment[i] == 0 && environment[environment.length - 2] == 0)
+            reward += 10;
+            // is allowed and failure
+         else if (environment[i] == 0 && environment[environment.length - 2] == 1)
+            reward += -10;
+            // is not allowed and no failure
+         else if (environment[i] == 1 && environment[environment.length - 2] == 0)
+            reward += 10;
+            // is not allowed and failure
+         else if (environment[i] == 1 && environment[environment.length - 2] == 1)
+            reward += -10;
       }
       return reward;
    }
