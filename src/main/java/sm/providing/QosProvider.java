@@ -31,14 +31,6 @@ public class QosProvider {
       return serviceInstance;
    }
 
-   private void setAcceptedAgentsToServiceInstance(float[] environment, ServiceInstance serviceInstance) {
-      for (int i = 0; i < serviceInstance.getAgents().size(); i++)
-         if (environment[i] == 0.0)
-            serviceInstance.getAgents().get(i).setAllow(true);
-         else
-            serviceInstance.getAgents().get(i).setAllow(false);
-   }
-
    public QosModel getQosModel(String serviceId, String agreementId, ServiceInstance serviceInstance) {
       List<String> agentsIds = new ArrayList<>();
       for (int i = 0; i < serviceInstance.getAgents().size(); i++)
@@ -49,28 +41,7 @@ public class QosProvider {
       return qosModel;
    }
 
-   public ServiceInstance check(QosModel qosModel, ServiceInstance serviceInstance, boolean isTraining, float isFailure) {
-      LearningModel learningModel = getLearningModel(qosModel, serviceInstance);
-      float[] environment = qosModel.getState();
-      float[] nextEnvironment = qosModel.getNextState();
-      if (nextEnvironment != null) {
-         nextEnvironment[nextEnvironment.length - 2] = isFailure;
-         int counter = learningModel.observeReward(environment, nextEnvironment, qosModel.getLastAction(), qosModel.getCounter());
-         qosModel.setCounter(counter);
-         environment = nextEnvironment;
-      }
-      int action = learningModel.takeAction(isTraining, environment, qosModel.getLastAction());
-      nextEnvironment = learningModel.modifyEnvironment(environment, action);
-      qosModel.setState(environment);
-      qosModel.setNextState(nextEnvironment);
-      qosModel.setLastAction(action);
-      qosModel.setConfig(learningModel.getConf().toJson());
-      qosModel.setSlaViolationRatio(calculateViolationRatio(isFailure, qosModel));
-      setAcceptedAgentsToServiceInstance(nextEnvironment, serviceInstance);
-      return serviceInstance;
-   }
-
-   private LearningModel getLearningModel(QosModel qosModel, ServiceInstance serviceInstance) {
+   public LearningModel getLearningModel(QosModel qosModel, ServiceInstance serviceInstance) {
       LearningModel learningModel;
       if (qosModel.getConfig() != null) {
          MultiLayerConfiguration conf = MultiLayerConfiguration.fromJson(qosModel.getConfig());
@@ -80,15 +51,31 @@ public class QosProvider {
       return learningModel;
    }
 
-   private float calculateViolationRatio(float isFailure, QosModel qosModel) {
-      if (isFailure == 1) {
-         int numServiceFailures = qosModel.getNumServiceFailures();
-         numServiceFailures++;
-         qosModel.setNumServiceFailures(numServiceFailures);
+   public ServiceInstance check(QosModel qosModel, ServiceInstance serviceInstance, LearningModel learningModel, boolean isTraining, float isFailure) {
+      float[] environment = qosModel.getState();
+      float[] nextEnvironment = qosModel.getNextState();
+      if (nextEnvironment != null) {
+         nextEnvironment[nextEnvironment.length - 2] = isFailure;
+         learningModel.observeReward(environment, nextEnvironment);
+         environment = nextEnvironment;
       }
-      int numServiceInstances = qosModel.getNumServiceInstances();
-      numServiceInstances++;
-      qosModel.setNumServiceInstances(numServiceInstances);
-      return (float) qosModel.getNumServiceFailures() / numServiceInstances;
+      int action = learningModel.takeAction(isTraining, environment);
+      nextEnvironment = learningModel.modifyEnvironment(environment, action);
+      qosModel.setState(environment);
+      qosModel.setNextState(nextEnvironment);
+      qosModel.setConfig(learningModel.getConf().toJson());
+      if (isFailure == 1)
+         qosModel.increaseNumServiceFailuresValue();
+      qosModel.increaseNumServiceInstanceValue();
+      setAcceptedAgentsToServiceInstance(nextEnvironment, serviceInstance);
+      return serviceInstance;
+   }
+
+   private void setAcceptedAgentsToServiceInstance(float[] environment, ServiceInstance serviceInstance) {
+      for (int i = 0; i < serviceInstance.getAgents().size(); i++)
+         if (environment[i] == 0.0)
+            serviceInstance.getAgents().get(i).setAllow(true);
+         else
+            serviceInstance.getAgents().get(i).setAllow(false);
    }
 }

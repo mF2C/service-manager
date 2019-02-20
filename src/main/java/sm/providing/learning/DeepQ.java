@@ -24,7 +24,7 @@ class DeepQ {
 
    private MultiLayerNetwork multiLayerNetwork, targetMultiLayerNetwork;
    private List<Experience> experiences;
-   private int startSize, batchSize, freq, inputLength, memoryCapacity;
+   private int startSize, batchSize, freq, inputLength, memoryCapacity, lastAction, counter;
    private float discount;
    private Random rnd;
 
@@ -41,10 +41,12 @@ class DeepQ {
       this.freq = freq;
       this.startSize = startSize;
       this.inputLength = inputLength;
+      this.lastAction = -1;
+      this.counter = 0;
       this.rnd = new Random();
    }
 
-   int getAction(INDArray input, int[] actionMask, double epsilon, int lastAction) {
+   int getAction(INDArray input, int[] actionMask, double epsilon) {
       INDArray indArrayOutput = multiLayerNetwork.output(input);
       boolean isValid = false;
       if (epsilon > rnd.nextDouble()) {
@@ -81,7 +83,7 @@ class DeepQ {
       return maxValue;
    }
 
-   int observeReward(INDArray inputIndArray, INDArray nextInputIndArray, double reward, int[] nextActionMask, int lastAction, int counter) {
+   int observeReward(INDArray inputIndArray, INDArray nextInputIndArray, double reward, int[] nextActionMask) {
       if (experiences.size() >= memoryCapacity)
          experiences.remove(rnd.nextInt(experiences.size()));
       experiences.add(new Experience(inputIndArray, nextInputIndArray, lastAction, (float) reward, nextActionMask));
@@ -133,5 +135,9 @@ class DeepQ {
          if (actionArray[i].getNextInputIndArray() != null)
             combinedNextInputs.putRow(i, actionArray[i].getNextInputIndArray());
       return combinedNextInputs;
+   }
+
+   public int getLastAction() {
+      return lastAction;
    }
 }

@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import sm.elements.Agent;
 import sm.elements.QosModel;
 import sm.elements.ServiceInstance;
+import sm.providing.learning.LearningModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,20 +42,24 @@ public class QosProviderTest {
 
    @Test
    public void testQosProvider() {
-      int serviceExecutions = 200;
+      int serviceExecutions = 1500;
       QosProvider qosProvider = new QosProvider();
       QosModel qosModel = qosProvider.getQosModel(serviceId, agreementId, serviceInstance);
+      LearningModel learningModel = qosProvider.getLearningModel(qosModel, serviceInstance);
       log.info("Starting training period...");
       for (int j = 0; j < serviceExecutions; j++) {
-         log.info("Service instance iteration " + j);
-         serviceInstance = qosProvider.check(qosModel, serviceInstance, true, checkIfFirstAgentFails(serviceInstance));
+         if (j % 100 == 0)
+            log.info("Service instance iteration " + j);
+         serviceInstance = qosProvider.check(qosModel, serviceInstance, learningModel, true, checkIfFirstAgentFails(serviceInstance));
       }
       log.info("Starting evaluation period...");
       int i = 0;
       do {
-         log.info("Service instance iteration " + i);
-         serviceInstance = qosProvider.check(qosModel, serviceInstance, false, checkIfFirstAgentFails(serviceInstance));
+         if (i % 100 == 0)
+            log.info("Service instance iteration " + i);
+         serviceInstance = qosProvider.check(qosModel, serviceInstance, learningModel, false, checkIfFirstAgentFails(serviceInstance));
          i++;
       } while (checkIfFirstAgentFails(serviceInstance) != 0);
+      log.info("Optimal solution found in " + i + " iterations");
    }
 }

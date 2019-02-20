@@ -65,22 +65,22 @@ public class LearningModel {
       deepQ = new DeepQ(conf, MEMORY_CAPACITY, DISCOUNT_FACTOR, BATCH_SIZE, FREQUENCY, START_SIZE, inputLength);
    }
 
-   public int takeAction(boolean isTraining, float[] environment, int lastAction) {
+   public int takeAction(boolean isTraining, float[] environment) {
       double epsilon = 0;
       if (isTraining)
          epsilon = EPSILON;
       INDArray inputIndArray = Nd4j.create(environment);
-      int[] actionMask = generateActionMask(environment, lastAction);
-      return deepQ.getAction(inputIndArray, actionMask, epsilon, lastAction);
+      int[] actionMask = generateActionMask(environment);
+      return deepQ.getAction(inputIndArray, actionMask, epsilon);
    }
 
-   public int observeReward(float[] environment, float[] nextEnvironment, int lastAction, int counter) {
+   public void observeReward(float[] environment, float[] nextEnvironment) {
       float reward = computeReward(nextEnvironment);
-      int[] nextActionMask = generateActionMask(nextEnvironment, lastAction);
-      return deepQ.observeReward(Nd4j.create(environment), Nd4j.create(nextEnvironment), reward, nextActionMask, lastAction, counter);
+      int[] nextActionMask = generateActionMask(nextEnvironment);
+      deepQ.observeReward(Nd4j.create(environment), Nd4j.create(nextEnvironment), reward, nextActionMask);
    }
 
-   private int[] generateActionMask(float[] environment, int lastAction) {
+   private int[] generateActionMask(float[] environment) {
       int[] actionMask = new int[(environment.length - 2) * 2];
       for (int i = 0; i < environment.length - 2; i++) {
          if (environment[i] == 0)
@@ -88,7 +88,8 @@ public class LearningModel {
          else
             actionMask[i * 2] = 1;
       }
-      actionMask[lastAction] = 0;
+      if (deepQ.getLastAction() >= 0)
+         actionMask[deepQ.getLastAction()] = 0;
       return actionMask;
    }
 

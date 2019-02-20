@@ -32,11 +32,6 @@ public class QosModel {
    private float[] state;
    @JsonProperty("next_state")
    private float[] nextState;
-   @JsonProperty("sla_violation_ratio")
-   private float slaViolationRatio;
-   @JsonProperty("last_action")
-   private int lastAction;
-   private int counter;
 
    public QosModel() {
    }
@@ -48,6 +43,14 @@ public class QosModel {
       this.numServiceInstances = 0;
       this.numServiceFailures = 0;
       this.state = new float[agentsIds.size() + 2];
+   }
+
+   public void increaseNumServiceInstanceValue() {
+      numServiceInstances++;
+   }
+
+   public void increaseNumServiceFailuresValue() {
+      numServiceFailures++;
    }
 
    public String getServiceId() {
@@ -112,29 +115,5 @@ public class QosModel {
 
    public void setNextState(float[] nextState) {
       this.nextState = nextState;
-   }
-
-   public float getSlaViolationRatio() {
-      return slaViolationRatio;
-   }
-
-   public void setSlaViolationRatio(float slaViolationRatio) {
-      this.slaViolationRatio = slaViolationRatio;
-   }
-
-   public int getLastAction() {
-      return lastAction;
-   }
-
-   public void setLastAction(int lastAction) {
-      this.lastAction = lastAction;
-   }
-
-   public int getCounter() {
-      return counter;
-   }
-
-   public void setCounter(int counter) {
-      this.counter = counter;
    }
 }
