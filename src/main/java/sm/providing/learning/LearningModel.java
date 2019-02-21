@@ -37,10 +37,7 @@ public class LearningModel {
    private void initializeModel(int inputLength, int outputLength) {
       conf = new NeuralNetConfiguration.Builder()
               .seed(123)
-              .iterations(1)
               .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-              .learningRate(0.0025)
-              .updater(Updater.NESTEROVS)
               .list()
               .layer(0, new DenseLayer.Builder()
                       .nIn(inputLength)
@@ -54,8 +51,6 @@ public class LearningModel {
                       .weightInit(WeightInit.XAVIER)
                       .activation(Activation.IDENTITY)
                       .build())
-              .pretrain(false)
-              .backprop(true)
               .build();
       deepQ = new DeepQ(conf, MEMORY_CAPACITY, DISCOUNT_FACTOR, BATCH_SIZE, FREQUENCY, START_SIZE, inputLength);
    }

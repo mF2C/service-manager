@@ -42,7 +42,7 @@ public class QosProviderTest {
 
    @Test
    public void testQosProvider() {
-      int serviceExecutions = 2000;
+      int serviceExecutions = 100;
       QosProvider qosProvider = new QosProvider();
       QosModel qosModel = qosProvider.getQosModel(serviceId, agreementId, serviceInstance);
       LearningModel learningModel = qosProvider.getLearningModel(qosModel, serviceInstance);
@@ -53,13 +53,15 @@ public class QosProviderTest {
          serviceInstance = qosProvider.check(qosModel, serviceInstance, learningModel, true, checkIfFirstAgentFails(serviceInstance));
       }
       log.info("Starting evaluation period...");
-      int i = 0;
-      do {
-         if (i % 100 == 0)
-            log.info("Service instance iteration " + i);
-         serviceInstance = qosProvider.check(qosModel, serviceInstance, learningModel, false, checkIfFirstAgentFails(serviceInstance));
-         i++;
-      } while (checkIfFirstAgentFails(serviceInstance) != 0);
-      log.info("Optimal solution found in " + i + " iterations");
+      for (int j = 0; j < 10; j++) {
+         int i = 0;
+         do {
+            if (i % 100 == 0)
+               log.info("Service instance iteration " + i);
+            serviceInstance = qosProvider.check(qosModel, serviceInstance, learningModel, false, checkIfFirstAgentFails(serviceInstance));
+            i++;
+         } while (checkIfFirstAgentFails(serviceInstance) != 0);
+         log.info("Optimal solution found in " + i + " iterations");
+      }
    }
 }

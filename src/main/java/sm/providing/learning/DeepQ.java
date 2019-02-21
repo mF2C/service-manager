@@ -51,7 +51,7 @@ class DeepQ {
       boolean isValid = false;
       if (epsilon > rnd.nextDouble()) {
          while (!isValid) {
-            lastAction = rnd.nextInt(indArrayOutput.size(1));
+            lastAction = rnd.nextInt((int) indArrayOutput.size(1));
             if (actionMask[lastAction] == 1)
                isValid = true;
          }
