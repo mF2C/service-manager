@@ -83,7 +83,7 @@ class DeepQ {
       return maxValue;
    }
 
-   int observeReward(INDArray inputIndArray, INDArray nextInputIndArray, double reward, int[] nextActionMask) {
+   void observeReward(INDArray inputIndArray, INDArray nextInputIndArray, double reward, int[] nextActionMask) {
       if (experiences.size() >= memoryCapacity)
          experiences.remove(rnd.nextInt(experiences.size()));
       experiences.add(new Experience(inputIndArray, nextInputIndArray, lastAction, (float) reward, nextActionMask));
@@ -94,7 +94,6 @@ class DeepQ {
          counter = 0;
          targetMultiLayerNetwork.setParams(multiLayerNetwork.params());
       }
-      return counter;
    }
 
    private void trainNetwork() {

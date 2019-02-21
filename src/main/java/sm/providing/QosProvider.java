@@ -60,13 +60,15 @@ public class QosProvider {
          environment = nextEnvironment;
       }
       int action = learningModel.takeAction(isTraining, environment);
-      nextEnvironment = learningModel.modifyEnvironment(environment, action);
+      if (isFailure == 0)
+         qosModel.setNumServiceFailures(0);
+      else
+         qosModel.increaseNumServiceFailuresValue();
+      qosModel.increaseNumServiceInstanceValue();
+      nextEnvironment = learningModel.modifyEnvironment(environment, action, qosModel.getNumServiceFailures());
       qosModel.setState(environment);
       qosModel.setNextState(nextEnvironment);
       qosModel.setConfig(learningModel.getConf().toJson());
-      if (isFailure == 1)
-         qosModel.increaseNumServiceFailuresValue();
-      qosModel.increaseNumServiceInstanceValue();
       setAcceptedAgentsToServiceInstance(nextEnvironment, serviceInstance);
       return serviceInstance;
    }

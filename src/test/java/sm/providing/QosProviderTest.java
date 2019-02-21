@@ -42,7 +42,7 @@ public class QosProviderTest {
 
    @Test
    public void testQosProvider() {
-      int serviceExecutions = 1500;
+      int serviceExecutions = 2000;
       QosProvider qosProvider = new QosProvider();
       QosModel qosModel = qosProvider.getQosModel(serviceId, agreementId, serviceInstance);
       LearningModel learningModel = qosProvider.getLearningModel(qosModel, serviceInstance);

@@ -77,7 +77,10 @@ public class LearningModel {
    public void observeReward(float[] environment, float[] nextEnvironment) {
       float reward = computeReward(nextEnvironment);
       int[] nextActionMask = generateActionMask(nextEnvironment);
-      deepQ.observeReward(Nd4j.create(environment), Nd4j.create(nextEnvironment), reward, nextActionMask);
+      if (nextEnvironment[environment.length - 2] == 0)
+         deepQ.observeReward(Nd4j.create(environment), null, reward, nextActionMask);
+      else
+         deepQ.observeReward(Nd4j.create(environment), Nd4j.create(nextEnvironment), reward, nextActionMask);
    }
 
    private int[] generateActionMask(float[] environment) {
@@ -93,12 +96,12 @@ public class LearningModel {
       return actionMask;
    }
 
-   public float[] modifyEnvironment(float[] environment, int action) {
+   public float[] modifyEnvironment(float[] environment, int action, int timeStep) {
       float[] nextEnvironment = environment.clone();
       if (action % 2 == 1)
          nextEnvironment[action / 2] = 1;
       else nextEnvironment[action / 2] = 0;
-      nextEnvironment[nextEnvironment.length - 1] = nextEnvironment[nextEnvironment.length - 1] + 1;
+      nextEnvironment[nextEnvironment.length - 1] = timeStep;
       return nextEnvironment;
    }
 
@@ -110,13 +113,13 @@ public class LearningModel {
             reward += 10;
             // is allowed and failure
          else if (environment[i] == 0 && environment[environment.length - 2] == 1)
-            reward += -10;
+            reward += -1;
             // is not allowed and no failure
          else if (environment[i] == 1 && environment[environment.length - 2] == 0)
             reward += 10;
             // is not allowed and failure
          else if (environment[i] == 1 && environment[environment.length - 2] == 1)
-            reward += -10;
+            reward += -1;
       }
       return reward;
    }
