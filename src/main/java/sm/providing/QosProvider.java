@@ -17,17 +17,53 @@ import sm.providing.learning.LearningModel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class QosProvider {
 
-   public ServiceInstance check(ServiceInstance serviceInstance, List<SlaViolation> slaViolations) {
+   public ServiceInstance checkTest(ServiceInstance serviceInstance, List<SlaViolation> slaViolations) {
       if (slaViolations != null) {
          int numOfAgents = serviceInstance.getAgents().size();
          float[] agents = new float[numOfAgents];
-         for (int i = 0; i < agents.length; i++)
-            agents[i] = 1;
          setAcceptedAgentsToServiceInstance(agents, serviceInstance);
       }
+      return serviceInstance;
+   }
+
+   public ServiceInstance checkLearning(QosModel qosModel, ServiceInstance serviceInstance, LearningModel learningModel, double epsilon, float isFailure) {
+      float[] environment = qosModel.getState();
+      float[] nextEnvironment = qosModel.getNextState();
+      if (nextEnvironment != null) {
+         nextEnvironment[nextEnvironment.length - 2] = isFailure;
+         learningModel.observeReward(environment, nextEnvironment);
+         environment = nextEnvironment;
+      }
+      int action = learningModel.takeAction(environment, epsilon);
+      if (isFailure == 0)
+         qosModel.setNumServiceFailures(0);
+      else
+         qosModel.increaseNumServiceFailuresValue();
+      qosModel.increaseNumServiceInstanceValue();
+      nextEnvironment = learningModel.modifyEnvironment(environment, action, qosModel.getNumServiceFailures());
+      qosModel.setState(environment);
+      qosModel.setNextState(nextEnvironment);
+      qosModel.setConfig(learningModel.getConf().toJson());
+      setAcceptedAgentsToServiceInstance(nextEnvironment, serviceInstance);
+      return serviceInstance;
+   }
+
+   public ServiceInstance checkHeuristic(QosModel qosModel, ServiceInstance serviceInstance, float isFailure) {
+      Random rnd = new Random();
+      int action;
+      float[] environment = qosModel.getState();
+      if (isFailure == 1) {
+         action = rnd.nextInt(environment.length - 2);
+         if (environment[action] == 0)
+            environment[action] = 1;
+         else environment[action] = 0;
+      }
+      qosModel.setState(environment);
+      setAcceptedAgentsToServiceInstance(environment, serviceInstance);
       return serviceInstance;
    }
 
@@ -49,28 +85,6 @@ public class QosProvider {
       } else
          learningModel = new LearningModel(null, serviceInstance.getAgents().size());
       return learningModel;
-   }
-
-   public ServiceInstance check(QosModel qosModel, ServiceInstance serviceInstance, LearningModel learningModel, boolean isTraining, float isFailure) {
-      float[] environment = qosModel.getState();
-      float[] nextEnvironment = qosModel.getNextState();
-      if (nextEnvironment != null) {
-         nextEnvironment[nextEnvironment.length - 2] = isFailure;
-         learningModel.observeReward(environment, nextEnvironment);
-         environment = nextEnvironment;
-      }
-      int action = learningModel.takeAction(isTraining, environment);
-      if (isFailure == 0)
-         qosModel.setNumServiceFailures(0);
-      else
-         qosModel.increaseNumServiceFailuresValue();
-      qosModel.increaseNumServiceInstanceValue();
-      nextEnvironment = learningModel.modifyEnvironment(environment, action, qosModel.getNumServiceFailures());
-      qosModel.setState(environment);
-      qosModel.setNextState(nextEnvironment);
-      qosModel.setConfig(learningModel.getConf().toJson());
-      setAcceptedAgentsToServiceInstance(nextEnvironment, serviceInstance);
-      return serviceInstance;
    }
 
    private void setAcceptedAgentsToServiceInstance(float[] environment, ServiceInstance serviceInstance) {

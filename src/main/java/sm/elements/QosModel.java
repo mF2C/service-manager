@@ -18,17 +18,18 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class QosModel {
 
-   @JsonProperty("service_id")
+   @JsonProperty("service")
    private String serviceId;
-   @JsonProperty("agreement_id")
+   @JsonProperty("agreement")
    private String agreementId;
-   @JsonProperty("agents_ids")
+   @JsonProperty("agents")
    private List<String> agentsIds;
    private String config;
    @JsonProperty("num_service_instances")
    private Integer numServiceInstances;
    @JsonProperty("num_service_failures")
    private Integer numServiceFailures;
+   @JsonProperty("current_state")
    private float[] state;
    @JsonProperty("next_state")
    private float[] nextState;
