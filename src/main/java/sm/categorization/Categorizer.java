@@ -50,7 +50,7 @@ public class Categorizer {
             }
          }
       };
-      scheduledExecutorService.scheduleAtFixedRate(task, 0, RETRAINING_TIME, TimeUnit.SECONDS);
+      scheduledExecutorService.scheduleAtFixedRate(task, RETRAINING_DELAY_TIME, RETRAINING_TIME, TimeUnit.SECONDS);
    }
 
    public Service run(Service service) {

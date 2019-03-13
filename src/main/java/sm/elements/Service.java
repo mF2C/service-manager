@@ -23,6 +23,8 @@ public class Service {
    private String exec;
    @JsonProperty("exec_type")
    private String execType;
+   @JsonProperty("sla-template")
+   private String slaTemplate;
    @JsonProperty("exec_ports")
    private int[] execPorts;
    @JsonProperty("agent_type")
@@ -84,6 +86,14 @@ public class Service {
 
    public void setExecType(String execType) {
       this.execType = execType;
+   }
+
+   public String getSlaTemplate() {
+      return slaTemplate;
+   }
+
+   public void setSlaTemplate(String slaTemplate) {
+      this.slaTemplate = slaTemplate;
    }
 
    public String getAgentType() {
