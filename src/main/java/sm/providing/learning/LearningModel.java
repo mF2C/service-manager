@@ -1,5 +1,5 @@
 /**
- * Service QoS Provider class
+ * Learning model class
  * Part of the mF2C Project: http://www.mf2c-project.eu/
  * <p>
  * This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
@@ -60,13 +60,13 @@ public class LearningModel {
       deepQ = new DeepQ(conf, MEMORY_CAPACITY, DISCOUNT_FACTOR, BATCH_SIZE, FREQUENCY, START_SIZE, inputLength);
    }
 
-   public int takeAction(float[] environment, double epsilon) {
+   int takeAction(float[] environment, double epsilon) {
       INDArray inputIndArray = Nd4j.create(environment);
       int[] actionMask = generateActionMask(environment);
       return deepQ.getAction(inputIndArray, actionMask, epsilon);
    }
 
-   public void observeReward(float[] environment, float[] nextEnvironment) {
+   void observeReward(float[] environment, float[] nextEnvironment) {
       float reward = computeReward(nextEnvironment);
       int[] nextActionMask = generateActionMask(nextEnvironment);
       if (nextEnvironment[environment.length - INPUT_OFFSET] == 0)
@@ -94,7 +94,7 @@ public class LearningModel {
       return actionMask;
    }
 
-   public float[] modifyEnvironment(float[] environment, int action, int timeStep) {
+   float[] modifyEnvironment(float[] environment, int action, int timeStep) {
       float[] nextEnvironment = environment.clone();
       if (action < (environment.length - INPUT_OFFSET) * 2) {
          if (action % 2 == 1)
@@ -124,7 +124,7 @@ public class LearningModel {
       return reward;
    }
 
-   public MultiLayerConfiguration getConf() {
+   MultiLayerConfiguration getConf() {
       return conf;
    }
 }

@@ -15,6 +15,8 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import sm.cimi.CimiInterface;
 import sm.elements.*;
+import sm.providing.learning.LearningAlgorithm;
+import sm.providing.learning.LearningModel;
 
 import java.util.List;
 
@@ -105,9 +107,20 @@ public class ServiceManagerInterface {
             return response;
          }
          List<SlaViolation> slaViolations = CimiInterface.getSlaViolations(serviceInstance.getAgreement());
-         if (slaViolations == null)
-            log.info("No SLA violations found for agreement: " + serviceInstance.getAgreement());
-         serviceInstance = ServiceManager.qosProvider.checkTest(serviceInstance, slaViolations);
+         float isFailure = 0;
+         if (slaViolations != null) {
+            if (slaViolations.size() == 0)
+               log.info("No SLA violations found for agreement: " + serviceInstance.getAgreement());
+            else isFailure = 1;
+         }
+         QosModel qosModel = ServiceManager.qosProvider.getQosModel(serviceInstance.getId(), agreement.getId(), serviceInstance.getAgents(), null);
+         LearningModel learningModel = null;
+         if (algorithm.equals(DRL)) {
+            learningModel = LearningAlgorithm.getLearningModel(qosModel, serviceInstance);
+            LearningAlgorithm.setIsFailure(isFailure);
+         }
+         serviceInstance = ServiceManager.qosProvider.checkQos(serviceInstance, qosModel, learningModel, algorithm);
+         CimiInterface.putQosModel(qosModel);
          response.setServiceInstance(serviceInstance);
          response.setOk();
          log.info("QoS checked for service-instance: " + serviceInstance.getId());

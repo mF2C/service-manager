@@ -13,8 +13,6 @@ import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -136,7 +134,7 @@ class DeepQ {
       return combinedNextInputs;
    }
 
-   public int getLastAction() {
+   int getLastAction() {
       return lastAction;
    }
 }

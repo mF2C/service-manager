@@ -202,10 +202,10 @@ public class CimiInterface {
       }
    }
 
-   public static QosModel getQosModel(String serviceId, String agreementId, List<String> agentsIds) {
+   public static QosModel getQosModel(String serviceId, String agreementId) {
       HttpEntity<String> entity = new HttpEntity<>(headers);
       QosModel qosModel = null;
-      String filter = "";
+      String filter = "/qos-model?$filter=service='" + serviceId + "'&$filter=" + agreementId + "'";
       try {
          ResponseEntity<QosModel> responseEntity = restTemplate.exchange(cimiUrl + filter, HttpMethod.GET
                  , entity, QosModel.class);
@@ -218,5 +218,37 @@ public class CimiInterface {
          log.error("Error retrieving qos model: " + e.getMessage());
          return null;
       }
+   }
+
+   public static int postQosModel(QosModel qosModel) {
+      headers.setContentType(MediaType.APPLICATION_JSON);
+      HttpEntity<QosModel> entity = new HttpEntity<>(qosModel, headers);
+      try {
+         ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + QOS_MODEL, HttpMethod.POST
+                 , entity, Response.class);
+         if (responseEntity.getStatusCodeValue() == HttpStatus.CREATED.value()) {
+            log.info("QoS model submitted for service: " + qosModel.getServiceId());
+            return responseEntity.getStatusCodeValue();
+         }
+      } catch (Exception e) {
+         log.error("Error submitting Qos model: " + e.getMessage());
+      }
+      return -1;
+   }
+
+   public static int putQosModel(QosModel qosModel) {
+      headers.setContentType(MediaType.APPLICATION_JSON);
+      HttpEntity<QosModel> entity = new HttpEntity<>(qosModel, headers);
+      try {
+         ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + QOS_MODEL, HttpMethod.PUT
+                 , entity, Response.class);
+         if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
+            log.info("QoS model updated for service: " + qosModel.getServiceId());
+            return responseEntity.getStatusCodeValue();
+         }
+      } catch (Exception e) {
+         log.error("Error updating the service: " + e.getMessage());
+      }
+      return -1;
    }
 }

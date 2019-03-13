@@ -23,6 +23,7 @@ public class Parameters {
    public static final String AGREEMENT = "/agreement";
    public static final String SERVICE_NAME = "/{service_name}";
    public static final String GUI = "/gui";
+   public static final String QOS_MODEL = "/qos-model";
 
    /*********** Aux values ************/
    public static final int CIMI_RECONNECTION_TIME = 10;
@@ -30,9 +31,16 @@ public class Parameters {
    public static final int CATEGORIZER_MAX_ITERATION_COUNT = 100;
    public static final int RETRAINING_TIME = 500;
    public static final int NUM_HIDDEN_LAYERS = 150;
+   public static final double EPSILON = 0;
    public static final int MEMORY_CAPACITY = 100000;
    public static final float DISCOUNT_FACTOR = .99f;
    public static final int BATCH_SIZE = 10;
    public static final int START_SIZE = 10;
    public static final int FREQUENCY = 100;
+   public static final String DRL = "drl";
+   public static final String HEU = "heu";
+   public static final String RND = "rnd";
+   public static final String BST = "bst";
+   public static final String WST = "wst";
+   static String algorithm = WST;
 }

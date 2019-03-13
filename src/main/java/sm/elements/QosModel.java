@@ -18,6 +18,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class QosModel {
 
+   private String id;
    @JsonProperty("service")
    private String serviceId;
    @JsonProperty("agreement")
@@ -37,13 +38,13 @@ public class QosModel {
    public QosModel() {
    }
 
-   public QosModel(String serviceId, String agreementId, List<String> agentsIds) {
+   public QosModel(String serviceId, String agreementId, List<String> agentsIds, int environmentSize) {
       this.serviceId = serviceId;
       this.agreementId = agreementId;
       this.agentsIds = agentsIds;
       this.numServiceInstances = 0;
       this.numServiceFailures = 0;
-      this.state = new float[agentsIds.size() + 2];
+      this.state = new float[environmentSize];
    }
 
    public void increaseNumServiceInstanceValue() {
@@ -52,6 +53,14 @@ public class QosModel {
 
    public void increaseNumServiceFailuresValue() {
       numServiceFailures++;
+   }
+
+   public String getId() {
+      return id;
+   }
+
+   public void setId(String id) {
+      this.id = id;
    }
 
    public String getServiceId() {

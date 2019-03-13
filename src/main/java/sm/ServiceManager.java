@@ -11,15 +11,7 @@ package sm;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
-import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
-import org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.*;
-import org.springframework.boot.autoconfigure.websocket.WebSocketAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.web.support.SpringBootServletInitializer;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.stereotype.Controller;
 import sm.categorization.Categorizer;
 import sm.cimi.CimiInterface;
@@ -30,25 +22,11 @@ import sm.providing.QosProvider;
 import java.util.concurrent.*;
 
 import static sm.Parameters.CIMI_RECONNECTION_TIME;
+import static sm.Parameters.algorithm;
 
-//@SpringBootApplication
-@Configuration
-@Import({
-        DispatcherServletAutoConfiguration.class,
-        EmbeddedServletContainerAutoConfiguration.class,
-        HttpEncodingAutoConfiguration.class,
-        HttpMessageConvertersAutoConfiguration.class,
-        JacksonAutoConfiguration.class,
-        JmxAutoConfiguration.class,
-        MultipartAutoConfiguration.class,
-        PropertyPlaceholderAutoConfiguration.class,
-        ServerPropertiesAutoConfiguration.class,
-        WebMvcAutoConfiguration.class,
-        WebSocketAutoConfiguration.class,
-        ServiceManagerInterface.class
-})
+@SpringBootApplication
 @Controller
-public class ServiceManager extends SpringBootServletInitializer implements ApplicationRunner {
+public class ServiceManager implements ApplicationRunner {
 
    static Categorizer categorizer;
    static QosProvider qosProvider;
@@ -57,11 +35,6 @@ public class ServiceManager extends SpringBootServletInitializer implements Appl
       categorizer = new Categorizer();
       qosProvider = new QosProvider();
       new CimiInterface();
-   }
-
-   @Override
-   protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-      return application.sources(ServiceManager.class);
    }
 
    public static void main(String[] args) {
@@ -73,6 +46,7 @@ public class ServiceManager extends SpringBootServletInitializer implements Appl
       String cimiKey = null;
       String cimiSecret = null;
       String cimiUrl = null;
+      String algorithmParam = null;
       for (String name : applicationArguments.getOptionNames()) {
          if (name.equals("cimi.api.key"))
             cimiKey = applicationArguments.getOptionValues(name).get(0);
@@ -80,11 +54,15 @@ public class ServiceManager extends SpringBootServletInitializer implements Appl
             cimiSecret = applicationArguments.getOptionValues(name).get(0);
          if (name.equals("cimi.url"))
             cimiUrl = applicationArguments.getOptionValues(name).get(0);
+         if (name.equals("algorithm"))
+            algorithmParam = applicationArguments.getOptionValues(name).get(0);
       }
       if (cimiUrl != null)
          Parameters.cimiUrl = cimiUrl;
       if (cimiKey != null && cimiSecret != null)
          stablishSesionToCimi(cimiKey, cimiSecret);
+      if (algorithmParam != null)
+         algorithm = algorithmParam;
    }
 
    private void stablishSesionToCimi(String key, String secret) {
