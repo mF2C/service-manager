@@ -22,6 +22,7 @@ public class Parameters {
    public static final String SERVICE_INSTANCE_ID = "/{service_instance_id}";
    public static final String AGREEMENT = "/agreement";
    public static final String SERVICE_NAME = "/{service_name}";
+   public static final String SLA_VIOLATION = "/sla-violation";
    public static final String GUI = "/gui";
    public static final String QOS_MODEL = "/qos-model";
 

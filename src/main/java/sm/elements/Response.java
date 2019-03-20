@@ -31,6 +31,8 @@ public class Response {
     private ServiceInstance serviceInstance;
     private Agreement agreement;
     private List<Agreement> agreements;
+    @JsonProperty("qos-models")
+    private List<QosModel> qosModels;
 
     public Response() {
         services = new ArrayList<>();
@@ -149,5 +151,13 @@ public class Response {
 
     public void setAgreements(List<Agreement> agreements) {
         this.agreements = agreements;
+    }
+
+    public List<QosModel> getQosModels() {
+        return qosModels;
+    }
+
+    public void setQosModels(List<QosModel> qosModels) {
+        this.qosModels = qosModels;
     }
 }

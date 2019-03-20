@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -20,11 +21,11 @@ public class QosModel {
 
    private String id;
    @JsonProperty("service")
-   private String serviceId;
+   private Href serviceId;
    @JsonProperty("agreement")
-   private String agreementId;
+   private Href agreementId;
    @JsonProperty("agents")
-   private List<String> agentsIds;
+   private List<Href> agentsIds;
    private String config;
    @JsonProperty("num_service_instances")
    private Integer numServiceInstances;
@@ -39,12 +40,17 @@ public class QosModel {
    }
 
    public QosModel(String serviceId, String agreementId, List<String> agentsIds, int environmentSize) {
-      this.serviceId = serviceId;
-      this.agreementId = agreementId;
-      this.agentsIds = agentsIds;
+      this.serviceId = new Href(serviceId);
+      this.agreementId = new Href(agreementId);
+      List<Href> agents = new ArrayList<>();
+      for (String s : agentsIds)
+         agents.add(new Href(s));
+      this.agentsIds = agents;
+      this.config = "config";
       this.numServiceInstances = 0;
       this.numServiceFailures = 0;
       this.state = new float[environmentSize];
+      this.nextState = new float[environmentSize];
    }
 
    public void increaseNumServiceInstanceValue() {
@@ -63,27 +69,27 @@ public class QosModel {
       this.id = id;
    }
 
-   public String getServiceId() {
+   public Href getServiceId() {
       return serviceId;
    }
 
-   public void setServiceId(String serviceId) {
+   public void setServiceId(Href serviceId) {
       this.serviceId = serviceId;
    }
 
-   public String getAgreementId() {
+   public Href getAgreementId() {
       return agreementId;
    }
 
-   public void setAgreementId(String agreementId) {
+   public void setAgreementId(Href agreementId) {
       this.agreementId = agreementId;
    }
 
-   public List<String> getAgentsIds() {
+   public List<Href> getAgentsIds() {
       return agentsIds;
    }
 
-   public void setAgentsIds(List<String> agentsIds) {
+   public void setAgentsIds(List<Href> agentsIds) {
       this.agentsIds = agentsIds;
    }
 
@@ -125,5 +131,26 @@ public class QosModel {
 
    public void setNextState(float[] nextState) {
       this.nextState = nextState;
+   }
+
+   @JsonIgnoreProperties(ignoreUnknown = true)
+   public static class Href {
+
+      private String href;
+
+      public Href() {
+      }
+
+      public Href(String href) {
+         this.href = href;
+      }
+
+      public String getHref() {
+         return href;
+      }
+
+      public void setHref(String href) {
+         this.href = href;
+      }
    }
 }

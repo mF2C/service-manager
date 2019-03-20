@@ -16,19 +16,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Agent {
 
-   @JsonProperty("url")
-   private String id;
+   @JsonProperty("agent")
+   private Href id;
    private boolean allow;
 
    public Agent() {
    }
 
    public Agent(String id) {
-      this.id = id;
+      this.id = new Href(id);
       this.allow = true;
    }
 
-   public String getId() {
+   public Href getId() {
       return id;
    }
 
@@ -36,11 +36,32 @@ public class Agent {
       return allow;
    }
 
-   public void setId(String id) {
+   public void setId(Href id) {
       this.id = id;
    }
 
    public void setAllow(boolean allow) {
       this.allow = allow;
+   }
+
+   @JsonIgnoreProperties(ignoreUnknown = true)
+   public static class Href {
+
+      private String href;
+
+      public Href() {
+      }
+
+      public Href(String href) {
+         this.href = href;
+      }
+
+      public String getHref() {
+         return href;
+      }
+
+      public void setHref(String href) {
+         this.href = href;
+      }
    }
 }

@@ -14,6 +14,8 @@ import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import sm.elements.*;
 
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +33,11 @@ public class CimiInterface {
    public CimiInterface() {
       headers = new HttpHeaders();
       headers.set("slipstream-authn-info", "super ADMIN");
+      try {
+         SSLUtil.turnOffSslChecking();
+      } catch (NoSuchAlgorithmException | KeyManagementException e) {
+         e.printStackTrace();
+      }
    }
 
    public CimiInterface(CimiSession cimiSession) {
@@ -61,6 +68,21 @@ public class CimiInterface {
          log.error("Error starting the session: " + e.getMessage());
          return HttpStatus.FORBIDDEN.value();
       }
+   }
+
+   static {
+      //for localhost testing only
+      javax.net.ssl.HttpsURLConnection.setDefaultHostnameVerifier(
+              new javax.net.ssl.HostnameVerifier() {
+
+                 public boolean verify(String hostname,
+                                       javax.net.ssl.SSLSession sslSession) {
+                    if (hostname.equals("localhost")) {
+                       return true;
+                    }
+                    return false;
+                 }
+              });
    }
 
    public static int postService(Service service) {
@@ -120,8 +142,8 @@ public class CimiInterface {
          ResponseEntity<Service> responseEntity = restTemplate.exchange(cimiUrl + "/" + id, HttpMethod.GET
                  , entity, Service.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
-            log.info("The service is retrieved");
             service = responseEntity.getBody();
+            log.info("Service is retrieved: " + id);
          }
          return service;
       } catch (Exception e) {
@@ -137,12 +159,12 @@ public class CimiInterface {
          ResponseEntity<ServiceInstance> responseEntity = restTemplate.exchange(cimiUrl + "/" + id, HttpMethod.GET
                  , entity, ServiceInstance.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
-            log.info("Service instance retrieved");
             serviceInstance = responseEntity.getBody();
+            log.info("Service instance retrieved: " + id);
          }
          return serviceInstance;
       } catch (Exception e) {
-         log.error("Error retrieving service instance:" + e.getMessage());
+         log.error("Error retrieving service instance: " + e.getMessage());
          return null;
       }
    }
@@ -154,8 +176,8 @@ public class CimiInterface {
          ResponseEntity<Agreement> responseEntity = restTemplate.exchange(cimiUrl + "/" + id, HttpMethod.GET
                  , entity, Agreement.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
-            log.info("Agreement retrieved");
             agreement = responseEntity.getBody();
+            log.info("Agreement retrieved: " + id);
          }
          return agreement;
       } catch (Exception e) {
@@ -167,9 +189,9 @@ public class CimiInterface {
    public static List<SlaViolation> getSlaViolations(String agreementId) {
       HttpEntity<String> entity = new HttpEntity<>(headers);
       List<SlaViolation> slaViolations = new ArrayList<>();
-      String filter = "/sla-violation?$filter=agreement_id/href='" + agreementId + "'";
+      String filter = "?$filter=agreement_id/href='" + agreementId + "'";
       try {
-         ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + filter, HttpMethod.GET
+         ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + SLA_VIOLATION + filter, HttpMethod.GET
                  , entity, Response.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
             log.info("SLA violations retrieved");
@@ -183,12 +205,12 @@ public class CimiInterface {
       }
    }
 
-   public static List<Agreement> getAgreementId(String service_name) {
+   public static List<Agreement> getAgreements(String service_name) {
       HttpEntity<String> entity = new HttpEntity<>(headers);
       List<Agreement> agreements = new ArrayList<>();
-      String filter = "/agreement?$filter=name='" + service_name + "'";
+      String filter = "?$filter=name='" + service_name + "'";
       try {
-         ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + filter, HttpMethod.GET
+         ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + AGREEMENT + filter, HttpMethod.GET
                  , entity, Response.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
             log.info("Agreements retrieved");
@@ -205,13 +227,19 @@ public class CimiInterface {
    public static QosModel getQosModel(String serviceId, String agreementId) {
       HttpEntity<String> entity = new HttpEntity<>(headers);
       QosModel qosModel = null;
-      String filter = "/qos-model?$filter=service='" + serviceId + "'&$filter=" + agreementId + "'";
+      String filter = "?$filter=service/href='" + serviceId + "'&$filter=agreement/href='" + agreementId + "'";
       try {
-         ResponseEntity<QosModel> responseEntity = restTemplate.exchange(cimiUrl + filter, HttpMethod.GET
-                 , entity, QosModel.class);
+         ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + QOS_MODEL + filter, HttpMethod.GET
+                 , entity, Response.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
-            log.info("Qos model retrieved");
-            qosModel = responseEntity.getBody();
+            Response response = responseEntity.getBody();
+            List<QosModel> qosModels = response.getQosModels();
+            if (qosModels.size() == 0) {
+               log.info("No QoS models found");
+               return null;
+            } else
+               qosModel = qosModels.get(0);
+            log.info("QoS model retrieved: " + qosModel.getId());
          }
          return qosModel;
       } catch (Exception e) {

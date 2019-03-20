@@ -46,7 +46,7 @@ public class QosProvider {
 
    public QosModel getQosModel(String serviceId, String agreementId, List<Agent> agents, String algorithm) {
       List<String> agentsIds = new ArrayList<>();
-      for (Agent agent : agents) agentsIds.add(agent.getId());
+      for (Agent agent : agents) agentsIds.add(agent.getId().getHref());
       int environmentSize = agentsIds.size();
       if (algorithm != null)
          if (DRL.equals(algorithm))

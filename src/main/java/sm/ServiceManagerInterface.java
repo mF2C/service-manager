@@ -113,7 +113,7 @@ public class ServiceManagerInterface {
                log.info("No SLA violations found for agreement: " + serviceInstance.getAgreement());
             else isFailure = 1;
          }
-         QosModel qosModel = ServiceManager.qosProvider.getQosModel(serviceInstance.getId(), agreement.getId(), serviceInstance.getAgents(), null);
+         QosModel qosModel = ServiceManager.qosProvider.getQosModel(service.getId(), agreement.getId(), serviceInstance.getAgents(), null);
          LearningModel learningModel = null;
          if (algorithm.equals(DRL)) {
             learningModel = LearningAlgorithm.getLearningModel(qosModel, serviceInstance);
@@ -151,7 +151,7 @@ public class ServiceManagerInterface {
    Response getAgreementId(@PathVariable String service_name) {
       Response response = new Response(service_name, SERVICE_MANAGEMENT_ROOT + AGREEMENT);
       try {
-         List<Agreement> agreements = CimiInterface.getAgreementId(service_name);
+         List<Agreement> agreements = CimiInterface.getAgreements(service_name);
          if (agreements == null)
             response.setBadRequest();
          else if (agreements.size() == 0)
