@@ -14,8 +14,6 @@ import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import sm.elements.*;
 
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,14 +28,15 @@ public class CimiInterface {
    private static boolean sessionStarted;
    private static CimiSession cimiSession;
 
+
    public CimiInterface() {
       headers = new HttpHeaders();
       headers.set("slipstream-authn-info", "super ADMIN");
-      try {
-         SSLUtil.turnOffSslChecking();
-      } catch (NoSuchAlgorithmException | KeyManagementException e) {
-         e.printStackTrace();
-      }
+   }
+
+   static {
+      javax.net.ssl.HttpsURLConnection.setDefaultHostnameVerifier(
+              (hostname, sslSession) -> hostname.equals("localhost"));
    }
 
    public CimiInterface(CimiSession cimiSession) {
@@ -55,8 +54,11 @@ public class CimiInterface {
       headers.setContentType(MediaType.APPLICATION_JSON);
       HttpEntity<CimiSession> entity = new HttpEntity<>(cimiSession, headers);
       try {
-         ResponseEntity<Map> responseEntity = restTemplate.exchange(cimiUrl + SESSION, HttpMethod.POST
-                 , entity, Map.class);
+         ResponseEntity<Map> responseEntity = restTemplate.exchange(
+                 cimiUrl + SESSION
+                 , HttpMethod.POST
+                 , entity
+                 , Map.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.CREATED.value()) {
             String cookie = responseEntity.getHeaders().getFirst(HttpHeaders.SET_COOKIE);
             headers.add("Cookie", cookie);
@@ -70,27 +72,15 @@ public class CimiInterface {
       }
    }
 
-   static {
-      //for localhost testing only
-      javax.net.ssl.HttpsURLConnection.setDefaultHostnameVerifier(
-              new javax.net.ssl.HostnameVerifier() {
-
-                 public boolean verify(String hostname,
-                                       javax.net.ssl.SSLSession sslSession) {
-                    if (hostname.equals("localhost")) {
-                       return true;
-                    }
-                    return false;
-                 }
-              });
-   }
-
    public static int postService(Service service) {
       headers.setContentType(MediaType.APPLICATION_JSON);
       HttpEntity<Service> entity = new HttpEntity<>(service, headers);
       try {
-         ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + SERVICE, HttpMethod.POST
-                 , entity, Response.class);
+         ResponseEntity<Response> responseEntity = restTemplate.exchange(
+                 cimiUrl + SERVICE
+                 , HttpMethod.POST
+                 , entity
+                 , Response.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.CREATED.value()) {
             log.info("Service submitted: " + service.getName());
             return responseEntity.getStatusCodeValue();
@@ -105,8 +95,11 @@ public class CimiInterface {
       headers.setContentType(MediaType.APPLICATION_JSON);
       HttpEntity<Service> entity = new HttpEntity<>(service, headers);
       try {
-         ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + SERVICE, HttpMethod.PUT
-                 , entity, Response.class);
+         ResponseEntity<Response> responseEntity = restTemplate.exchange(
+                 cimiUrl + "/" + service.getId()
+                 , HttpMethod.PUT
+                 , entity
+                 , Response.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
             log.info("Service updated: " + service.getName());
             return responseEntity.getStatusCodeValue();
@@ -121,8 +114,11 @@ public class CimiInterface {
       HttpEntity<String> entity = new HttpEntity<>(headers);
       List<Service> services = new ArrayList<>();
       try {
-         ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + SERVICE, HttpMethod.GET
-                 , entity, Response.class);
+         ResponseEntity<Response> responseEntity = restTemplate.exchange(
+                 cimiUrl + SERVICE
+                 , HttpMethod.GET
+                 , entity
+                 , Response.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
             log.info("Services retrieved");
             Response response = responseEntity.getBody();
@@ -139,8 +135,11 @@ public class CimiInterface {
       HttpEntity<String> entity = new HttpEntity<>(headers);
       Service service = null;
       try {
-         ResponseEntity<Service> responseEntity = restTemplate.exchange(cimiUrl + "/" + id, HttpMethod.GET
-                 , entity, Service.class);
+         ResponseEntity<Service> responseEntity = restTemplate.exchange(
+                 cimiUrl + "/" + id
+                 , HttpMethod.GET
+                 , entity
+                 , Service.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
             service = responseEntity.getBody();
             log.info("Service is retrieved: " + id);
@@ -156,8 +155,11 @@ public class CimiInterface {
       HttpEntity<String> entity = new HttpEntity<>(headers);
       ServiceInstance serviceInstance = null;
       try {
-         ResponseEntity<ServiceInstance> responseEntity = restTemplate.exchange(cimiUrl + "/" + id, HttpMethod.GET
-                 , entity, ServiceInstance.class);
+         ResponseEntity<ServiceInstance> responseEntity = restTemplate.exchange(
+                 cimiUrl + "/" + id
+                 , HttpMethod.GET
+                 , entity
+                 , ServiceInstance.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
             serviceInstance = responseEntity.getBody();
             log.info("Service instance retrieved: " + id);
@@ -173,8 +175,11 @@ public class CimiInterface {
       HttpEntity<String> entity = new HttpEntity<>(headers);
       Agreement agreement = null;
       try {
-         ResponseEntity<Agreement> responseEntity = restTemplate.exchange(cimiUrl + "/" + id, HttpMethod.GET
-                 , entity, Agreement.class);
+         ResponseEntity<Agreement> responseEntity = restTemplate.exchange(
+                 cimiUrl + "/" + id
+                 , HttpMethod.GET
+                 , entity
+                 , Agreement.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
             agreement = responseEntity.getBody();
             log.info("Agreement retrieved: " + id);
@@ -191,8 +196,11 @@ public class CimiInterface {
       List<SlaViolation> slaViolations = new ArrayList<>();
       String filter = "?$filter=agreement_id/href='" + agreementId + "'";
       try {
-         ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + SLA_VIOLATION + filter, HttpMethod.GET
-                 , entity, Response.class);
+         ResponseEntity<Response> responseEntity = restTemplate.exchange(
+                 cimiUrl + SLA_VIOLATION + filter
+                 , HttpMethod.GET
+                 , entity
+                 , Response.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
             log.info("SLA violations retrieved");
             Response response = responseEntity.getBody();
@@ -210,8 +218,11 @@ public class CimiInterface {
       List<Agreement> agreements = new ArrayList<>();
       String filter = "?$filter=name='" + service_name + "'";
       try {
-         ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + AGREEMENT + filter, HttpMethod.GET
-                 , entity, Response.class);
+         ResponseEntity<Response> responseEntity = restTemplate.exchange(
+                 cimiUrl + AGREEMENT + filter
+                 , HttpMethod.GET
+                 , entity
+                 , Response.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
             log.info("Agreements retrieved");
             Response response = responseEntity.getBody();
@@ -229,8 +240,11 @@ public class CimiInterface {
       QosModel qosModel = null;
       String filter = "?$filter=service/href='" + serviceId + "'&$filter=agreement/href='" + agreementId + "'";
       try {
-         ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + QOS_MODEL + filter, HttpMethod.GET
-                 , entity, Response.class);
+         ResponseEntity<Response> responseEntity = restTemplate.exchange(
+                 cimiUrl + QOS_MODEL + filter
+                 , HttpMethod.GET
+                 , entity
+                 , Response.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
             Response response = responseEntity.getBody();
             List<QosModel> qosModels = response.getQosModels();
@@ -252,8 +266,11 @@ public class CimiInterface {
       headers.setContentType(MediaType.APPLICATION_JSON);
       HttpEntity<QosModel> entity = new HttpEntity<>(qosModel, headers);
       try {
-         ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + QOS_MODEL, HttpMethod.POST
-                 , entity, Response.class);
+         ResponseEntity<Response> responseEntity = restTemplate.exchange(
+                 cimiUrl + QOS_MODEL
+                 , HttpMethod.POST
+                 , entity
+                 , Response.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.CREATED.value()) {
             log.info("QoS model submitted for service: " + qosModel.getServiceId());
             return responseEntity.getStatusCodeValue();
@@ -268,8 +285,11 @@ public class CimiInterface {
       headers.setContentType(MediaType.APPLICATION_JSON);
       HttpEntity<QosModel> entity = new HttpEntity<>(qosModel, headers);
       try {
-         ResponseEntity<Response> responseEntity = restTemplate.exchange(cimiUrl + QOS_MODEL, HttpMethod.PUT
-                 , entity, Response.class);
+         ResponseEntity<Response> responseEntity = restTemplate.exchange(
+                 cimiUrl + "/" + qosModel.getId()
+                 , HttpMethod.PUT
+                 , entity
+                 , Response.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
             log.info("QoS model updated for service: " + qosModel.getServiceId());
             return responseEntity.getStatusCodeValue();
