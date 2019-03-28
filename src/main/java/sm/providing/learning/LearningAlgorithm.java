@@ -45,7 +45,7 @@ public class LearningAlgorithm {
 
    public static LearningModel getLearningModel(QosModel qosModel, ServiceInstance serviceInstance) {
       LearningModel learningModel;
-      if (qosModel.getConfig() != null) {
+      if (qosModel.getConfig() != null && !qosModel.getConfig().equals("config")) {
          MultiLayerConfiguration conf = MultiLayerConfiguration.fromJson(qosModel.getConfig());
          learningModel = new LearningModel(conf, serviceInstance.getAgents().size());
       } else

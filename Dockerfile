@@ -1,6 +1,6 @@
 FROM azul/zulu-openjdk:11
 ENV CIMI_URL=http://cimi:8201/api
-ENV ALGORITHM=WST
+ENV ALGORITHM=drl
 VOLUME /tmp
 ARG JAR_FILE
 ADD ${JAR_FILE} app.jar

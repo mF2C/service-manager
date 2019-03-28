@@ -6,7 +6,7 @@
 
     <groupId>tu-bs.mf2c</groupId>
     <artifactId>service-manager</artifactId>
-    <version>1.6.4</version>
+    <version>1.6.5</version>
 
     <properties>
         <java.version>11</java.version>
@@ -39,6 +39,11 @@
         <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>deeplearning4j-core</artifactId>
+            <version>${dl4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>nd4j-native</artifactId>
             <version>${dl4j.version}</version>
         </dependency>
         <dependency>

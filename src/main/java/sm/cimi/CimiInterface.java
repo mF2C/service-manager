@@ -285,13 +285,14 @@ public class CimiInterface {
       headers.setContentType(MediaType.APPLICATION_JSON);
       HttpEntity<QosModel> entity = new HttpEntity<>(qosModel, headers);
       try {
-         ResponseEntity<Response> responseEntity = restTemplate.exchange(
+         ResponseEntity<QosModel> responseEntity = restTemplate.exchange(
                  cimiUrl + "/" + qosModel.getId()
                  , HttpMethod.PUT
                  , entity
-                 , Response.class);
+                 , QosModel.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
-            log.info("QoS model updated for service: " + qosModel.getServiceId());
+            QosModel modifiedQosModel = responseEntity.getBody();
+            log.info("QoS model updated for service: " + modifiedQosModel.getId());
             return responseEntity.getStatusCodeValue();
          }
       } catch (Exception e) {
