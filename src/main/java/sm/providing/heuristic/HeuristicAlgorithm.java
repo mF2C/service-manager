@@ -18,15 +18,9 @@ public class HeuristicAlgorithm {
    private static Random rnd;
    private static int numAgentsToBlock;
 
-   public static void initialize(QosModel qosModel, ServiceInstance serviceInstance, double acceptanceRatio) {
-      if (qosModel.getConfig() != null) {
-         numAgentsToBlock = Integer.valueOf(qosModel.getConfig());
-      } else {
-         rnd = new Random(29470);
-         numAgentsToBlock = serviceInstance.getAgents().size() - (int) ((serviceInstance.getAgents().size() * acceptanceRatio));
-         float[] failures = new float[serviceInstance.getAgents().size()];
-         qosModel.setNextState(failures);
-      }
+   public static void initialize(ServiceInstance serviceInstance, double acceptanceRatio) {
+      rnd = new Random(29470);
+      numAgentsToBlock = serviceInstance.getAgents().size() - (int) ((serviceInstance.getAgents().size() * acceptanceRatio));
    }
 
    public static void updateFailures(QosModel qosModel, List<Integer> failedAgents) {
