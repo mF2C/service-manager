@@ -1,4 +1,4 @@
-FROM azul/zulu-openjdk:11
+FROM azul/zulu-openjdk:11.0.2
 ENV CIMI_URL=http://cimi:8201/api
 ENV ALGORITHM=drl
 VOLUME /tmp

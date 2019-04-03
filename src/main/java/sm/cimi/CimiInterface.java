@@ -72,23 +72,26 @@ public class CimiInterface {
       }
    }
 
-   public static int postService(Service service) {
+   public static Response postService(Service service) {
       headers.setContentType(MediaType.APPLICATION_JSON);
       HttpEntity<Service> entity = new HttpEntity<>(service, headers);
+      Response response = new Response(service.getName(), cimiUrl + SERVICE);
       try {
          ResponseEntity<Response> responseEntity = restTemplate.exchange(
                  cimiUrl + SERVICE
                  , HttpMethod.POST
                  , entity
                  , Response.class);
-         if (responseEntity.getStatusCodeValue() == HttpStatus.CREATED.value()) {
+         if (responseEntity.getStatusCodeValue() == HttpStatus.CREATED.value())
             log.info("Service submitted: " + service.getName());
-            return responseEntity.getStatusCodeValue();
-         }
+         response.setStatus(responseEntity.getStatusCodeValue());
       } catch (Exception e) {
-         log.error("Error submitting service: " + e.getMessage());
+         String message = "Error submitting service: " + e.getMessage();
+         log.error(message);
+         response.setStatus(HttpStatus.NOT_FOUND.value());
+         response.setMessage(message);
       }
-      return -1;
+      return response;
    }
 
    public static int putService(Service service) {

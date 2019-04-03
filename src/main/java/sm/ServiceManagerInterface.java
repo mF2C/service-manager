@@ -10,7 +10,6 @@ package sm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import sm.cimi.CimiInterface;
@@ -134,16 +133,7 @@ public class ServiceManagerInterface {
    @PostMapping(value = GUI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
    public @ResponseBody
    Response postFromGUI(@RequestBody Service service) {
-      Response response = new Response(service.getName(), SERVICE_MANAGEMENT_ROOT);
-      try {
-         int status = CimiInterface.postService(service);
-         if (status == HttpStatus.CREATED.value())
-            response.setCreated();
-      } catch (Exception e) {
-         response.setBadRequest();
-         response.setMessage(e.getMessage());
-      }
-      return response;
+      return CimiInterface.postService(service);
    }
 
    @GetMapping(value = AGREEMENT + SERVICE_NAME)
