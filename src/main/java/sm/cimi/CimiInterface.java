@@ -275,7 +275,7 @@ public class CimiInterface {
                  , entity
                  , Response.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.CREATED.value()) {
-            log.info("QoS model submitted for service: " + qosModel.getServiceId());
+            log.info("QoS model submitted for service: " + qosModel.getServiceId().getHref());
             return responseEntity.getStatusCodeValue();
          }
       } catch (Exception e) {
@@ -295,7 +295,7 @@ public class CimiInterface {
                  , QosModel.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
             QosModel modifiedQosModel = responseEntity.getBody();
-            log.info("QoS model updated for service: " + modifiedQosModel.getId());
+            log.info("QoS model updated: " + modifiedQosModel.getId());
             return responseEntity.getStatusCodeValue();
          }
       } catch (Exception e) {
