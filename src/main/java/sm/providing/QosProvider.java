@@ -40,7 +40,8 @@ public class QosProvider {
                agents = HeuristicAlgorithm.checkOptimum(qosModel);
                break;
          }
-      setAcceptedAgentsToServiceInstance(agents, serviceInstance);
+      if (qosModel.getNumServiceInstances() > TRAINING_ITERATIONS)
+         setAcceptedAgentsToServiceInstance(agents, serviceInstance);
       return serviceInstance;
    }
 

@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import sm.cimi.CimiInterface;
 import sm.elements.*;
+import sm.providing.heuristic.HeuristicAlgorithm;
 import sm.providing.learning.LearningAlgorithm;
 import sm.providing.learning.LearningModel;
 
@@ -112,11 +113,13 @@ public class ServiceManagerInterface {
                log.info("No SLA violations found for agreement: " + serviceInstance.getAgreement());
             else isFailure = 1;
          }
-         QosModel qosModel = ServiceManager.qosProvider.getQosModel(service.getId(), agreement.getId(), serviceInstance.getAgents(), null);
+         QosModel qosModel = ServiceManager.qosProvider.getQosModel(service.getId(), agreement.getId(), serviceInstance.getAgents(), algorithm);
          LearningModel learningModel = null;
          if (algorithm.equals(DRL)) {
             learningModel = LearningAlgorithm.getLearningModel(qosModel, serviceInstance);
             LearningAlgorithm.setIsFailure(isFailure);
+         } else if (algorithm.equals(HEU)){
+            HeuristicAlgorithm.initialize(serviceInstance, ACCEPTANCE_RATIO);
          }
          serviceInstance = ServiceManager.qosProvider.checkQos(serviceInstance, qosModel, learningModel, algorithm);
          CimiInterface.putQosModel(qosModel);

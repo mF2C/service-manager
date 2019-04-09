@@ -19,7 +19,7 @@ public class HeuristicAlgorithm {
    private static int numAgentsToBlock;
 
    public static void initialize(ServiceInstance serviceInstance, double acceptanceRatio) {
-      rnd = new Random(29470);
+      rnd = new Random();
       numAgentsToBlock = serviceInstance.getAgents().size() - (int) ((serviceInstance.getAgents().size() * acceptanceRatio));
    }
 

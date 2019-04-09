@@ -44,5 +44,7 @@ public class Parameters {
    public static final String RND = "rnd";
    public static final String BST = "bst";
    public static final String WST = "wst";
-   static String algorithm = WST;
+   public static final int TRAINING_ITERATIONS = 100;
+   public static final double ACCEPTANCE_RATIO = 1.0;
+   public static String algorithm = HEU;
 }
