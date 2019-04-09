@@ -1,16 +1,18 @@
-/**
- * Service class
- * Part of the mF2C Project: http://www.mf2c-project.eu/
- * <p>
- * This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
- *
- * @author Francisco Carpio - TUBS
+/*
+  Service class
+  Part of the mF2C Project: http://www.mf2c-project.eu/
+  <p>
+  This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
+
+  @author Francisco Carpio - TUBS
  */
 package sm.elements;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -23,8 +25,8 @@ public class Service {
    private String exec;
    @JsonProperty("exec_type")
    private String execType;
-   @JsonProperty("sla-template")
-   private String slaTemplate;
+   @JsonProperty("sla_templates")
+   private List<Href> slaTemplates;
    @JsonProperty("exec_ports")
    private int[] execPorts;
    @JsonProperty("agent_type")
@@ -88,12 +90,12 @@ public class Service {
       this.execType = execType;
    }
 
-   public String getSlaTemplate() {
-      return slaTemplate;
+   public List<Href> getSlaTemplates() {
+      return slaTemplates;
    }
 
-   public void setSlaTemplate(String slaTemplate) {
-      this.slaTemplate = slaTemplate;
+   public void setSlaTemplates(List<Href> slaTemplates) {
+      this.slaTemplates = slaTemplates;
    }
 
    public String getAgentType() {
@@ -182,5 +184,26 @@ public class Service {
 
    public void setCategory(Integer category) {
       this.category = category;
+   }
+
+   @JsonIgnoreProperties(ignoreUnknown = true)
+   public static class Href {
+
+      private String href;
+
+      public Href() {
+      }
+
+      public Href(String href) {
+         this.href = href;
+      }
+
+      public String getHref() {
+         return href;
+      }
+
+      public void setHref(String href) {
+         this.href = href;
+      }
    }
 }
