@@ -68,7 +68,6 @@ function getServices()
 
 function createServiceInstance(serviceObject)
 {
-//	var userId = getUserId();
     var userId = "carpio";
 	var agreementId = getAgreementId(serviceObject['name']);
     var serviceInstanceJson = JSON.stringify({
@@ -106,8 +105,7 @@ function getAgreementId(serviceName){
 
 function launchService(serviceInstance)
 {
-	try
-	{	
+	try {
 		var response = null;
 		$.ajax
 		({
@@ -132,6 +130,31 @@ function launchService(serviceInstance)
 	}
 	catch (e){return 0;}
 }
+
+function deleteService(serviceId){
+    try {
+    		var response = null;
+    		$.ajax
+    		({
+    			url:   "api/service-management/gui/" + serviceId,
+    			type:  "DELETE",
+    			async: false,
+    			success: function(ans)
+    			{
+    				response = ans;
+    			}
+    		});
+    		if (response != null){
+                if(response['status'] == 200) {
+                    window.location.href = "index.html";
+                } else {
+                    alert("Error: " + response['message']);
+                }
+    		}
+    	}
+    	catch (e){return 0;}
+}
+
 
 function createRow(catalog, id){
 
@@ -217,7 +240,7 @@ function createColumn(catalog, id, r, service, columnSize){
 	var deleteButton = document.createElement("button");
 	deleteButton.setAttribute("id","button_delete"+id);
 	deleteButton.setAttribute("class","button button-delete");
-	deleteButton.onclick = function() {deleteService(service);}
+	deleteButton.onclick = function() {deleteService(service['id']);}
 	deleteButton.innerHTML="Delete";
 	document.getElementById("card"+id).appendChild(deleteButton);
 }

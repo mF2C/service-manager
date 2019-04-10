@@ -118,7 +118,7 @@ public class ServiceManagerInterface {
          if (algorithm.equals(DRL)) {
             learningModel = LearningAlgorithm.getLearningModel(qosModel, serviceInstance);
             LearningAlgorithm.setIsFailure(isFailure);
-         } else if (algorithm.equals(HEU)){
+         } else if (algorithm.equals(HEU)) {
             HeuristicAlgorithm.initialize(serviceInstance, ACCEPTANCE_RATIO);
          }
          serviceInstance = ServiceManager.qosProvider.checkQos(serviceInstance, qosModel, learningModel, algorithm);
@@ -131,12 +131,6 @@ public class ServiceManagerInterface {
          response.setMessage(e.getMessage());
       }
       return response;
-   }
-
-   @PostMapping(value = GUI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-   public @ResponseBody
-   Response postFromGUI(@RequestBody Service service) {
-      return CimiInterface.postService(service);
    }
 
    @GetMapping(value = AGREEMENT + SERVICE_NAME)
@@ -158,5 +152,17 @@ public class ServiceManagerInterface {
          response.setMessage(e.getMessage());
       }
       return response;
+   }
+
+   @PostMapping(value = GUI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+   public @ResponseBody
+   Response postFromGUI(@RequestBody Service service) {
+      return CimiInterface.postService(service);
+   }
+
+   @DeleteMapping(value = GUI + SERVICE + SERVICE_ID, produces = MediaType.APPLICATION_JSON_VALUE)
+   public @ResponseBody
+   Response deleteFromGUI(@PathVariable String service_id) {
+      return CimiInterface.deleteService("service/" + service_id);
    }
 }

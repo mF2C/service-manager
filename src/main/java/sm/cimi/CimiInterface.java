@@ -94,6 +94,28 @@ public class CimiInterface {
       return response;
    }
 
+   public static Response deleteService(String serviceId) {
+      HttpEntity<String> entity = new HttpEntity<>(headers);
+      Response response = new Response(serviceId, cimiUrl + SERVICE);
+      try {
+         ResponseEntity<Response> responseEntity = restTemplate.exchange(
+                 cimiUrl + "/" + serviceId
+                 , HttpMethod.DELETE
+                 , entity
+                 , Response.class);
+         if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value())
+            log.info("Service deleted: " + serviceId);
+         response.setStatus(responseEntity.getStatusCodeValue());
+      } catch (Exception e) {
+         String message = "Error deleting service: " + e.getMessage();
+         log.error(message);
+         response.setStatus(HttpStatus.NOT_FOUND.value());
+         response.setMessage(message);
+      }
+      return response;
+   }
+
+
    public static int putService(Service service) {
       headers.setContentType(MediaType.APPLICATION_JSON);
       HttpEntity<Service> entity = new HttpEntity<>(service, headers);
