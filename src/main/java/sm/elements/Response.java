@@ -29,13 +29,16 @@ public class Response {
     private Service service;
     @JsonProperty("service-instance")
     private ServiceInstance serviceInstance;
-    private Agreement agreement;
-    private List<Agreement> agreements;
     @JsonProperty("qos-models")
     private List<QosModel> qosModels;
+    @JsonProperty("templates")
+    private List<SlaTemplate> slaTemplates;
 
     public Response() {
-        services = new ArrayList<>();
+    }
+
+    public Response(String resourceURI) {
+        this.resourceURI = resourceURI;
     }
 
     public Response(String id, String resourceURI) {
@@ -137,27 +140,19 @@ public class Response {
         this.serviceInstance = serviceInstance;
     }
 
-    public Agreement getAgreement() {
-        return agreement;
-    }
-
-    public void setAgreement(Agreement agreement) {
-        this.agreement = agreement;
-    }
-
-    public List<Agreement> getAgreements() {
-        return agreements;
-    }
-
-    public void setAgreements(List<Agreement> agreements) {
-        this.agreements = agreements;
-    }
-
     public List<QosModel> getQosModels() {
         return qosModels;
     }
 
     public void setQosModels(List<QosModel> qosModels) {
         this.qosModels = qosModels;
+    }
+
+    public List<SlaTemplate> getSlaTemplates() {
+        return slaTemplates;
+    }
+
+    public void setSlaTemplates(List<SlaTemplate> slaTemplates) {
+        this.slaTemplates = slaTemplates;
     }
 }

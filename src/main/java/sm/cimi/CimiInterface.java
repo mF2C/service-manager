@@ -196,26 +196,6 @@ public class CimiInterface {
       }
    }
 
-   public static Agreement getAgreement(String id) {
-      HttpEntity<String> entity = new HttpEntity<>(headers);
-      Agreement agreement = null;
-      try {
-         ResponseEntity<Agreement> responseEntity = restTemplate.exchange(
-                 cimiUrl + "/" + id
-                 , HttpMethod.GET
-                 , entity
-                 , Agreement.class);
-         if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
-            agreement = responseEntity.getBody();
-            log.info("Agreement retrieved: " + id);
-         }
-         return agreement;
-      } catch (Exception e) {
-         log.error("Error retrieving agreement: " + e.getMessage());
-         return null;
-      }
-   }
-
    public static List<SlaViolation> getSlaViolations(String agreementId) {
       HttpEntity<String> entity = new HttpEntity<>(headers);
       List<SlaViolation> slaViolations = new ArrayList<>();
@@ -238,26 +218,26 @@ public class CimiInterface {
       }
    }
 
-   public static List<Agreement> getAgreements(String service_name) {
+   public static Response getSlaTemplates() {
       HttpEntity<String> entity = new HttpEntity<>(headers);
-      List<Agreement> agreements = new ArrayList<>();
-      String filter = "?$filter=name='" + service_name + "'";
+      Response response = new Response(cimiUrl + SLA_TEMPLATE);
       try {
          ResponseEntity<Response> responseEntity = restTemplate.exchange(
-                 cimiUrl + AGREEMENT + filter
+                 cimiUrl + SLA_TEMPLATE
                  , HttpMethod.GET
                  , entity
                  , Response.class);
-         if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
-            log.info("Agreements retrieved");
-            Response response = responseEntity.getBody();
-            agreements = response.getAgreements();
-         }
-         return agreements;
+         if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value())
+            log.info("SLA templates retrieved");
+         response = responseEntity.getBody();
+         response.setStatus(responseEntity.getStatusCodeValue());
       } catch (Exception e) {
-         log.error("Error retrieving agreements: " + e.getMessage());
-         return null;
+         String message = "Error retrieving SLA templates: " + e.getMessage();
+         log.error(message);
+         response.setMessage(message);
+         response.setStatus(HttpStatus.NOT_FOUND.value());
       }
+      return response;
    }
 
    public static QosModel getQosModel(String serviceId, String agreementId) {

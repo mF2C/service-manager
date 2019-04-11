@@ -69,38 +69,11 @@ function getServices()
 function createServiceInstance(serviceObject)
 {
     var userId = "carpio";
-	var agreementId = getAgreementId(serviceObject['name']);
     var serviceInstanceJson = JSON.stringify({
         service_id: serviceObject['id'],
-        user_id: "user/" + userId,
-        agreement_id: agreementId
+        user_id: "user/" + userId
     });
-	if (agreementId != null && userId != null)
-        launchService(serviceInstanceJson);
-}
-
-function getAgreementId(serviceName){
-	var response = null;
-		$.ajax
-		({
-			url:   "api/service-management/agreement/" + serviceName,
-			type:  "GET",
-			async: false, 
-			success: function(ans)
-			{
-				response = ans;
-			}
-		});
-		var agreementId;
-		if (response != null){
-		    if(response['status'] == 200) {
-                var agreement = response['agreement'];
-                agreementId = agreement['id'];
-		    } else {
-		        alert("Agreement error: " + response['message']);
-		    }
-		}
-	return agreementId;
+    launchService(serviceInstanceJson);
 }
 
 function launchService(serviceInstance)
@@ -114,21 +87,22 @@ function launchService(serviceInstance)
 			type:  "POST",
 			contentType: "application/json",
 			async: false, 
-			success: function(ans)
-			{
-				response = ans;
-			}
+			success: function(ans) { showResponseFromLM(ans); },
+			error: function(ans) { alert("Error: no connection to LM"); }
 		});
-		if (response != null){
-            if (response['error'] == false){
-                alert(response['message']);
-                window.location.href = "index.html";
-            } else{
-                alert("Error: " + response['message']);
-            }
-		}
 	}
 	catch (e){return 0;}
+}
+
+function showResponseFromLM(response){
+    if (response != null){
+        if (response['error'] == false){
+            alert(response['message']);
+            window.location.href = "index.html";
+        } else{
+            alert("Error: " + response['message']);
+        }
+    }
 }
 
 function deleteService(serviceId){

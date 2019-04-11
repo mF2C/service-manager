@@ -94,12 +94,6 @@ public class ServiceManagerInterface {
             response.setMessage("service-instance not found");
             return response;
          }
-         Agreement agreement = CimiInterface.getAgreement(serviceInstance.getAgreement());
-         if (agreement == null) {
-            response.setNotFound();
-            response.setMessage("agreement not found");
-            return response;
-         }
          Service service = CimiInterface.getService(serviceInstance.getService());
          if (service == null) {
             response.setNotFound();
@@ -113,7 +107,7 @@ public class ServiceManagerInterface {
                log.info("No SLA violations found for agreement: " + serviceInstance.getAgreement());
             else isFailure = 1;
          }
-         QosModel qosModel = ServiceManager.qosProvider.getQosModel(service.getId(), agreement.getId(), serviceInstance.getAgents(), algorithm);
+         QosModel qosModel = ServiceManager.qosProvider.getQosModel(service.getId(), serviceInstance.getAgreement(), serviceInstance.getAgents(), algorithm);
          LearningModel learningModel = null;
          if (algorithm.equals(DRL)) {
             learningModel = LearningAlgorithm.getLearningModel(qosModel, serviceInstance);
@@ -133,27 +127,6 @@ public class ServiceManagerInterface {
       return response;
    }
 
-   @GetMapping(value = AGREEMENT + SERVICE_NAME)
-   public @ResponseBody
-   Response getAgreementId(@PathVariable String service_name) {
-      Response response = new Response(service_name, SERVICE_MANAGEMENT_ROOT + AGREEMENT);
-      try {
-         List<Agreement> agreements = CimiInterface.getAgreements(service_name);
-         if (agreements == null)
-            response.setBadRequest();
-         else if (agreements.size() == 0)
-            response.setNotFound();
-         else {
-            response.setAgreement(agreements.get(0));
-            response.setOk();
-         }
-      } catch (Exception e) {
-         response.setBadRequest();
-         response.setMessage(e.getMessage());
-      }
-      return response;
-   }
-
    @PostMapping(value = GUI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
    public @ResponseBody
    Response postFromGUI(@RequestBody Service service) {
@@ -164,5 +137,11 @@ public class ServiceManagerInterface {
    public @ResponseBody
    Response deleteFromGUI(@PathVariable String service_id) {
       return CimiInterface.deleteService("service/" + service_id);
+   }
+
+   @GetMapping(value = GUI + SLA_TEMPLATE, produces = MediaType.APPLICATION_JSON_VALUE)
+   public @ResponseBody
+   Response getSlaTemplates() {
+      return CimiInterface.getSlaTemplates();
    }
 }
