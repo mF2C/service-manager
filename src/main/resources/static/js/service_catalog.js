@@ -68,10 +68,9 @@ function getServices()
 
 function createServiceInstance(serviceObject)
 {
-    var userId = "carpio";
     var serviceInstanceJson = JSON.stringify({
         service_id: serviceObject['id'],
-        user_id: "user/" + userId
+        user_id: "user/admin"
     });
     launchService(serviceInstanceJson);
 }
@@ -83,12 +82,14 @@ function launchService(serviceInstance)
 		$.ajax
 		({
 			data: serviceInstance,
-			url:   "api/v2/lm/service",
+			url:   "api/service-management/gui/service-instance",
 			type:  "POST",
 			contentType: "application/json",
-			async: false, 
+			async: false,
 			success: function(ans) { showResponseFromLM(ans); },
-			error: function(ans) { alert("Error: no connection to LM"); }
+			error: function (xhr, ajaxOptions, thrownError) {
+                 alert(xhr.responseText);
+           }
 		});
 	}
 	catch (e){return 0;}
@@ -96,7 +97,7 @@ function launchService(serviceInstance)
 
 function showResponseFromLM(response){
     if (response != null){
-        if (response['error'] == false){
+        if (response['status'] == 200){
             alert(response['message']);
             window.location.href = "index.html";
         } else{

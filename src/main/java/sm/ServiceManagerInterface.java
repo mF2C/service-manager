@@ -10,8 +10,9 @@ package sm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import sm.cimi.CimiInterface;
 import sm.elements.*;
 import sm.providing.heuristic.HeuristicAlgorithm;
@@ -129,19 +130,50 @@ public class ServiceManagerInterface {
 
    @PostMapping(value = GUI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
    public @ResponseBody
-   Response postFromGUI(@RequestBody Service service) {
+   Response postServiceFromGUI(@RequestBody Service service) {
       return CimiInterface.postService(service);
    }
 
    @DeleteMapping(value = GUI + SERVICE + SERVICE_ID, produces = MediaType.APPLICATION_JSON_VALUE)
    public @ResponseBody
-   Response deleteFromGUI(@PathVariable String service_id) {
+   Response deleteServiceFromGUI(@PathVariable String service_id) {
       return CimiInterface.deleteService("service/" + service_id);
    }
 
    @GetMapping(value = GUI + SLA_TEMPLATE, produces = MediaType.APPLICATION_JSON_VALUE)
    public @ResponseBody
-   Response getSlaTemplates() {
+   Response getSlaTemplatesFromGUI() {
       return CimiInterface.getSlaTemplates();
    }
+
+   @PostMapping(value = GUI + SERVICE_INSTANCE, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+   public @ResponseBody
+   Response postServiceInstanceFromGUI(@RequestBody ServiceInstance service_instance) {
+      Response response = new Response();
+      HttpHeaders headers = new HttpHeaders();
+      headers.setContentType(MediaType.APPLICATION_JSON);
+      HttpEntity<ServiceInstance> entity = new HttpEntity<>(service_instance, headers);
+      RestTemplate restTemplate = new RestTemplate();
+      try {
+         ResponseEntity<String> responseEntity = restTemplate.exchange(
+                 lmUrl + SERVICE_INSTANCE_URL
+                 , HttpMethod.POST
+                 , entity
+                 , String.class);
+         if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
+            String message = "Service instance submitted for service: " + service_instance.getServiceId();
+            log.info(message);
+            response.setMessage(message);
+         }
+         response.setStatus(responseEntity.getStatusCodeValue());
+      } catch (Exception e) {
+         String message = "Error submitting service instance: " + e.getMessage();
+         log.error(message);
+         response.setStatus(HttpStatus.NOT_FOUND.value());
+         response.setMessage(message);
+      }
+      return response;
+   }
+
+
 }

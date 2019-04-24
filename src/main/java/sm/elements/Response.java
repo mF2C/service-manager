@@ -37,10 +37,6 @@ public class Response {
     public Response() {
     }
 
-    public Response(String resourceURI) {
-        this.resourceURI = resourceURI;
-    }
-
     public Response(String id, String resourceURI) {
         this.id = id;
         this.resourceURI = resourceURI;

@@ -46,6 +46,7 @@ public class ServiceManager implements ApplicationRunner {
       String cimiKey = null;
       String cimiSecret = null;
       String cimiUrl = null;
+      String lmUrl = null;
       String algorithmParam = null;
       for (String name : applicationArguments.getOptionNames()) {
          if (name.equals("cimi.api.key"))
@@ -54,6 +55,8 @@ public class ServiceManager implements ApplicationRunner {
             cimiSecret = applicationArguments.getOptionValues(name).get(0);
          if (name.equals("cimi.url"))
             cimiUrl = applicationArguments.getOptionValues(name).get(0);
+         if (name.equals("lm.url"))
+            lmUrl = applicationArguments.getOptionValues(name).get(0);
          if (name.equals("algorithm"))
             algorithmParam = applicationArguments.getOptionValues(name).get(0);
       }
@@ -61,6 +64,8 @@ public class ServiceManager implements ApplicationRunner {
          Parameters.cimiUrl = cimiUrl;
       if (cimiKey != null && cimiSecret != null)
          stablishSesionToCimi(cimiKey, cimiSecret);
+      if (lmUrl != null)
+         Parameters.lmUrl = lmUrl;
       if (algorithmParam != null)
          algorithm = algorithmParam;
    }

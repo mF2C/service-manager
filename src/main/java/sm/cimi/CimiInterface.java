@@ -220,7 +220,7 @@ public class CimiInterface {
 
    public static Response getSlaTemplates() {
       HttpEntity<String> entity = new HttpEntity<>(headers);
-      Response response = new Response(cimiUrl + SLA_TEMPLATE);
+      Response response = new Response();
       try {
          ResponseEntity<Response> responseEntity = restTemplate.exchange(
                  cimiUrl + SLA_TEMPLATE
