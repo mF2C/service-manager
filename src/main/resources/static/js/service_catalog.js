@@ -66,22 +66,16 @@ function getServices()
 	catch (e){return 0;}
 }
 
-function createServiceInstance(serviceObject)
-{
-    var serviceInstanceJson = JSON.stringify({
-        service_id: serviceObject['id'],
-        user_id: "user/admin"
-    });
-    launchService(serviceInstanceJson);
-}
-
 function launchService(serviceInstance)
 {
+    var serviceInstanceJson = JSON.stringify({
+        service_id: serviceInstance['id']
+    });
 	try {
 		var response = null;
 		$.ajax
 		({
-			data: serviceInstance,
+			data: serviceInstanceJson,
 			url:   "api/service-management/gui/service-instance",
 			type:  "POST",
 			contentType: "application/json",
@@ -208,7 +202,7 @@ function createColumn(catalog, id, r, service, columnSize){
 	var launchButton = document.createElement("button");
 	launchButton.setAttribute("id","button_launch"+id);
 	launchButton.setAttribute("class","button button-launch");
-	launchButton.onclick = function() {createServiceInstance(service);}
+	launchButton.onclick = function() {launchService(service);}
 	launchButton.innerHTML="Launch";
 	document.getElementById("card"+id).appendChild(launchButton);
 
