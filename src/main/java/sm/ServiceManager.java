@@ -17,6 +17,7 @@ import sm.categorization.Categorizer;
 import sm.cimi.CimiInterface;
 import sm.cimi.CimiSession;
 import sm.cimi.CimiSession.SessionTemplate;
+import sm.enforcement.QosEnforcer;
 import sm.providing.QosProvider;
 
 import java.util.concurrent.*;
@@ -30,10 +31,12 @@ public class ServiceManager implements ApplicationRunner {
 
    static Categorizer categorizer;
    static QosProvider qosProvider;
+   static QosEnforcer qosEnforcer;
 
    public ServiceManager() {
       categorizer = new Categorizer();
       qosProvider = new QosProvider();
+      qosEnforcer = new QosEnforcer();
       new CimiInterface();
    }
 

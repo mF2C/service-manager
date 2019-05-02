@@ -7,41 +7,57 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sm.cimi.CimiInterface;
 import sm.elements.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
+import static sm.Parameters.CLUSTER_CATEGORIES;
 
 public class ClusteringTest {
 
-    private static final Logger log = LoggerFactory.getLogger(ClusteringTest.class);
-    private List<Service> services;
-    private Categorizer categorizer;
-    @Before
-    public void createService(){
-        categorizer = new Categorizer();
-        services = new ArrayList<>();
-        Service s1 = new Service();
-        s1.setName("s1");
-        s1.setExec("test");
-        s1.setExecType("compss");
-        s1.setAgentType("normal");
-        s1.setCpuArch("x86-64");
-        services.add(s1);
-        services.add(s1);
-    }
+   private static final Logger log = LoggerFactory.getLogger(ClusteringTest.class);
+   private List<Service> services;
+   private Categorizer categorizer;
+   private Random rnd = new Random();
+   private final int[] VALUES = new int[]{0, 10};
+   private final int NUM_SERVICES = 100;
 
-    @Test
-    public void testClustering() {
-        float[][] input = categorizer.createInputForServices(services);
-        List<Point> points = categorizer.generatePoints(input);
-        ClusterSet clusterSet = categorizer.runClustering(points);
-        for (int i = 0; i < clusterSet.getClusters().size(); i++)
-            clusterSet.getClusters().get(i).setId("category " + i);
-        for (int i = 0; i < points.size(); i++) {
-            PointClassification pointClassification = clusterSet.classifyPoint(points.get(i));
-            log.info(services.get(i).getName() + " -> " + pointClassification.getCluster().getId());
-        }
-    }
+   @Before
+   public void createService() {
+      categorizer = new Categorizer();
+      services = new ArrayList<>();
+      for (int i = 0; i < NUM_SERVICES; i++)
+         services.add(createRandomService(i));
+   }
+
+   private Service createRandomService(int id) {
+      Service service = new Service();
+      service.setId(String.valueOf(id));
+      service.setCpu(VALUES[rnd.nextInt(VALUES.length)]);
+      service.setMemory(VALUES[rnd.nextInt(VALUES.length)]);
+      service.setNetwork(VALUES[rnd.nextInt(VALUES.length)]);
+      service.setDisk(VALUES[rnd.nextInt(VALUES.length)]);
+      return service;
+   }
+
+   @Test
+   public void testClustering() {
+      float[][] input = categorizer.createInputForServices(services);
+      List<Point> points = categorizer.generatePoints(input);
+      ClusterSet clusterSet = categorizer.runClustering(points);
+      for (int i = 0; i < clusterSet.getClusters().size(); i++)
+         clusterSet.getClusters().get(i).setId(String.valueOf(i));
+      List<PointClassification> pointClassificationList = new ArrayList<>();
+      for (Point point : points)
+         pointClassificationList.add(clusterSet.classifyPoint(point));
+      Map<Service, PointClassification> categorizedServices = new HashMap<>();
+      for (int s = 0; s < services.size(); s++)
+         categorizedServices.put(services.get(s), pointClassificationList.get(s));
+      for (int i = 0; i < CLUSTER_CATEGORIES; i++)
+         for (Service service : services)
+            if (categorizedServices.get(service).getCluster().getId().equals(String.valueOf(i)))
+               log.info("service " + service.getId() + " -> "
+                       + categorizedServices.get(service).getCluster().getId() + " [" + service.getCpu() + "]["
+                       + service.getMemory() + "][" + service.getNetwork() + "][" + service.getDisk() + "]");
+   }
 }

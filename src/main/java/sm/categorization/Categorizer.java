@@ -31,11 +31,11 @@ public class Categorizer {
    private ClusterSet clusterSet;
 
    public Categorizer() {
-      kMeansClustering = KMeansClustering.setup(CLUSTER_COUNT, CATEGORIZER_MAX_ITERATION_COUNT, "euclidean");
+      kMeansClustering = KMeansClustering.setup(CLUSTER_CATEGORIES, CATEGORIZER_MAX_ITERATION_COUNT, "euclidean");
       ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
       Runnable task = () -> {
          List<Service> services = CimiInterface.getServices();
-         if (services.size() > CLUSTER_COUNT) {
+         if (services.size() > CLUSTER_CATEGORIES) {
             log.info("Running clustering...");
             float[][] inputServices = createInputForServices(services);
             List<Point> points = generatePoints(inputServices);
@@ -76,34 +76,22 @@ public class Categorizer {
    }
 
    float[][] createInputForServices(List<Service> services) {
-      float[][] inputServices = new float[services.size()][11];
+      float[][] inputServices = new float[services.size()][SERVICE_FIELDS];
       for (int s = 0; s < services.size(); s++)
          inputServices[s] = createInputForService(services.get(s));
       return inputServices;
    }
 
    private float[] createInputForService(Service service) {
-      float[] inputService = new float[11];
-      inputService[0] = service.getExecType().hashCode();
-      inputService[1] = service.getAgentType().hashCode();
-      if (service.getExecPorts() != null)
-         inputService[2] = service.getExecPorts().length;
-      if (service.getNumAgents() != null)
-         inputService[3] = service.getNumAgents();
-      if (service.getCpuArch() != null)
-         inputService[4] = service.getCpuArch().hashCode();
-      if (service.getOs() != null)
-         inputService[5] = service.getOs().hashCode();
-      if (service.getMemoryMin() != null)
-         inputService[6] = service.getMemoryMin();
-      if (service.getStorageMin() != null)
-         inputService[7] = service.getStorageMin();
+      float[] inputService = new float[SERVICE_FIELDS];
+      if (service.getCpu() != null)
+         inputService[0] = service.getCpu();
+      if (service.getMemory() != null)
+         inputService[1] = service.getMemory();
+      if (service.getNetwork() != null)
+         inputService[2] = service.getNetwork();
       if (service.getDisk() != null)
-         inputService[8] = service.getDisk();
-      if (service.getReqResource() != null)
-         inputService[9] = service.getReqResource().length;
-      if (service.getOptResource() != null)
-         inputService[10] = service.getOptResource().length;
+         inputService[3] = service.getDisk();
       return inputService;
    }
 

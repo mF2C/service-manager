@@ -18,7 +18,6 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Service {
 
-   // JSON parameters
    private String id;
    private String name;
    private String description;
@@ -36,11 +35,13 @@ public class Service {
    @JsonProperty("cpu_arch")
    private String cpuArch;
    private String os;
+   private Integer cpu;
    @JsonProperty("memory_min")
-   private Integer memoryMin;
+   private Integer memory;
+   private Integer network;
+   private Integer disk;
    @JsonProperty("storage_min")
    private Integer storageMin;
-   private Integer disk;
    @JsonProperty("req_resource")
    private String[] reqResource;
    @JsonProperty("opt_resource")
@@ -138,12 +139,28 @@ public class Service {
       this.os = os;
    }
 
-   public Integer getMemoryMin() {
-      return memoryMin;
+   public Integer getCpu() {
+      return cpu;
    }
 
-   public void setMemoryMin(Integer memoryMin) {
-      this.memoryMin = memoryMin;
+   public void setCpu(Integer cpu) {
+      this.cpu = cpu;
+   }
+
+   public Integer getNetwork() {
+      return network;
+   }
+
+   public void setNetwork(Integer network) {
+      this.network = network;
+   }
+
+   public Integer getMemory() {
+      return memory;
+   }
+
+   public void setMemory(Integer memory) {
+      this.memory = memory;
    }
 
    public Integer getStorageMin() {

@@ -305,4 +305,24 @@ public class CimiInterface {
       }
       return -1;
    }
+
+   public static Agreement getAgreement(String id) {
+      HttpEntity<String> entity = new HttpEntity<>(headers);
+      Agreement agreement = null;
+      try {
+         ResponseEntity<Agreement> responseEntity = restTemplate.exchange(
+                 cimiUrl + "/" + id
+                 , HttpMethod.GET
+                 , entity
+                 , Agreement.class);
+         if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
+            agreement = responseEntity.getBody();
+            log.info("Agreement retrieved: " + agreement.getId());
+         }
+         return agreement;
+      } catch (Exception e) {
+         log.error("Error retrieving agreement: " + e.getMessage());
+         return null;
+      }
+   }
 }

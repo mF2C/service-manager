@@ -14,7 +14,10 @@ public class Parameters {
    public static final String SERVICE_MANAGEMENT_ROOT = "/api/service-management";
    public static String cimiUrl = "https://localhost/api";
    public static String lmUrl = "http://localhost:46000";
-   public static final String SERVICE_INSTANCE_URL = "/api/v2/lm/service";
+   public static final String SERVICE_INSTANCE_URL = "/api/v2/lm";
+   public static final String EVENT_MANAGER_URL = "http://localhost:8000";
+   public static final String SERVICE_OPERATION_REPORTS_STREAM_CREATE = "/stream?channel=service_operation_reports_create";
+   public static final String SERVICE_OPERATION_REPORTS_STREAM_UPDATE = "/stream?channel=service_operation_reports_update";
 
    /********* resources **********/
    public static final String SESSION = "/session";
@@ -29,7 +32,8 @@ public class Parameters {
 
    /*********** Aux values ************/
    public static final int CIMI_RECONNECTION_TIME = 10;
-   public static final int CLUSTER_COUNT = 3;
+   public static final int CLUSTER_CATEGORIES = 16;
+   public static final int SERVICE_FIELDS = 4;
    public static final int CATEGORIZER_MAX_ITERATION_COUNT = 100;
    public static final int RETRAINING_DELAY_TIME = 30;
    public static final int RETRAINING_TIME = 500;
