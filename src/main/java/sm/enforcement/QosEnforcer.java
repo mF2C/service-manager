@@ -21,10 +21,14 @@ import reactor.core.publisher.Flux;
 import sm.cimi.CimiInterface;
 import sm.elements.Agreement;
 import sm.elements.Service;
-import sm.elements.ServiceOperationReport;
 import sm.elements.ServiceInstance;
+import sm.elements.ServiceOperationReport;
 
 import java.time.Instant;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static sm.Parameters.*;
 
@@ -33,26 +37,45 @@ public class QosEnforcer {
    private static final Logger log = LoggerFactory.getLogger(QosEnforcer.class);
 
    public QosEnforcer() {
-      ParameterizedTypeReference<ServerSentEvent<ServiceOperationReport>> type = new ParameterizedTypeReference<>() {
-      };
-      final Flux<ServerSentEvent<ServiceOperationReport>> createStream = WebClient
-              .create(EVENT_MANAGER_URL)
-              .get().uri(SERVICE_OPERATION_REPORTS_STREAM_CREATE)
-              .retrieve()
-              .bodyToFlux(type);
-      createStream.subscribe(sse -> checkServiceOperationReport(sse.data())
-              , error -> log.error("Error connecting to Event Manager [" + EVENT_MANAGER_URL + SERVICE_OPERATION_REPORTS_STREAM_CREATE + "]"));
-      final Flux<ServerSentEvent<ServiceOperationReport>> updateStream = WebClient
-              .create(EVENT_MANAGER_URL)
-              .get().uri(SERVICE_OPERATION_REPORTS_STREAM_UPDATE)
-              .retrieve()
-              .bodyToFlux(type);
-      updateStream.subscribe(sse -> checkServiceOperationReport(sse.data())
-              , error -> log.error("Error connecting to Event Manager [" + EVENT_MANAGER_URL + SERVICE_OPERATION_REPORTS_STREAM_UPDATE + "]"));
-
+      ScheduledExecutorService scheduledExecutorServiceCreate = Executors.newSingleThreadScheduledExecutor();
+      EventManagerSubscriptionJob taskStreamCreate = new EventManagerSubscriptionJob(SERVICE_OPERATION_REPORTS_STREAM_CREATE, scheduledExecutorServiceCreate);
+      scheduledExecutorServiceCreate.scheduleAtFixedRate(taskStreamCreate, EVENT_MANAGER_CONNECTION_TIME, EVENT_MANAGER_CONNECTION_TIME, TimeUnit.SECONDS);
+      ScheduledExecutorService scheduledExecutorServiceUpdate = Executors.newSingleThreadScheduledExecutor();
+      EventManagerSubscriptionJob taskStreamUpdate = new EventManagerSubscriptionJob(SERVICE_OPERATION_REPORTS_STREAM_UPDATE, scheduledExecutorServiceUpdate);
+      scheduledExecutorServiceUpdate.scheduleAtFixedRate(taskStreamUpdate, EVENT_MANAGER_CONNECTION_TIME, EVENT_MANAGER_CONNECTION_TIME, TimeUnit.SECONDS);
    }
 
-   public void checkServiceOperationReport(ServiceOperationReport serviceOperationReport) {
+   public class EventManagerSubscriptionJob implements Runnable {
+      private AtomicBoolean isConnection;
+      private ParameterizedTypeReference<ServerSentEvent<ServiceOperationReport>> type;
+      private String job;
+      private ScheduledExecutorService scheduledExecutorService;
+
+      EventManagerSubscriptionJob(String job, ScheduledExecutorService scheduledExecutorService) {
+         isConnection = new AtomicBoolean(false);
+         type = new ParameterizedTypeReference<>() {
+         };
+         this.job = job;
+         this.scheduledExecutorService = scheduledExecutorService;
+      }
+
+      public void run() {
+         final Flux<ServerSentEvent<ServiceOperationReport>> createStream = WebClient
+                 .create(EVENT_MANAGER_URL)
+                 .get().uri(job)
+                 .retrieve()
+                 .bodyToFlux(type);
+         createStream.subscribe(sse -> checkServiceOperationReport(sse.data())
+                 , error -> isConnection.set(false));
+         if (isConnection.get()) {
+            log.info("Subscribed to Event Manager job [" + job + "]");
+            scheduledExecutorService.shutdownNow();
+         } else
+            log.error("Error subscribing to Event Manager job [" + job + "]");
+      }
+   }
+
+   private void checkServiceOperationReport(ServiceOperationReport serviceOperationReport) {
       if (serviceOperationReport != null) {
          ServiceInstance serviceInstance = CimiInterface.getServiceInstance(serviceOperationReport.getRequestingApplicationId().getHref());
          Service service = CimiInterface.getService(serviceInstance.getServiceId());
