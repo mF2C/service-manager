@@ -12,24 +12,23 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
-import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
 import sm.cimi.CimiInterface;
 import sm.elements.Agreement;
 import sm.elements.Service;
 import sm.elements.ServiceInstance;
 import sm.elements.ServiceOperationReport;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.sse.InboundSseEvent;
+import javax.ws.rs.sse.SseEventSource;
 import java.time.Instant;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static sm.Parameters.*;
 
 public class QosEnforcer {
@@ -37,43 +36,26 @@ public class QosEnforcer {
    private static final Logger log = LoggerFactory.getLogger(QosEnforcer.class);
 
    public QosEnforcer() {
-      ScheduledExecutorService scheduledExecutorServiceCreate = Executors.newSingleThreadScheduledExecutor();
-      EventManagerSubscriptionJob taskStreamCreate = new EventManagerSubscriptionJob(SERVICE_OPERATION_REPORTS_STREAM_CREATE, scheduledExecutorServiceCreate);
-      scheduledExecutorServiceCreate.scheduleAtFixedRate(taskStreamCreate, EVENT_MANAGER_CONNECTION_TIME, EVENT_MANAGER_CONNECTION_TIME, TimeUnit.SECONDS);
-      ScheduledExecutorService scheduledExecutorServiceUpdate = Executors.newSingleThreadScheduledExecutor();
-      EventManagerSubscriptionJob taskStreamUpdate = new EventManagerSubscriptionJob(SERVICE_OPERATION_REPORTS_STREAM_UPDATE, scheduledExecutorServiceUpdate);
-      scheduledExecutorServiceUpdate.scheduleAtFixedRate(taskStreamUpdate, EVENT_MANAGER_CONNECTION_TIME, EVENT_MANAGER_CONNECTION_TIME, TimeUnit.SECONDS);
+      getServiceOperationReports(EVENT_MANAGER_URL + SERVICE_OPERATION_REPORTS_STREAM_CREATE);
+      getServiceOperationReports(EVENT_MANAGER_URL + SERVICE_OPERATION_REPORTS_STREAM_UPDATE);
    }
 
-   public class EventManagerSubscriptionJob implements Runnable {
-      private AtomicBoolean isConnection;
-      private ParameterizedTypeReference<ServerSentEvent<ServiceOperationReport>> type;
-      private String job;
-      private ScheduledExecutorService scheduledExecutorService;
-
-      EventManagerSubscriptionJob(String job, ScheduledExecutorService scheduledExecutorService) {
-         isConnection = new AtomicBoolean(false);
-         type = new ParameterizedTypeReference<>() {
-         };
-         this.job = job;
-         this.scheduledExecutorService = scheduledExecutorService;
-      }
-
-      public void run() {
-         final Flux<ServerSentEvent<ServiceOperationReport>> createStream = WebClient
-                 .create(EVENT_MANAGER_URL)
-                 .get().uri(job)
-                 .retrieve()
-                 .bodyToFlux(type);
-         createStream.subscribe(sse -> checkServiceOperationReport(sse.data())
-                 , error -> isConnection.set(false));
-         if (isConnection.get()) {
-            log.info("Subscribed to Event Manager job [" + job + "]");
-            scheduledExecutorService.shutdownNow();
-         } else
-            log.error("Error subscribing to Event Manager job [" + job + "]");
-      }
+   private void getServiceOperationReports(String url) {
+      Client client = ClientBuilder.newClient();
+      WebTarget target = client.target(url);
+      SseEventSource eventSource = SseEventSource.target(target).reconnectingEvery(EVENT_MANAGER_RECONNECTION_TIME, SECONDS).build();
+      eventSource.register(onEvent, error -> log.error(error.getMessage()));
+      eventSource.open();
+      if (eventSource.isOpen())
+         log.info("Subscribed to Event Manager job [" + url + "]");
    }
+
+   private Consumer<InboundSseEvent> onEvent = (inboundSseEvent) -> {
+      String data = inboundSseEvent.readData();
+      log.info(data);
+//      ServiceOperationReport serviceOperationReport = inboundSseEvent.readData(ServiceOperationReport.class, javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE);
+//      checkServiceOperationReport(serviceOperationReport);
+   };
 
    private void checkServiceOperationReport(ServiceOperationReport serviceOperationReport) {
       if (serviceOperationReport != null) {

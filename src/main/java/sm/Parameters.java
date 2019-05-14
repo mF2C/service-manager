@@ -52,5 +52,5 @@ public class Parameters {
    public static final int TRAINING_ITERATIONS = 100;
    public static final double ACCEPTANCE_RATIO = 1.0;
    public static String algorithm = HEU;
-   public static final int EVENT_MANAGER_CONNECTION_TIME = 30;
+   public static final int EVENT_MANAGER_RECONNECTION_TIME = 10;
 }
