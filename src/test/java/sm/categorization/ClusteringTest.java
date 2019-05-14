@@ -19,7 +19,7 @@ public class ClusteringTest {
    private List<Service> services;
    private Categorizer categorizer;
    private Random rnd = new Random();
-   private final int[] VALUES = new int[]{0, 10};
+   private final double[] VALUES = new double[]{0, 10};
    private final int NUM_SERVICES = 100;
 
    @Before

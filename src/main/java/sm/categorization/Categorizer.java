@@ -85,13 +85,13 @@ public class Categorizer {
    private float[] createInputForService(Service service) {
       float[] inputService = new float[SERVICE_FIELDS];
       if (service.getCpu() != null)
-         inputService[0] = service.getCpu();
+         inputService[0] = service.getCpu().floatValue();
       if (service.getMemory() != null)
-         inputService[1] = service.getMemory();
+         inputService[1] = service.getMemory().floatValue();
       if (service.getNetwork() != null)
-         inputService[2] = service.getNetwork();
+         inputService[2] = service.getNetwork().floatValue();
       if (service.getDisk() != null)
-         inputService[3] = service.getDisk();
+         inputService[3] = service.getDisk().floatValue();
       return inputService;
    }
 
