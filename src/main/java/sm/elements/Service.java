@@ -35,11 +35,10 @@ public class Service {
    @JsonProperty("cpu_arch")
    private String cpuArch;
    private String os;
-   private Integer cpu;
-   @JsonProperty("memory_min")
-   private Integer memory;
-   private Integer network;
-   private Integer disk;
+   private Double cpu;
+   private Double memory;
+   private Double disk;
+   private Double network;
    @JsonProperty("storage_min")
    private Integer storageMin;
    @JsonProperty("req_resource")
@@ -139,28 +138,36 @@ public class Service {
       this.os = os;
    }
 
-   public Integer getCpu() {
+   public Double getCpu() {
       return cpu;
    }
 
-   public void setCpu(Integer cpu) {
+   public void setCpu(Double cpu) {
       this.cpu = cpu;
    }
 
-   public Integer getNetwork() {
+   public Double getNetwork() {
       return network;
    }
 
-   public void setNetwork(Integer network) {
+   public void setNetwork(Double network) {
       this.network = network;
    }
 
-   public Integer getMemory() {
+   public Double getMemory() {
       return memory;
    }
 
-   public void setMemory(Integer memory) {
+   public void setMemory(Double memory) {
       this.memory = memory;
+   }
+
+   public Double getDisk() {
+      return disk;
+   }
+
+   public void setDisk(Double disk) {
+      this.disk = disk;
    }
 
    public Integer getStorageMin() {
@@ -169,14 +176,6 @@ public class Service {
 
    public void setStorageMin(Integer storageMin) {
       this.storageMin = storageMin;
-   }
-
-   public Integer getDisk() {
-      return disk;
-   }
-
-   public void setDisk(Integer disk) {
-      this.disk = disk;
    }
 
    public String[] getReqResource() {

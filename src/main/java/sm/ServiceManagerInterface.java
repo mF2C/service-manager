@@ -24,7 +24,7 @@ import java.util.List;
 import static sm.Parameters.*;
 
 @RestController
-@RequestMapping(value = SERVICE_MANAGEMENT_ROOT)
+@RequestMapping(value = SM_ROOT)
 public class ServiceManagerInterface {
 
    private static final Logger log = LoggerFactory.getLogger(ServiceManagerInterface.class);
@@ -32,7 +32,7 @@ public class ServiceManagerInterface {
    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
    public @ResponseBody
    Response getServices() {
-      Response response = new Response(null, SERVICE_MANAGEMENT_ROOT);
+      Response response = new Response(null, SM_ROOT);
       try {
          response.setServices(CimiInterface.getServices());
          response.setOk();
@@ -47,7 +47,7 @@ public class ServiceManagerInterface {
    public @ResponseBody
    Response getService(@PathVariable String service_id) {
       String serviceId = "service/" + service_id;
-      Response response = new Response(serviceId, SERVICE_MANAGEMENT_ROOT);
+      Response response = new Response(serviceId, SM_ROOT);
       Service service;
       try {
          if ((service = CimiInterface.getService(serviceId)) != null) {
@@ -66,7 +66,7 @@ public class ServiceManagerInterface {
    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
    public @ResponseBody
    Response postService(@RequestBody Service service) {
-      Response response = new Response(service.getName(), SERVICE_MANAGEMENT_ROOT);
+      Response response = new Response(service.getName(), SM_ROOT);
       try {
          Service serviceCategorized = ServiceManager.categorizer.run(service);
          if (serviceCategorized != null) {
@@ -87,7 +87,7 @@ public class ServiceManagerInterface {
    public @ResponseBody
    Response checkQos(@PathVariable String service_instance_id) {
       String serviceInstanceId = "service-instance/" + service_instance_id;
-      Response response = new Response(serviceInstanceId, SERVICE_MANAGEMENT_ROOT);
+      Response response = new Response(serviceInstanceId, SM_ROOT);
       try {
          ServiceInstance serviceInstance = CimiInterface.getServiceInstance(serviceInstanceId);
          if (serviceInstance == null) {

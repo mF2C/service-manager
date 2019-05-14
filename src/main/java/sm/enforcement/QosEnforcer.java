@@ -51,10 +51,8 @@ public class QosEnforcer {
    }
 
    private Consumer<InboundSseEvent> onEvent = (inboundSseEvent) -> {
-      String data = inboundSseEvent.readData();
-      log.info(data);
-//      ServiceOperationReport serviceOperationReport = inboundSseEvent.readData(ServiceOperationReport.class, javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE);
-//      checkServiceOperationReport(serviceOperationReport);
+      ServiceOperationReport serviceOperationReport = inboundSseEvent.readData(ServiceOperationReport.class, javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE);
+      checkServiceOperationReport(serviceOperationReport);
    };
 
    private void checkServiceOperationReport(ServiceOperationReport serviceOperationReport) {

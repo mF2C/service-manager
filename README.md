@@ -1,47 +1,65 @@
-# Service Management
-The current development of Service Management module is divided into two different components: the Categorization and QoS providing blocks.
+# SERVICE MANAGER
+
+Responsible of categorizing services into the system and improving QoS before and during the execution of a service
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 This development is part of the European Project mF2C.
 
-## Running
+## Usage
 
-Type the following command from the root project directory to start the application:
+### API
 
-```
-$ mvn spring-boot:run
-```
+- Endpoint `http://localhost:46200`
+- GET `/api/sm` -> returns the list of all services
+- GET `/api/sm/<service_id>` -> returns the specified service
+- POST `/api/sm`, DATA `service` -> submit new service
+- GET `/api/sm/{service_instance_id}` -> check QoS and returns the specified service instance
 
-After waiting some time to start, check `http://localhost:46200/api/service-management/` to see if the Service Management is running properly. 
+The rest of actions can be performed through the GUI `https://localhost/sm/index.html`
+
+#### Examples
+
+submitting a new service:
+
+    POST /api/sm
+    DATA:
+        {
+             "name": "compss-hello-world",
+             "description": "hello world example",
+             "exec": "mf2c/compss-test:it2",
+             "exec_type": "compss",
+             "exec_ports": [8080, 8081],
+             "agent_type": "normal",
+             "num_agents": 1,
+             "cpu_arch": "x86-64",
+             "os": "linux",
+             "cpu": 0.0,
+             "memory": 0.0,
+             "disk": 0.0,
+             "network": 0.0,
+             "storage_min": 0,
+             "req_resource": ["sensor_1"],
+             "opt_resource": ["sensor_2"]
+        }
+
+### Troubleshooting
+
+## CHANGELOG
+
+### 1.8.0 (14.05.19)
+
+#### Added
+
+ - Now QoS enforcement supports subscription to the Event Manager
+ - Added a new call to Lifecycle when the expected execution time of a service is longer than the one specified in the agreement
+
+#### Changed
+
+ - updated service definition
+ - shortened api endpoints
 
 
-## Interfaces
 
--	Base URI: `http://localhost:46200/api/service-management/`
 
-Retrieve all services: 
--	Method: GET.
--   Returns: a list of all services.
 
-Retrieve a service: 
--	Method: GET.
--   Params: `<service_id>` of the service.
--   Returns: the requested service.
-
-Submit a new service: 
--	Method: POST.
--   Body: JSON object representing a [Service](https://github.com/mF2C/cimi/tree/master/_demo)
-
-Update an existing service: 
--	Method: PUT.
--   Body: JSON object representing a [Service](https://github.com/mF2C/cimi/tree/master/_demo).
-
-Delete an existing service: 
--	Method: DELETE.
--   Params: `<service_id>` of the service.
-
-Check QoS provider:
--	Method: GET
--   Params: `<service_instance_id>` from an existing service instance.
--   Returns: the same service instance.

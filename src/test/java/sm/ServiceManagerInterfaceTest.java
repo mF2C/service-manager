@@ -21,7 +21,7 @@ public class ServiceManagerInterfaceTest {
 
    private static TestRestTemplate restTemplate;
    private static Service serviceTest;
-   private static final String URI = SERVICE_MANAGEMENT_URL + SERVICE_MANAGEMENT_ROOT + "/";
+   private static final String URI = SERVICE_MANAGEMENT_URL + SM_ROOT + "/";
 
    @BeforeClass
    public static void setUp() {
