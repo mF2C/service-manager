@@ -10,8 +10,7 @@ package sm;
 
 public class Parameters {
 
-   public static final String SERVICE_MANAGEMENT_URL = "http://localhost:46200";
-   public static final String SM_ROOT = "/api/sm";
+   public static final String SM_ROOT = "/api";
    public static String cimiUrl = "https://localhost/api";
    public static String lmUrl = "http://localhost:46000";
    public static final String SERVICE_INSTANCE_URL = "/api/v2/lm";

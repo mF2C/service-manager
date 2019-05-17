@@ -53,7 +53,7 @@ function getServices()
 		var message = null;
 		$.ajax
 		({
-			url:   "api/service-management",
+			url:   "api",
 			type:  "GET",
 			async: false,
 			success: function(ans)
@@ -77,7 +77,7 @@ function launchService(service)
 		$.ajax
 		({
 			data: serviceInstanceJson,
-			url:   "api/service-management/gui/service-instance",
+			url:   "api/gui/service-instance",
 			type:  "POST",
 			contentType: "application/json",
 			async: false,
@@ -106,7 +106,7 @@ function deleteService(serviceId){
     		var response = null;
     		$.ajax
     		({
-    			url:   "api/service-management/gui/" + serviceId,
+    			url:   "api/gui/" + serviceId,
     			type:  "DELETE",
     			async: false,
     			success: function(ans)

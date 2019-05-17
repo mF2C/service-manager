@@ -35,9 +35,13 @@ public class Service {
    @JsonProperty("cpu_arch")
    private String cpuArch;
    private String os;
+   @JsonProperty("cpu_recommended")
    private Double cpu;
+   @JsonProperty("memory_recommended")
    private Double memory;
+   @JsonProperty("disk_recommended")
    private Double disk;
+   @JsonProperty("network_recommended")
    private Double network;
    @JsonProperty("storage_min")
    private Integer storageMin;

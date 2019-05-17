@@ -17,7 +17,7 @@ function getSlaTemplates(){
 	try {
         $.ajax
         ({
-            url:   "api/service-management/gui/sla-template",
+            url:   "api/gui/sla-template",
             type:  "GET",
             async: false,
             success: function (ans) { loadSlaTemplates(ans); }
@@ -98,7 +98,7 @@ function createService(service)
 		$.ajax
 		({
 			data: service,
-			url:   "api/service-management/gui",
+			url:   "api/gui",
 			type:  "POST",
 			contentType: "application/json",
 			async: false,
