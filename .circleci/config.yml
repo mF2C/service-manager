@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/service-manager
     docker:
-      - image: azul/zulu-openjdk:11.0.2
+      - image: circleci/openjdk:11.0.2-jdk
     steps:
       - checkout
       - restore_cache:
