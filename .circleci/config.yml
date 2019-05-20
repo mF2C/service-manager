@@ -2,6 +2,8 @@ version: 2
 jobs:
   build:
     working_directory: ~/service-manager
+    docker:
+      - image: azul/zulu-openjdk:11.0.2
     steps:
       - checkout
       - restore_cache:
