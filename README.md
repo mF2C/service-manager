@@ -3,6 +3,7 @@
 Responsible of categorizing services into the system and improving QoS before and during the execution of a service
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![CircleCI](https://circleci.com/gh/mF2C/service-manager.svg?style=svg)](https://circleci.com/gh/mF2C/service-manager)
 
 This development is part of the European Project mF2C.
 
