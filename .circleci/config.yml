@@ -1,0 +1,16 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/service-manager
+    steps:
+      - checkout
+      - restore_cache:
+          key: service-manager-{{ checksum "pom.xml" }}
+      - run: mvn dependency:go-offline
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: service-manager-{{ checksum "pom.xml" }}
+      - run: mvn package
+      - store_test_results:
+          path: target/surefire-reports
