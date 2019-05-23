@@ -11,8 +11,10 @@ package sm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.ModelAndView;
 import sm.cimi.CimiInterface;
 import sm.elements.*;
 import sm.providing.heuristic.HeuristicAlgorithm;
@@ -28,6 +30,13 @@ import static sm.Parameters.*;
 public class ServiceManagerInterface {
 
    private static final Logger log = LoggerFactory.getLogger(ServiceManagerInterface.class);
+
+   //TO BE REMOVED
+   @PostMapping("/service-management")
+   public ModelAndView redirectWithUsingForwardPrefix(ModelMap model) {
+      model.addAttribute("attribute", "service-management");
+      return new ModelAndView("forward:/api", model);
+   }
 
    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
    public @ResponseBody
