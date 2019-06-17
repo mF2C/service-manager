@@ -19,7 +19,10 @@ import org.slf4j.LoggerFactory;
 import sm.cimi.CimiInterface;
 import sm.elements.Service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 
 import static sm.Parameters.*;
@@ -29,6 +32,7 @@ public class Categorizer {
    private static Logger log = LoggerFactory.getLogger(Categorizer.class);
    private KMeansClustering kMeansClustering;
    private ClusterSet clusterSet;
+   private HashMap<Integer, Integer> pointsCategories;
 
    public Categorizer() {
       kMeansClustering = KMeansClustering.setup(CLUSTER_CATEGORIES, CATEGORIZER_MAX_ITERATION_COUNT, "euclidean");
@@ -36,18 +40,39 @@ public class Categorizer {
       Runnable task = () -> {
          List<Service> services = CimiInterface.getServices();
          if (services.size() > CLUSTER_CATEGORIES) {
-            log.info("Running clustering...");
+
+            log.info("Categorizing services...");
             float[][] inputServices = createInputForServices(services);
             List<Point> points = generatePoints(inputServices);
             clusterSet = runClustering(points);
+
             for (int i = 0; i < clusterSet.getClusters().size(); i++)
                clusterSet.getClusters().get(i).setId(String.valueOf(i));
+
+            Map<Integer, List<Service>> pointServicesMap = new HashMap<>();
             for (int i = 0; i < points.size(); i++) {
                PointClassification pointClassification = clusterSet.classifyPoint(points.get(i));
-               services.get(i).setCategory(Integer.valueOf(pointClassification.getCluster().getId()));
-               log.info(services.get(i) + " -> " + pointClassification.getCluster().getId());
-               CimiInterface.putService(services.get(i));
+               int pointId = Integer.valueOf(pointClassification.getCluster().getId());
+               if (!pointServicesMap.containsKey(pointId)) {
+                  List<Service> servicesPerPoint = new ArrayList<>();
+                  servicesPerPoint.add(services.get(i));
+                  pointServicesMap.put(pointId, servicesPerPoint);
+               } else {
+                  pointServicesMap.get(pointId).add(services.get(i));
+               }
             }
+
+            pointsCategories = new HashMap<>();
+            for (Integer i : pointServicesMap.keySet()) {
+               List<Service> servicesPerCategory = pointServicesMap.get(i);
+               int category = mapCategories(servicesPerCategory);
+               pointsCategories.put(i, category);
+               for (Service s : servicesPerCategory) {
+                  s.setCategory(category);
+                  CimiInterface.putService(s);
+               }
+            }
+            log.info("Service categories updated");
          }
       };
       scheduledExecutorService.scheduleAtFixedRate(task, RETRAINING_DELAY_TIME, RETRAINING_TIME, TimeUnit.SECONDS);
@@ -59,7 +84,8 @@ public class Categorizer {
          List<Point> points = generatePoints(inputService);
          if (clusterSet != null) {
             PointClassification pointClassification = clusterSet.classifyPoint(points.get(0));
-            service.setCategory(Integer.valueOf(pointClassification.getCluster().getId()));
+            int category = pointsCategories.get(Integer.valueOf(pointClassification.getCluster().getId()));
+            service.setCategory(category);
          } else {
             service.setCategory(0);
          }
@@ -107,6 +133,56 @@ public class Categorizer {
 
    ClusterSet runClustering(List<Point> points) {
       return kMeansClustering.applyTo(points);
+   }
+
+   int mapCategories(List<Service> servicesPerCategory) {
+      double th = 0.7;
+      Map<Integer, Integer> matches = new HashMap<>();
+      for (int i = 0; i < CLUSTER_CATEGORIES; i++)
+         matches.put(i, 0);
+      for (Service service : servicesPerCategory) {
+         if (service.getCpu() < th && service.getMemory() < th && service.getDisk() < th && service.getNetwork() < th)
+            matches.put(0, matches.get(0) + 1);
+         if (service.getCpu() >= th && service.getMemory() < th && service.getDisk() < th && service.getNetwork() < th)
+            matches.put(1, matches.get(1) + 1);
+         if (service.getCpu() < th && service.getMemory() >= th && service.getDisk() < th && service.getNetwork() < th)
+            matches.put(2, matches.get(2) + 1);
+         if (service.getCpu() < th && service.getMemory() < th && service.getDisk() >= th && service.getNetwork() < th)
+            matches.put(3, matches.get(3) + 1);
+         if (service.getCpu() < th && service.getMemory() < th && service.getDisk() < th && service.getNetwork() >= th)
+            matches.put(4, matches.get(4) + 1);
+         if (service.getCpu() >= th && service.getMemory() >= th && service.getDisk() < th && service.getNetwork() < th)
+            matches.put(5, matches.get(5) + 1);
+         if (service.getCpu() >= th && service.getMemory() < th && service.getDisk() >= th && service.getNetwork() < th)
+            matches.put(6, matches.get(6) + 1);
+         if (service.getCpu() >= th && service.getMemory() < th && service.getDisk() < th && service.getNetwork() >= th)
+            matches.put(7, matches.get(7) + 1);
+         if (service.getCpu() < th && service.getMemory() >= th && service.getDisk() >= th && service.getNetwork() < th)
+            matches.put(8, matches.get(8) + 1);
+         if (service.getCpu() < th && service.getMemory() >= th && service.getDisk() < th && service.getNetwork() >= th)
+            matches.put(9, matches.get(9) + 1);
+         if (service.getCpu() < th && service.getMemory() < th && service.getDisk() >= th && service.getNetwork() >= th)
+            matches.put(10, matches.get(10) + 1);
+         if (service.getCpu() >= th && service.getMemory() >= th && service.getDisk() >= th && service.getNetwork() < th)
+            matches.put(11, matches.get(11) + 1);
+         if (service.getCpu() >= th && service.getMemory() >= th && service.getDisk() < th && service.getNetwork() >= th)
+            matches.put(12, matches.get(12) + 1);
+         if (service.getCpu() >= th && service.getMemory() < th && service.getDisk() >= th && service.getNetwork() >= th)
+            matches.put(13, matches.get(13) + 1);
+         if (service.getCpu() < th && service.getMemory() >= th && service.getDisk() >= th && service.getNetwork() >= th)
+            matches.put(14, matches.get(14) + 1);
+         if (service.getCpu() >= th && service.getMemory() >= th && service.getDisk() >= th && service.getNetwork() >= th)
+            matches.put(15, matches.get(15) + 1);
+      }
+      int maxValue = 0;
+      int category = -1;
+      for (Integer i : matches.keySet()) {
+         if (matches.get(i) > maxValue) {
+            maxValue = matches.get(i);
+            category = i;
+         }
+      }
+      return category;
    }
 }
 
