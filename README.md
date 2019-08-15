@@ -48,6 +48,14 @@ submitting a new service:
 
 ## CHANGELOG
 
+### 1.8.1 (15.08.19)
+
+#### Changed
+
+ - Checks if cimi is up before trying to connect to the event manager
+ - Improves the logs
+
+
 ### 1.8.0 (14.05.19)
 
 #### Added

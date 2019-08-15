@@ -155,7 +155,7 @@ public class ServiceManagerInterface {
       RestTemplate restTemplate = new RestTemplate();
       try {
          ResponseEntity<String> responseEntity = restTemplate.exchange(
-                 lmUrl + SERVICE_INSTANCE_URL + SERVICE
+                 lmUrl + SERVICE
                  , HttpMethod.POST
                  , entity
                  , String.class);

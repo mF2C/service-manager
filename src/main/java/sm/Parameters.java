@@ -11,10 +11,9 @@ package sm;
 public class Parameters {
 
    public static final String SM_ROOT = "/api";
-   public static String cimiUrl = "https://localhost/api";
-   public static String lmUrl = "http://localhost:46000";
-   public static final String SERVICE_INSTANCE_URL = "/api/v2/lm";
-   public static final String EVENT_MANAGER_URL = "http://localhost:8000";
+   public static String cimiUrl;
+   public static String lmUrl;
+   public static String emUrl;
    public static final String SERVICE_OPERATION_REPORTS_STREAM_CREATE = "/stream?channel=service_operation_reports_create";
    public static final String SERVICE_OPERATION_REPORTS_STREAM_UPDATE = "/stream?channel=service_operation_reports_update";
    public static final String CIMI_ENTRY_POINT = "/cloud-entry-point";
@@ -47,9 +46,7 @@ public class Parameters {
    public static final String HEU = "heu";
    public static final String RND = "rnd";
    public static final String BST = "bst";
-   public static final String WST = "wst";
    public static final int TRAINING_ITERATIONS = 100;
    public static final double ACCEPTANCE_RATIO = 1.0;
    public static String algorithm = HEU;
-   public static final int EVENT_MANAGER_RECONNECTION_TIME = 10000;
 }

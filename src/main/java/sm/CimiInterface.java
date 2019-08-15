@@ -53,7 +53,7 @@ public class CimiInterface {
                cimiUp = true;
             }
          } catch (Exception e) {
-            log.error("CIMI is not ready");
+            log.error("CIMI is not ready, retrying in " + CIMI_STATUS_TIMER + " seconds");
          }
       }
       return cimiUp;

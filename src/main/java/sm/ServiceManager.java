@@ -8,6 +8,8 @@
  */
 package sm;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -20,7 +22,6 @@ import sm.providing.QosProvider;
 import java.util.concurrent.*;
 
 import static sm.Parameters.CIMI_STATUS_TIMER;
-import static sm.Parameters.algorithm;
 
 @SpringBootApplication
 @Controller
@@ -29,6 +30,7 @@ public class ServiceManager implements ApplicationRunner {
    static Categorizer categorizer;
    static QosProvider qosProvider;
    static QosEnforcer qosEnforcer;
+   private static final Logger log = LoggerFactory.getLogger(ServiceManager.class);
 
    public ServiceManager() {
       new CimiInterface();
@@ -40,14 +42,14 @@ public class ServiceManager implements ApplicationRunner {
 
    @Override
    public void run(ApplicationArguments applicationArguments) {
-      String cimiUrl = null;
-      String lmUrl = null;
-      String algorithmParam = null;
+      String cimiUrl = null, lmUrl = null, emUrl = null, algorithmParam = null;
       for (String name : applicationArguments.getOptionNames()) {
          if (name.equals("cimi.url"))
             cimiUrl = applicationArguments.getOptionValues(name).get(0);
          if (name.equals("lm.url"))
             lmUrl = applicationArguments.getOptionValues(name).get(0);
+         if (name.equals("em.url"))
+            emUrl = applicationArguments.getOptionValues(name).get(0);
          if (name.equals("algorithm"))
             algorithmParam = applicationArguments.getOptionValues(name).get(0);
       }
@@ -55,8 +57,10 @@ public class ServiceManager implements ApplicationRunner {
          Parameters.cimiUrl = cimiUrl;
       if (lmUrl != null)
          Parameters.lmUrl = lmUrl;
+      if (emUrl != null)
+         Parameters.emUrl = emUrl;
       if (algorithmParam != null)
-         algorithm = algorithmParam;
+         Parameters.algorithm = algorithmParam;
       checkCimiStatus();
    }
 
@@ -69,6 +73,7 @@ public class ServiceManager implements ApplicationRunner {
                categorizer = new Categorizer();
                qosProvider = new QosProvider();
                qosEnforcer = new QosEnforcer();
+               log.info("Service Manager is ready");
                return true;
             } else {
                scheduledExecutorService.schedule(this, CIMI_STATUS_TIMER, TimeUnit.SECONDS);

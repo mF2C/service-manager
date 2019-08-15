@@ -26,9 +26,10 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.sse.InboundSseEvent;
 import javax.ws.rs.sse.SseEventSource;
 import java.time.Instant;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static sm.Parameters.*;
 
 public class QosEnforcer {
@@ -37,24 +38,42 @@ public class QosEnforcer {
 
    public QosEnforcer() {
       log.info("Starting QosEnforcer...");
-      getServiceOperationReports(EVENT_MANAGER_URL + SERVICE_OPERATION_REPORTS_STREAM_CREATE);
-      getServiceOperationReports(EVENT_MANAGER_URL + SERVICE_OPERATION_REPORTS_STREAM_UPDATE);
+      ExecutorService executorService1 = Executors.newSingleThreadExecutor();
+      EventSubscriberRunnable eventSubscriberRunnable1 = new EventSubscriberRunnable(emUrl + SERVICE_OPERATION_REPORTS_STREAM_CREATE);
+      executorService1.submit(eventSubscriberRunnable1);
+      ExecutorService executorService2 = Executors.newSingleThreadExecutor();
+      EventSubscriberRunnable eventSubscriberRunnable2 = new EventSubscriberRunnable(emUrl + SERVICE_OPERATION_REPORTS_STREAM_UPDATE);
+      executorService2.submit(eventSubscriberRunnable2);
    }
 
-   private void getServiceOperationReports(String url) {
+   public class EventSubscriberRunnable implements Runnable {
+      private String url;
+
+      EventSubscriberRunnable(String url) {
+         this.url = url;
+      }
+
+      public void run() {
+         subscribeToEvents(url);
+      }
+   }
+
+   private void subscribeToEvents(String url) {
       Client client = ClientBuilder.newClient();
       WebTarget target = client.target(url);
-      SseEventSource eventSource = SseEventSource.target(target).reconnectingEvery(EVENT_MANAGER_RECONNECTION_TIME, SECONDS).build();
-      eventSource.register(onEvent, error -> log.error(error.getMessage()));
+      SseEventSource eventSource = SseEventSource.target(target).build();
+      eventSource.register(onEvent, onError);
       eventSource.open();
-      if (eventSource.isOpen())
-         log.info("Subscribed to Event Manager job [" + url + "]");
    }
 
    private Consumer<InboundSseEvent> onEvent = (inboundSseEvent) -> {
+//      String data = inboundSseEvent.readData();
+//      log.info(data);
       ServiceOperationReport serviceOperationReport = inboundSseEvent.readData(ServiceOperationReport.class, javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE);
       checkServiceOperationReport(serviceOperationReport);
    };
+
+   private static Consumer<Throwable> onError = (throwable) -> log.error("Error while registering to Event Manager: " + throwable.getMessage());
 
    private void checkServiceOperationReport(ServiceOperationReport serviceOperationReport) {
       if (serviceOperationReport != null) {
@@ -63,7 +82,7 @@ public class QosEnforcer {
          Agreement agreement = CimiInterface.getAgreement(serviceInstance.getAgreement());
          Instant startTime = Instant.parse(serviceOperationReport.getStartTime());
          Instant expectedEndTime = Instant.parse(serviceOperationReport.getExpectedEndTime());
-         int agreementValue = Integer.valueOf(agreement.getDetails().getGuarantees().get(0).getConstraint());
+         int agreementValue = Integer.parseInt(agreement.getDetails().getGuarantees().get(0).getConstraint());
          if (expectedEndTime.getNano() - startTime.getNano() > agreementValue) {
             int newNumAgents = service.getNumAgents() * 2;
             AgentRequest agentRequest = new AgentRequest(newNumAgents);
@@ -81,7 +100,7 @@ public class QosEnforcer {
       RestTemplate restTemplate = new RestTemplate();
       try {
          ResponseEntity<String> responseEntity = restTemplate.exchange(
-                 lmUrl + SERVICE_INSTANCE_URL
+                 lmUrl
                  , HttpMethod.POST
                  , entity
                  , String.class);
