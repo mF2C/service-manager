@@ -14,15 +14,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.stereotype.Controller;
 import sm.categorization.Categorizer;
-import sm.cimi.CimiInterface;
-import sm.cimi.CimiSession;
-import sm.cimi.CimiSession.SessionTemplate;
 import sm.enforcement.QosEnforcer;
 import sm.providing.QosProvider;
 
 import java.util.concurrent.*;
 
-import static sm.Parameters.CIMI_RECONNECTION_TIME;
+import static sm.Parameters.CIMI_STATUS_TIMER;
 import static sm.Parameters.algorithm;
 
 @SpringBootApplication
@@ -34,9 +31,6 @@ public class ServiceManager implements ApplicationRunner {
    static QosEnforcer qosEnforcer;
 
    public ServiceManager() {
-      categorizer = new Categorizer();
-      qosProvider = new QosProvider();
-      qosEnforcer = new QosEnforcer();
       new CimiInterface();
    }
 
@@ -46,16 +40,10 @@ public class ServiceManager implements ApplicationRunner {
 
    @Override
    public void run(ApplicationArguments applicationArguments) {
-      String cimiKey = null;
-      String cimiSecret = null;
       String cimiUrl = null;
       String lmUrl = null;
       String algorithmParam = null;
       for (String name : applicationArguments.getOptionNames()) {
-         if (name.equals("cimi.api.key"))
-            cimiKey = applicationArguments.getOptionValues(name).get(0);
-         if (name.equals("cimi.api.secret"))
-            cimiSecret = applicationArguments.getOptionValues(name).get(0);
          if (name.equals("cimi.url"))
             cimiUrl = applicationArguments.getOptionValues(name).get(0);
          if (name.equals("lm.url"))
@@ -65,29 +53,30 @@ public class ServiceManager implements ApplicationRunner {
       }
       if (cimiUrl != null)
          Parameters.cimiUrl = cimiUrl;
-      if (cimiKey != null && cimiSecret != null)
-         stablishSesionToCimi(cimiKey, cimiSecret);
       if (lmUrl != null)
          Parameters.lmUrl = lmUrl;
       if (algorithmParam != null)
          algorithm = algorithmParam;
+      checkCimiStatus();
    }
 
-   private void stablishSesionToCimi(String key, String secret) {
-      new CimiInterface(new CimiSession(new SessionTemplate(key, secret)));
+   private void checkCimiStatus() {
       ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-      Callable<Boolean> callable = new Callable<Boolean>() {
+      Callable<Boolean> callable = new Callable<>() {
          @Override
          public Boolean call() {
-            if (CimiInterface.startSession())
+            if (CimiInterface.isCimiUp()) {
+               categorizer = new Categorizer();
+               qosProvider = new QosProvider();
+               qosEnforcer = new QosEnforcer();
                return true;
-            else {
-               scheduledExecutorService.schedule(this, CIMI_RECONNECTION_TIME, TimeUnit.SECONDS);
+            } else {
+               scheduledExecutorService.schedule(this, CIMI_STATUS_TIMER, TimeUnit.SECONDS);
                return false;
             }
          }
       };
-      Future<Boolean> connected = scheduledExecutorService.schedule(callable, CIMI_RECONNECTION_TIME, TimeUnit.SECONDS);
+      Future<Boolean> connected = scheduledExecutorService.schedule(callable, CIMI_STATUS_TIMER, TimeUnit.SECONDS);
       try {
          if (connected.get())
             scheduledExecutorService.shutdown();

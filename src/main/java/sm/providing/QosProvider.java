@@ -8,7 +8,9 @@
  */
 package sm.providing;
 
-import sm.cimi.CimiInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import sm.CimiInterface;
 import sm.elements.Agent;
 import sm.elements.QosModel;
 import sm.elements.ServiceInstance;
@@ -23,6 +25,10 @@ import static sm.Parameters.*;
 
 public class QosProvider {
 
+   private static Logger log = LoggerFactory.getLogger(QosProvider.class);
+   public QosProvider(){
+      log.info("Starting QosProvider...");
+   }
    public ServiceInstance checkQos(ServiceInstance serviceInstance, QosModel qosModel, LearningModel learningModel, String algorithm) {
       float[] agents = new float[serviceInstance.getAgents().size()];
       if (algorithm != null)

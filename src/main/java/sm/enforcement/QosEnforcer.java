@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
-import sm.cimi.CimiInterface;
+import sm.CimiInterface;
 import sm.elements.Agreement;
 import sm.elements.Service;
 import sm.elements.ServiceInstance;
@@ -36,6 +36,7 @@ public class QosEnforcer {
    private static final Logger log = LoggerFactory.getLogger(QosEnforcer.class);
 
    public QosEnforcer() {
+      log.info("Starting QosEnforcer...");
       getServiceOperationReports(EVENT_MANAGER_URL + SERVICE_OPERATION_REPORTS_STREAM_CREATE);
       getServiceOperationReports(EVENT_MANAGER_URL + SERVICE_OPERATION_REPORTS_STREAM_UPDATE);
    }

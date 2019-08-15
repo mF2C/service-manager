@@ -17,9 +17,9 @@ public class Parameters {
    public static final String EVENT_MANAGER_URL = "http://localhost:8000";
    public static final String SERVICE_OPERATION_REPORTS_STREAM_CREATE = "/stream?channel=service_operation_reports_create";
    public static final String SERVICE_OPERATION_REPORTS_STREAM_UPDATE = "/stream?channel=service_operation_reports_update";
+   public static final String CIMI_ENTRY_POINT = "/cloud-entry-point";
 
    /********* resources **********/
-   public static final String SESSION = "/session";
    public static final String SERVICE = "/service";
    public static final String SERVICE_ID = "/{service_id}";
    public static final String SERVICE_INSTANCE = "/service-instance";
@@ -30,7 +30,7 @@ public class Parameters {
    public static final String QOS_MODEL = "/qos-model";
 
    /*********** Aux values ************/
-   public static final int CIMI_RECONNECTION_TIME = 10;
+   public static final int CIMI_STATUS_TIMER = 5;
    public static final int CLUSTER_CATEGORIES = 16;
    public static final int SERVICE_FIELDS = 4;
    public static final int CATEGORIZER_MAX_ITERATION_COUNT = 100;

@@ -6,7 +6,7 @@
  *
  * @author Francisco Carpio - TUBS
  */
-package sm.cimi;
+package sm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,13 +25,12 @@ public class CimiInterface {
    private static final Logger log = LoggerFactory.getLogger(CimiInterface.class);
    private static HttpHeaders headers;
    private static RestTemplate restTemplate = new RestTemplate();
-   private static boolean sessionStarted;
-   private static CimiSession cimiSession;
-
+   private static Boolean cimiUp;
 
    public CimiInterface() {
       headers = new HttpHeaders();
       headers.set("slipstream-authn-info", "super ADMIN");
+      cimiUp = false;
    }
 
    static {
@@ -39,37 +38,25 @@ public class CimiInterface {
               (hostname, sslSession) -> hostname.equals("localhost"));
    }
 
-   public CimiInterface(CimiSession cimiSession) {
-      CimiInterface.cimiSession = cimiSession;
-   }
-
-   public static Boolean startSession() {
-      if (!sessionStarted)
-         if (requestSession() == HttpStatus.CREATED.value())
-            sessionStarted = true;
-      return sessionStarted;
-   }
-
-   public static int requestSession() {
-      headers.setContentType(MediaType.APPLICATION_JSON);
-      HttpEntity<CimiSession> entity = new HttpEntity<>(cimiSession, headers);
-      try {
-         ResponseEntity<Map> responseEntity = restTemplate.exchange(
-                 cimiUrl + SESSION
-                 , HttpMethod.POST
-                 , entity
-                 , Map.class);
-         if (responseEntity.getStatusCodeValue() == HttpStatus.CREATED.value()) {
-            String cookie = responseEntity.getHeaders().getFirst(HttpHeaders.SET_COOKIE);
-            headers.add("Cookie", cookie);
-            log.info("Session started - Cookie: " + cookie);
-         } else
-            log.error("Session could not be started");
-         return responseEntity.getStatusCodeValue();
-      } catch (Exception e) {
-         log.error("Error starting the session: " + e.getMessage());
-         return HttpStatus.FORBIDDEN.value();
+   public static Boolean isCimiUp() {
+      if (!cimiUp) {
+         headers.setContentType(MediaType.APPLICATION_JSON);
+         HttpEntity<String> entity = new HttpEntity<>(headers);
+         try {
+            ResponseEntity<Map> responseEntity = restTemplate.exchange(
+                    cimiUrl + CIMI_ENTRY_POINT
+                    , HttpMethod.GET
+                    , entity
+                    , Map.class);
+            if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
+               log.info("CIMI is up");
+               cimiUp = true;
+            }
+         } catch (Exception e) {
+            log.error("CIMI is not ready");
+         }
       }
+      return cimiUp;
    }
 
    public static Response postService(Service service) {

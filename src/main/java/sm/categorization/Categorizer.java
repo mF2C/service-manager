@@ -16,7 +16,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sm.cimi.CimiInterface;
+import sm.CimiInterface;
 import sm.elements.Service;
 
 import java.util.ArrayList;
@@ -35,12 +35,12 @@ public class Categorizer {
    private HashMap<Integer, Integer> pointsCategories;
 
    public Categorizer() {
+      log.info("Starting Categorizer...");
       kMeansClustering = KMeansClustering.setup(CLUSTER_CATEGORIES, CATEGORIZER_MAX_ITERATION_COUNT, "euclidean");
       ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
       Runnable task = () -> {
          List<Service> services = CimiInterface.getServices();
          if (services.size() > CLUSTER_CATEGORIES) {
-
             log.info("Categorizing services...");
             float[][] inputServices = createInputForServices(services);
             List<Point> points = generatePoints(inputServices);
