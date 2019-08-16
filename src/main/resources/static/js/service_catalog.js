@@ -187,7 +187,14 @@ function createColumn(catalog, id, r, service, columnSize){
 
     var type = document.createElement("h6");
     type.setAttribute("id","exec-"+id);
-    type.innerHTML= "exec: " + service['exec'];
+    var execString;
+    if(service['exec'].length > maxLength){
+    	execString = service['exec'].substring(0, maxLength) + " ...";
+    }
+    else{
+    	execString = service['exec'];
+    }
+    type.innerHTML= "exec: " + execString;
     document.getElementById("content"+id).appendChild(type);
 
     var type = document.createElement("h6");

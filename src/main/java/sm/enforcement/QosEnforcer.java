@@ -8,8 +8,6 @@
  */
 package sm.enforcement;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -20,15 +18,10 @@ import sm.elements.Service;
 import sm.elements.ServiceInstance;
 import sm.elements.ServiceOperationReport;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.sse.InboundSseEvent;
-import javax.ws.rs.sse.SseEventSource;
 import java.time.Instant;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Consumer;
+
 
 import static sm.Parameters.*;
 
@@ -46,36 +39,7 @@ public class QosEnforcer {
       executorService2.submit(eventSubscriberRunnable2);
    }
 
-   public class EventSubscriberRunnable implements Runnable {
-      private String url;
-
-      EventSubscriberRunnable(String url) {
-         this.url = url;
-      }
-
-      public void run() {
-         subscribeToEvents(url);
-      }
-   }
-
-   private void subscribeToEvents(String url) {
-      Client client = ClientBuilder.newClient();
-      WebTarget target = client.target(url);
-      SseEventSource eventSource = SseEventSource.target(target).build();
-      eventSource.register(onEvent, onError);
-      eventSource.open();
-   }
-
-   private Consumer<InboundSseEvent> onEvent = (inboundSseEvent) -> {
-//      String data = inboundSseEvent.readData();
-//      log.info(data);
-      ServiceOperationReport serviceOperationReport = inboundSseEvent.readData(ServiceOperationReport.class, javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE);
-      checkServiceOperationReport(serviceOperationReport);
-   };
-
-   private static Consumer<Throwable> onError = (throwable) -> log.error("Error while registering to Event Manager: " + throwable.getMessage());
-
-   private void checkServiceOperationReport(ServiceOperationReport serviceOperationReport) {
+   static void checkServiceOperationReport(ServiceOperationReport serviceOperationReport) {
       if (serviceOperationReport != null) {
          ServiceInstance serviceInstance = CimiInterface.getServiceInstance(serviceOperationReport.getRequestingApplicationId().getHref());
          Service service = CimiInterface.getService(serviceInstance.getServiceId());
@@ -93,7 +57,7 @@ public class QosEnforcer {
       }
    }
 
-   private void addMoreAgentsToServiceInstance(AgentRequest agentRequest) {
+   private static void addMoreAgentsToServiceInstance(AgentRequest agentRequest) {
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(MediaType.APPLICATION_JSON);
       HttpEntity<AgentRequest> entity = new HttpEntity<>(agentRequest, headers);
@@ -112,49 +76,6 @@ public class QosEnforcer {
 
       } catch (Exception e) {
          log.error("Error submitting service instance: " + e.getMessage());
-      }
-   }
-
-   @JsonInclude(JsonInclude.Include.NON_NULL)
-   public static class AgentRequest {
-      private String type;
-      private Data data;
-
-      public AgentRequest(int numAgents) {
-         this.type = "qos_enforcement";
-         this.data = new Data(numAgents);
-      }
-
-      public Data getData() {
-         return data;
-      }
-
-      @JsonInclude(JsonInclude.Include.NON_NULL)
-      public static class Data {
-         @JsonProperty("service_instance_id")
-         private String serviceInstanceId;
-         @JsonProperty("num_agents")
-         private Integer numAgents;
-
-         public Data(int numAgents) {
-            this.numAgents = numAgents;
-         }
-
-         public String getServiceInstanceId() {
-            return serviceInstanceId;
-         }
-
-         public void setServiceInstanceId(String serviceInstanceId) {
-            this.serviceInstanceId = serviceInstanceId;
-         }
-
-         public Integer getNumAgents() {
-            return numAgents;
-         }
-
-         public void setNumAgents(Integer numAgents) {
-            this.numAgents = numAgents;
-         }
       }
    }
 }
