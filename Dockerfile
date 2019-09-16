@@ -1,4 +1,6 @@
 FROM azul/zulu-openjdk:11.0.2
+RUN  apt-get update \
+  && apt-get install -y wget
 ENV CIMI_URL=http://cimi:8201/api
 ENV LM_URL=http://lm-um:46000/api/v2/lm
 ENV EM_URL=http://event-manager:8000
