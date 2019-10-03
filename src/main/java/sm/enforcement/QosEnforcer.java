@@ -46,8 +46,9 @@ public class QosEnforcer {
          Agreement agreement = CimiInterface.getAgreement(serviceInstance.getAgreement());
          Instant startTime = Instant.parse(serviceOperationReport.getStartTime());
          Instant expectedEndTime = Instant.parse(serviceOperationReport.getExpectedEndTime());
-         int agreementValue = Integer.parseInt(agreement.getDetails().getGuarantees().get(0).getConstraint());
-         if (expectedEndTime.getNano() - startTime.getNano() > agreementValue) {
+         int agreementValue = Integer.parseInt(agreement.getDetails().getGuarantees().get(0).getConstraint()); // in ms
+         double expectedDuration = ((double) expectedEndTime.getNano() - (double) startTime.getNano()) / 1000000; // in ms
+         if (expectedDuration > agreementValue) {
             int newNumAgents = service.getNumAgents() * 2;
             AgentRequest agentRequest = new AgentRequest(newNumAgents);
             addMoreAgentsToServiceInstance(agentRequest);
