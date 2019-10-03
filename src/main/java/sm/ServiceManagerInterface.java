@@ -108,6 +108,11 @@ public class ServiceManagerInterface {
             else isFailure = 1;
          }
          QosModel qosModel = ServiceManager.qosProvider.getQosModel(service.getId(), serviceInstance.getAgreement(), serviceInstance.getAgents(), algorithm);
+         if (qosModel == null){
+            response.setNotFound();
+            response.setMessage("qos-model not found");
+            return response;
+         }
          LearningModel learningModel = null;
          if (algorithm.equals(DRL)) {
             learningModel = LearningAlgorithm.getLearningModel(qosModel, serviceInstance);
@@ -116,7 +121,11 @@ public class ServiceManagerInterface {
             HeuristicAlgorithm.initialize(serviceInstance, ACCEPTANCE_RATIO);
          }
          serviceInstance = ServiceManager.qosProvider.checkQos(serviceInstance, qosModel, learningModel, algorithm);
-         CimiInterface.putQosModel(qosModel);
+         if(CimiInterface.putQosModel(qosModel) == -1){
+            response.setNotFound();
+            response.setMessage("qos-model not found");
+            return response;
+         }
          response.setServiceInstance(serviceInstance);
          response.setOk();
          log.info("QoS checked for service-instance: " + serviceInstance.getId());

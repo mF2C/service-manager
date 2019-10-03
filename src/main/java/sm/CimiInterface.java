@@ -268,7 +268,7 @@ public class CimiInterface {
             return responseEntity.getStatusCodeValue();
          }
       } catch (Exception e) {
-         log.error("Error submitting Qos model: " + e.getMessage());
+         log.error("Error submitting qos-model: " + e.getMessage());
       }
       return -1;
    }
@@ -288,7 +288,7 @@ public class CimiInterface {
             return responseEntity.getStatusCodeValue();
          }
       } catch (Exception e) {
-         log.error("Error updating the service: " + e.getMessage());
+         log.error("Error updating qos-model: " + e.getMessage());
       }
       return -1;
    }

@@ -61,7 +61,8 @@ public class QosProvider {
       QosModel qosModel = CimiInterface.getQosModel(serviceId, agreementId);
       if (qosModel == null) {
          qosModel = new QosModel(serviceId, agreementId, agentsIds, environmentSize);
-         CimiInterface.postQosModel(qosModel);
+         if (CimiInterface.postQosModel(qosModel) == -1)
+            qosModel = null;
       }
       return qosModel;
    }
