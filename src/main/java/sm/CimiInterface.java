@@ -136,11 +136,10 @@ public class CimiInterface {
             Response response = responseEntity.getBody();
             services = response.getServices();
          }
-         return services;
       } catch (Exception e) {
          log.error("Error retrieving services: " + e.getMessage());
-         return services;
       }
+      return services;
    }
 
    public static Service getService(String id) {
@@ -181,6 +180,26 @@ public class CimiInterface {
          log.error("Error retrieving service instance: " + e.getMessage());
          return null;
       }
+   }
+
+   public static List<ServiceInstance> getServiceInstances() {
+      HttpEntity<String> entity = new HttpEntity<>(headers);
+      List<ServiceInstance> servicesInstances = new ArrayList<>();
+      try {
+         ResponseEntity<Response> responseEntity = restTemplate.exchange(
+                 cimiUrl + SERVICE_INSTANCE
+                 , HttpMethod.GET
+                 , entity
+                 , Response.class);
+         if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
+            log.info("Service instances retrieved");
+            Response response = responseEntity.getBody();
+            servicesInstances = response.getServiceInstances();
+         }
+      } catch (Exception e) {
+         log.error("Error retrieving service instances: " + e.getMessage());
+      }
+      return servicesInstances;
    }
 
    public static List<SlaViolation> getSlaViolations(String agreementId) {
@@ -227,10 +246,10 @@ public class CimiInterface {
       return response;
    }
 
-   public static QosModel getQosModel(String serviceId, String agreementId) {
+   public static QosModel getQosModel(String serviceId, List<Agent> agents) {
       HttpEntity<String> entity = new HttpEntity<>(headers);
       QosModel qosModel = null;
-      String filter = "?$filter=service/href='" + serviceId + "'&$filter=agreement/href='" + agreementId + "'";
+      String filter = "?$filter=service/href='" + serviceId + "'";
       try {
          ResponseEntity<Response> responseEntity = restTemplate.exchange(
                  cimiUrl + QOS_MODEL + filter
@@ -243,9 +262,30 @@ public class CimiInterface {
             if (qosModels.size() == 0) {
                log.info("No QoS models found");
                return null;
-            } else
-               qosModel = qosModels.get(0);
-            log.info("QoS model retrieved: " + qosModel.getId());
+            } else {
+               for (QosModel qm : qosModels) {
+                  boolean agentsMatch = true;
+                  for (Agent agent : agents) {
+                     boolean agentFound = false;
+                     for (QosModel.Href href : qm.getAgentsIds())
+                        if (agent.getDeviceId().equals(href.getHref())) {
+                           agentFound = true;
+                           break;
+                        }
+                     if (!agentFound) {
+                        agentsMatch = false;
+                        break;
+                     }
+                  }
+                  if (agentsMatch) {
+                     qosModel = qm;
+                     log.info("QoS model found: " + qosModel.getId());
+                     break;
+                  }
+               }
+            }
+            if (qosModel == null)
+               log.info("No QoS models found");
          }
          return qosModel;
       } catch (Exception e) {

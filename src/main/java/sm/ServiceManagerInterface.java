@@ -18,6 +18,7 @@ import sm.providing.heuristic.HeuristicAlgorithm;
 import sm.providing.learning.LearningAlgorithm;
 import sm.providing.learning.LearningModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static sm.Parameters.*;
@@ -88,31 +89,41 @@ public class ServiceManagerInterface {
       String serviceInstanceId = "service-instance/" + service_instance_id;
       Response response = new Response(serviceInstanceId, SM_ROOT);
       try {
+         // retrieve the service-instance
          ServiceInstance serviceInstance = CimiInterface.getServiceInstance(serviceInstanceId);
          if (serviceInstance == null) {
             response.setNotFound();
             response.setMessage("service-instance not found");
             return response;
          }
+         // retrieve the service
          Service service = CimiInterface.getService(serviceInstance.getService());
          if (service == null) {
             response.setNotFound();
             response.setMessage("service not found");
             return response;
          }
-         List<SlaViolation> slaViolations = CimiInterface.getSlaViolations(serviceInstance.getAgreement());
+         // retrieve all past service-instances of the service
+         List<ServiceInstance> serviceInstances = CimiInterface.getServiceInstances();
+         // list for all violations
+         List<SlaViolation> slaViolations = new ArrayList<>();
+         for (ServiceInstance serviceInstance1 : serviceInstances) {
+            // check if the service instance was running on the same agents
+            if (serviceInstance1.getAgents().equals(serviceInstance.getAgents())) {
+               // retrieve the agreement of every service instance
+               Agreement agreement = CimiInterface.getAgreement(serviceInstance1.getAgreement());
+               // retrieve the violations from past services
+               List<SlaViolation> slaViolations1 = CimiInterface.getSlaViolations(agreement.getId());
+               if (slaViolations1 != null)
+                  slaViolations.addAll(slaViolations1);
+            }
+         }
          float isFailure = 0;
-         if (slaViolations != null) {
-            if (slaViolations.size() == 0)
-               log.info("No SLA violations found for agreement: " + serviceInstance.getAgreement());
-            else isFailure = 1;
-         }
-         QosModel qosModel = ServiceManager.qosProvider.getQosModel(service.getId(), serviceInstance.getAgreement(), serviceInstance.getAgents(), algorithm);
-         if (qosModel == null){
-            response.setNotFound();
-            response.setMessage("qos-model not found");
-            return response;
-         }
+         if (slaViolations.size() == 0)
+            log.info("No SLA violations found for service : " + service.getId());
+         else isFailure = 1;
+         // search for qos models or create a new one in case it does not exist yet
+         QosModel qosModel = ServiceManager.qosProvider.getQosModel(service.getId(), serviceInstance.getAgents(), algorithm);
          LearningModel learningModel = null;
          if (algorithm.equals(DRL)) {
             learningModel = LearningAlgorithm.getLearningModel(qosModel, serviceInstance);
@@ -121,7 +132,7 @@ public class ServiceManagerInterface {
             HeuristicAlgorithm.initialize(serviceInstance, ACCEPTANCE_RATIO);
          }
          serviceInstance = ServiceManager.qosProvider.checkQos(serviceInstance, qosModel, learningModel, algorithm);
-         if(CimiInterface.putQosModel(qosModel) == -1){
+         if (CimiInterface.putQosModel(qosModel) == -1) {
             response.setNotFound();
             response.setMessage("qos-model not found");
             return response;

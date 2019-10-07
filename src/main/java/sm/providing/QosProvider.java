@@ -26,9 +26,11 @@ import static sm.Parameters.*;
 public class QosProvider {
 
    private static Logger log = LoggerFactory.getLogger(QosProvider.class);
-   public QosProvider(){
+
+   public QosProvider() {
       log.info("Starting QosProvider...");
    }
+
    public ServiceInstance checkQos(ServiceInstance serviceInstance, QosModel qosModel, LearningModel learningModel, String algorithm) {
       float[] agents = new float[serviceInstance.getAgents().size()];
       if (algorithm != null)
@@ -51,16 +53,16 @@ public class QosProvider {
       return serviceInstance;
    }
 
-   public QosModel getQosModel(String serviceId, String agreementId, List<Agent> agents, String algorithm) {
-      List<String> agentsIds = new ArrayList<>();
-      for (Agent agent : agents) agentsIds.add(agent.getUrl());
-      int environmentSize = agentsIds.size();
+   public QosModel getQosModel(String serviceId, List<Agent> agents, String algorithm) {
+      List<String> deviceIds = new ArrayList<>();
+      for (Agent agent : agents) deviceIds.add(agent.getDeviceId());
+      int environmentSize = deviceIds.size();
       if (algorithm != null)
          if (DRL.equals(algorithm))
-            environmentSize = agentsIds.size() + 2;
-      QosModel qosModel = CimiInterface.getQosModel(serviceId, agreementId);
+            environmentSize = deviceIds.size() + 2;
+      QosModel qosModel = CimiInterface.getQosModel(serviceId, agents);
       if (qosModel == null) {
-         qosModel = new QosModel(serviceId, agreementId, agentsIds, environmentSize);
+         qosModel = new QosModel(serviceId, deviceIds, environmentSize);
          if (CimiInterface.postQosModel(qosModel) == -1)
             qosModel = null;
       }

@@ -39,13 +39,12 @@ public class QosModel {
    public QosModel() {
    }
 
-   public QosModel(String serviceId, String agreementId, List<String> agentsIds, int environmentSize) {
+   public QosModel(String serviceId, List<String> agentsIds, int environmentSize) {
       this.serviceId = new Href(serviceId);
-      this.agreementId = new Href(agreementId);
-      List<Href> agents = new ArrayList<>();
+      this.agreementId = new Href("agreement/agreement-id");
+      this.agentsIds = new ArrayList<>();
       for (String s : agentsIds)
-         agents.add(new Href(s));
-      this.agentsIds = agents;
+         this.agentsIds.add(new Href(s));
       this.config = "config";
       this.numServiceInstances = 0;
       this.numServiceFailures = 0;

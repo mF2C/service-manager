@@ -13,7 +13,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.http.HttpStatus;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -25,6 +24,7 @@ public class Response {
     private String resourceURI;
     private int status;
     private List<Service> services;
+    private List<ServiceInstance> serviceInstances;
     private List<SlaViolation> slaViolations;
     private Service service;
     @JsonProperty("service-instance")
@@ -110,6 +110,14 @@ public class Response {
 
     public void setServices(List<Service> services) {
         this.services = services;
+    }
+
+    public List<ServiceInstance> getServiceInstances() {
+        return serviceInstances;
+    }
+
+    public void setServiceInstances(List<ServiceInstance> serviceInstances) {
+        this.serviceInstances = serviceInstances;
     }
 
     public List<SlaViolation> getSlaViolations() {

@@ -16,23 +16,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Agent {
 
-   private String url;
+   @JsonProperty("device_id")
+   private String deviceId;
    private boolean allow;
 
    public Agent() {
    }
 
-   public Agent(String url) {
-      this.url = url;
+   public Agent(String deviceId) {
+      this.deviceId = deviceId;
       this.allow = true;
-   }
-
-   public String getUrl() {
-      return url;
-   }
-
-   public void setUrl(String url) {
-      this.url = url;
    }
 
    public boolean isAllow() {
@@ -41,5 +34,13 @@ public class Agent {
 
    public void setAllow(boolean allow) {
       this.allow = allow;
+   }
+
+   public String getDeviceId() {
+      return deviceId;
+   }
+
+   public void setDeviceId(String deviceId) {
+      this.deviceId = deviceId;
    }
 }
