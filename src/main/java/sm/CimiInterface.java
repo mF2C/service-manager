@@ -27,15 +27,15 @@ public class CimiInterface {
    private static RestTemplate restTemplate = new RestTemplate();
    private static Boolean cimiUp;
 
+   static {
+      javax.net.ssl.HttpsURLConnection.setDefaultHostnameVerifier(
+              (hostname, sslSession) -> hostname.equals("localhost"));
+   }
+
    public CimiInterface() {
       headers = new HttpHeaders();
       headers.set("slipstream-authn-info", "super ADMIN");
       cimiUp = false;
-   }
-
-   static {
-      javax.net.ssl.HttpsURLConnection.setDefaultHostnameVerifier(
-              (hostname, sslSession) -> hostname.equals("localhost"));
    }
 
    public static Boolean isCimiUp() {
@@ -294,9 +294,10 @@ public class CimiInterface {
       }
    }
 
-   public static int postQosModel(QosModel qosModel) {
+   public static QosModel postQosModel(QosModel qosModel) {
       headers.setContentType(MediaType.APPLICATION_JSON);
       HttpEntity<QosModel> entity = new HttpEntity<>(qosModel, headers);
+      QosModel updatedQoSModel = null;
       try {
          ResponseEntity<Response> responseEntity = restTemplate.exchange(
                  cimiUrl + QOS_MODEL
@@ -304,16 +305,17 @@ public class CimiInterface {
                  , entity
                  , Response.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.CREATED.value()) {
-            log.info("QoS model submitted for service: " + qosModel.getServiceId().getHref());
-            return responseEntity.getStatusCodeValue();
+            updatedQoSModel = qosModel;
+            updatedQoSModel.setId(responseEntity.getBody().getResourceId());
+            log.info("qos-model " + qosModel.getId() + " submitted");
          }
       } catch (Exception e) {
          log.error("Error submitting qos-model: " + e.getMessage());
       }
-      return -1;
+      return updatedQoSModel;
    }
 
-   public static int putQosModel(QosModel qosModel) {
+   public static void putQosModel(QosModel qosModel) {
       headers.setContentType(MediaType.APPLICATION_JSON);
       HttpEntity<QosModel> entity = new HttpEntity<>(qosModel, headers);
       try {
@@ -323,14 +325,12 @@ public class CimiInterface {
                  , entity
                  , QosModel.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
-            QosModel modifiedQosModel = responseEntity.getBody();
-            log.info("QoS model updated: " + modifiedQosModel.getId());
-            return responseEntity.getStatusCodeValue();
+            QosModel updatedQosModel = responseEntity.getBody();
+            log.info("QoS model updated: " + updatedQosModel.getId());
          }
       } catch (Exception e) {
-         log.error("Error updating qos-model: " + e.getMessage());
+         log.error("Error updating qos-model " + qosModel.getId() + ": " + e.getMessage());
       }
-      return -1;
    }
 
    public static Agreement getAgreement(String id) {

@@ -21,7 +21,8 @@ public class Response {
 
     private String id;
     private String message;
-    private String resourceURI;
+    @JsonProperty("resource-id")
+    private String resourceId;
     private int status;
     private List<Service> services;
     private List<ServiceInstance> serviceInstances;
@@ -37,9 +38,9 @@ public class Response {
     public Response() {
     }
 
-    public Response(String id, String resourceURI) {
+    public Response(String id, String resourceId) {
         this.id = id;
-        this.resourceURI = resourceURI;
+        this.resourceId = resourceId;
     }
 
     public void setOk(){
@@ -88,12 +89,12 @@ public class Response {
         this.message = message;
     }
 
-    public String getResourceURI() {
-        return resourceURI;
+    public String getResourceId() {
+        return resourceId;
     }
 
-    public void setResourceURI(String resourceURI) {
-        this.resourceURI = resourceURI;
+    public void setResourceId(String resourceId) {
+        this.resourceId = resourceId;
     }
 
     public int getStatus() {
