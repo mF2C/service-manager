@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ServiceOperationReport {
 
+   private String id;
    @JsonProperty("requesting_application_id")
    private Href requestingApplicationId;
    @JsonProperty("operation_name")
@@ -20,6 +21,10 @@ public class ServiceOperationReport {
    public ServiceOperationReport(){
    }
 
+   public String getId() {
+      return id;
+   }
+
    public Href getRequestingApplicationId() {
       return requestingApplicationId;
    }
@@ -30,6 +35,14 @@ public class ServiceOperationReport {
 
    public String getExpectedEndTime() {
       return expectedEndTime;
+   }
+
+   public String getOperationName() {
+      return operationName;
+   }
+
+   public String getOperationId() {
+      return operationId;
    }
 
    @JsonIgnoreProperties(ignoreUnknown = true)

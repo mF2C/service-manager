@@ -33,7 +33,7 @@ public class Parameters {
    public static final int CLUSTER_CATEGORIES = 16;
    public static final int SERVICE_FIELDS = 4;
    public static final int CATEGORIZER_MAX_ITERATION_COUNT = 100;
-   public static final int RETRAINING_DELAY_TIME = 30;
+   public static final int RETRAINING_DELAY_TIME = 300;
    public static final int RETRAINING_TIME = 500;
    public static final int NUM_HIDDEN_LAYERS = 150;
    public static final double EPSILON = 0;

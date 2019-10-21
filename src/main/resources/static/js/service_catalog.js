@@ -69,8 +69,7 @@ function getServices()
 function launchService(service)
 {
     var serviceInstanceJson = JSON.stringify({
-        service_id: service['id'],
-        sla_template: service['sla_templates'][0]['href']
+        service: service['id']
     });
 	try {
 		var response = null;

@@ -26,8 +26,6 @@ public class ServiceInstance {
     private String agreement;
     @JsonProperty("user_id")
     private String userId;
-    @JsonProperty("service_id")
-    private String serviceId;
 
     public ServiceInstance() {
     }
@@ -78,14 +76,6 @@ public class ServiceInstance {
 
     public void setUserId(String userId) {
         this.userId = userId;
-    }
-
-    public String getServiceId() {
-        return serviceId;
-    }
-
-    public void setServiceId(String serviceId) {
-        this.serviceId = serviceId;
     }
 
 }

@@ -176,7 +176,7 @@ public class ServiceManagerInterface {
                  , entity
                  , String.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
-            String message = "Service instance submitted for service: " + service_instance.getServiceId();
+            String message = "Service instance submitted for service: " + service_instance.getService();
             log.info(message);
             response.setMessage(message);
          }

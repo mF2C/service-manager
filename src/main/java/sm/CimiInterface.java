@@ -157,7 +157,7 @@ public class CimiInterface {
          }
          return service;
       } catch (Exception e) {
-         log.error("Error retrieving the service: " + e.getMessage());
+         log.error("Error retrieving the service " + id + ": " + e.getMessage());
          return null;
       }
    }
@@ -177,7 +177,7 @@ public class CimiInterface {
          }
          return serviceInstance;
       } catch (Exception e) {
-         log.error("Error retrieving service instance: " + e.getMessage());
+         log.error("Error retrieving service instance " + id + ": " + e.getMessage());
          return null;
       }
    }
@@ -348,7 +348,7 @@ public class CimiInterface {
          }
          return agreement;
       } catch (Exception e) {
-         log.error("Error retrieving agreement: " + e.getMessage());
+         log.error("Error retrieving agreement " + id + ": " + e.getMessage());
          return null;
       }
    }
