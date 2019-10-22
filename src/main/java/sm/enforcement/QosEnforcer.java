@@ -52,6 +52,10 @@ public class QosEnforcer {
             log.error("No service found, ignoring QoS enforcement for service-operation-report " + serviceOperationReport.getId());
             return false;
          }
+         if (service.getNumAgents() >= MAX_AGENTS_ENFORCEMENT) {
+            log.info("Service " + serviceInstance.getId() + " has already maximum number of agents [" + MAX_AGENTS_ENFORCEMENT + "]");
+            return false;
+         }
          Agreement agreement = CimiInterface.getAgreement(serviceInstance.getAgreement());
          if (agreement == null) {
             log.error("No agreement found, ignoring QoS enforcement for service-operation-report " + serviceOperationReport.getId());
@@ -74,20 +78,26 @@ public class QosEnforcer {
             log.error("Error with constraint value in " + agreement.getId() + ": " + e.getMessage());
             return false;
          }
-         log.info(serviceOperationReport.getId() + " has expected duration [" + expectedDuration + " (sec)] and agreement value [" + agreementValue + " (sec)]");
+         log.info(serviceOperationReport.getId() + " has expected duration [" + expectedDuration + "s], agreement value [" + agreementValue + "s]");
+         int numAgents;
          if (expectedDuration > agreementValue) {
-            log.info("Adding more agents to the service instance: " + serviceInstance.getId());
-            int newNumAgents = service.getNumAgents() * 2;
-            AgentRequest agentRequest = new AgentRequest(newNumAgents);
-            addMoreAgentsToServiceInstance(agentRequest);
-            service.setNumAgents(newNumAgents);
-            CimiInterface.putService(service);
+            numAgents = service.getNumAgents() * MUL_FACTOR_ENFORCEMENT;
+            AgentRequest agentRequest = new AgentRequest(numAgents, serviceInstance.getId());
+            if (!addMoreAgentsToServiceInstance(agentRequest))
+               return false;
+         } else {
+            numAgents = service.getNumAgents() / MUL_FACTOR_ENFORCEMENT;
+            if (numAgents < 1)
+               numAgents = 1;
          }
+         log.info("Updating num_agents to " + numAgents + " in " + service.getId());
+         service.setNumAgents(numAgents);
+         CimiInterface.putService(service);
       }
       return true;
    }
 
-   private static void addMoreAgentsToServiceInstance(AgentRequest agentRequest) {
+   private static boolean addMoreAgentsToServiceInstance(AgentRequest agentRequest) {
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(MediaType.APPLICATION_JSON);
       HttpEntity<AgentRequest> entity = new HttpEntity<>(agentRequest, headers);
@@ -98,13 +108,14 @@ public class QosEnforcer {
                  , HttpMethod.POST
                  , entity
                  , String.class);
-         if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value())
-            log.info("New agents added to service instance: " + agentRequest.getData().getServiceInstanceId());
-         else
-            log.error("Error (status " + responseEntity.getStatusCodeValue() + ") adding agents to service instance: "
-                    + agentRequest.getData().getServiceInstanceId());
+         if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
+            log.info("Number of agents successfully updated into LM for " + agentRequest.getData().getServiceInstanceId());
+            return true;
+         }
       } catch (Exception e) {
-         log.error("Error submitting service instance: " + e.getMessage());
+         log.error("Error updating the number of agents into LM for " + agentRequest.getData().getServiceInstanceId()
+                 + " [" + e.getMessage() + "]");
       }
+      return false;
    }
 }

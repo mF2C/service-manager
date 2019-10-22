@@ -9,15 +9,10 @@
 package sm;
 
 public class Parameters {
-
    public static final String SM_ROOT = "/api";
-   public static String cimiUrl;
-   public static String lmUrl;
-   public static String emUrl;
    public static final String SERVICE_OPERATION_REPORTS_STREAM_CREATE = "/stream?channel=service_operation_reports_create";
    public static final String SERVICE_OPERATION_REPORTS_STREAM_UPDATE = "/stream?channel=service_operation_reports_update";
    public static final String CIMI_ENTRY_POINT = "/cloud-entry-point";
-
    /********* resources **********/
    public static final String SERVICE = "/service";
    public static final String SERVICE_ID = "/{service_id}";
@@ -27,7 +22,6 @@ public class Parameters {
    public static final String SLA_VIOLATION = "/sla-violation";
    public static final String GUI = "/gui";
    public static final String QOS_MODEL = "/qos-model";
-
    /*********** Aux values ************/
    public static final int CIMI_STATUS_TIMER = 5;
    public static final int CLUSTER_CATEGORIES = 16;
@@ -48,5 +42,10 @@ public class Parameters {
    public static final String BST = "bst";
    public static final int TRAINING_ITERATIONS = 100;
    public static final double ACCEPTANCE_RATIO = 1.0;
+   public static String cimiUrl;
+   public static String lmUrl;
+   public static String emUrl;
    public static String algorithm = HEU;
+   public static int MAX_AGENTS_ENFORCEMENT = 16;
+   public static int MUL_FACTOR_ENFORCEMENT = 2;
 }

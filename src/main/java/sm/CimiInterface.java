@@ -113,7 +113,7 @@ public class CimiInterface {
                  , entity
                  , Response.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
-            log.info("Service updated: " + service.getName());
+            log.info("Service has been updated: " + service.getId());
             return responseEntity.getStatusCodeValue();
          }
       } catch (Exception e) {

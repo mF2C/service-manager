@@ -8,9 +8,13 @@ public class AgentRequest {
    private String type;
    private Data data;
 
-   public AgentRequest(int numAgents) {
+   public AgentRequest(int numAgents, String serviceInstanceId) {
       this.type = "qos_enforcement";
-      this.data = new Data(numAgents);
+      this.data = new Data(numAgents, serviceInstanceId);
+   }
+
+   public String getType() {
+      return type;
    }
 
    public Data getData() {
@@ -24,24 +28,17 @@ public class AgentRequest {
       @JsonProperty("num_agents")
       private Integer numAgents;
 
-      public Data(int numAgents) {
+      public Data(int numAgents, String serviceInstanceId) {
          this.numAgents = numAgents;
+         this.serviceInstanceId = serviceInstanceId;
       }
 
       public String getServiceInstanceId() {
          return serviceInstanceId;
       }
 
-      public void setServiceInstanceId(String serviceInstanceId) {
-         this.serviceInstanceId = serviceInstanceId;
-      }
-
       public Integer getNumAgents() {
          return numAgents;
-      }
-
-      public void setNumAgents(Integer numAgents) {
-         this.numAgents = numAgents;
       }
    }
 }
