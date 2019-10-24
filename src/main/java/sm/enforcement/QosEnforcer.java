@@ -81,18 +81,20 @@ public class QosEnforcer {
          log.info(serviceOperationReport.getId() + " has expected duration [" + expectedDuration + "s], agreement value [" + agreementValue + "s]");
          int numAgents;
          if (expectedDuration > agreementValue) {
-            numAgents = service.getNumAgents() * MUL_FACTOR_ENFORCEMENT;
+            numAgents = serviceInstance.getAgents().size() * MUL_FACTOR_ENFORCEMENT;
             AgentRequest agentRequest = new AgentRequest(numAgents, serviceInstance.getId());
             if (!addMoreAgentsToServiceInstance(agentRequest))
                return false;
          } else {
-            numAgents = service.getNumAgents() / MUL_FACTOR_ENFORCEMENT;
+            numAgents = serviceInstance.getAgents().size() / MUL_FACTOR_ENFORCEMENT;
             if (numAgents < 1)
                numAgents = 1;
          }
-         log.info("Updating num_agents to " + numAgents + " in " + service.getId());
-         service.setNumAgents(numAgents);
-         CimiInterface.putService(service);
+         if (service.getNumAgents() != numAgents) {
+            log.info("Updating num_agents to " + numAgents + " in " + service.getId());
+            service.setNumAgents(numAgents);
+            CimiInterface.putService(service);
+         }
       }
       return true;
    }
