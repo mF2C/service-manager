@@ -8,6 +8,7 @@
  */
 package sm;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -163,11 +164,11 @@ public class ServiceManagerInterface {
 
    @PostMapping(value = GUI + SERVICE_INSTANCE, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
    public @ResponseBody
-   Response postServiceInstanceFromGUI(@RequestBody ServiceInstance service_instance) {
+   Response postServiceInstanceFromGUI(@RequestBody JsonNode jsonNode) {
       Response response = new Response();
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(MediaType.APPLICATION_JSON);
-      HttpEntity<ServiceInstance> entity = new HttpEntity<>(service_instance, headers);
+      HttpEntity<JsonNode> entity = new HttpEntity<>(jsonNode, headers);
       RestTemplate restTemplate = new RestTemplate();
       try {
          ResponseEntity<String> responseEntity = restTemplate.exchange(
@@ -176,13 +177,11 @@ public class ServiceManagerInterface {
                  , entity
                  , String.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
-            String message = "Service instance submitted for service: " + service_instance.getService();
-            log.info(message);
-            response.setMessage(message);
+            response.setStatus(responseEntity.getStatusCodeValue());
+            response.setMessage("Service instance successfully launched");
          }
-         response.setStatus(responseEntity.getStatusCodeValue());
       } catch (Exception e) {
-         String message = "Error submitting service instance: " + e.getMessage();
+         String message = "Error launching service instance: " + e.getMessage();
          log.error(message);
          response.setStatus(HttpStatus.NOT_FOUND.value());
          response.setMessage(message);

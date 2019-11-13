@@ -62,7 +62,7 @@ public class QosEnforcer {
             return false;
          }
          int expectedDuration;
-         int agreementValue;
+         Integer agreementValue = null;
          try {
             Instant startTime = Instant.parse(serviceOperationReport.getStartTime());
             Instant expectedEndTime = Instant.parse(serviceOperationReport.getExpectedEndTime());
@@ -72,10 +72,18 @@ public class QosEnforcer {
             return false;
          }
          try {
-            agreementValue = Integer.parseInt(agreement.getDetails().getGuarantees().get(0).getConstraint()
-                    .replaceAll("[^\\d.]", ""));
+            for (Agreement.Details.Guarantee guarantee : agreement.getDetails().getGuarantees()) {
+               if (guarantee.getName().equals(serviceOperationReport.getOperationName())) {
+                  agreementValue = Integer.parseInt(guarantee.getConstraint().replaceAll("[^\\d.]", ""));
+                  break;
+               }
+            }
          } catch (Exception e) {
             log.error("Error with constraint value in " + agreement.getId() + ": " + e.getMessage());
+            return false;
+         }
+         if (agreementValue == null) {
+            log.error("No guarantees [" + serviceOperationReport.getOperationName() + "] found in " + agreement.getId());
             return false;
          }
          log.info(serviceOperationReport.getId() + " has expected duration [" + expectedDuration + "s], agreement value [" + agreementValue + "s]");
