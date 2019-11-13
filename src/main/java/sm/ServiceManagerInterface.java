@@ -8,7 +8,6 @@
  */
 package sm;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -21,6 +20,7 @@ import sm.providing.learning.LearningModel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static sm.Parameters.*;
 
@@ -164,12 +164,13 @@ public class ServiceManagerInterface {
 
    @PostMapping(value = GUI + SERVICE_INSTANCE, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
    public @ResponseBody
-   Response postServiceInstanceFromGUI(@RequestBody JsonNode jsonNode) {
+   Response postServiceInstanceFromGUI(@RequestBody Map<String, Object> payload) {
       Response response = new Response();
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(MediaType.APPLICATION_JSON);
-      HttpEntity<JsonNode> entity = new HttpEntity<>(jsonNode, headers);
+      HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload, headers);
       RestTemplate restTemplate = new RestTemplate();
+      log.info("Received request for launching service: " + payload.get("service_id").toString());
       try {
          ResponseEntity<String> responseEntity = restTemplate.exchange(
                  lmUrl + SERVICE
@@ -177,14 +178,16 @@ public class ServiceManagerInterface {
                  , entity
                  , String.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
+            String message = "Service instance successfully launched";
+            log.info(message);
+            response.setMessage(message);
             response.setStatus(responseEntity.getStatusCodeValue());
-            response.setMessage("Service instance successfully launched");
          }
       } catch (Exception e) {
          String message = "Error launching service instance: " + e.getMessage();
          log.error(message);
-         response.setStatus(HttpStatus.NOT_FOUND.value());
          response.setMessage(message);
+         response.setStatus(HttpStatus.NOT_FOUND.value());
       }
       return response;
    }

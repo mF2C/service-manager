@@ -69,7 +69,7 @@ function getServices()
 function launchService(service)
 {
     var serviceInstanceJson = JSON.stringify({
-        service: service['id']
+        service_id: service['id']
     });
 	try {
 		var response = null;
@@ -95,7 +95,7 @@ function showResponseFromLM(response){
             alert(response['message']);
             window.location.href = "index.html";
         } else{
-            alert("Error: " + response['message']);
+            alert(response['message']);
         }
     }
 }
