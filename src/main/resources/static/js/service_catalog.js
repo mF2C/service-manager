@@ -66,10 +66,11 @@ function getServices()
 	catch (e){return 0;}
 }
 
-function launchService(service)
-{
+function launchService(service){
+    var slaTemplates = service['sla_templates'];
     var serviceInstanceJson = JSON.stringify({
-        service_id: service['id']
+        service_id: service['id'],
+        sla_template: slaTemplates[0]['href']
     });
 	try {
 		var response = null;
