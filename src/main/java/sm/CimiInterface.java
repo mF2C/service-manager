@@ -132,7 +132,6 @@ public class CimiInterface {
                  , entity
                  , Response.class);
          if (responseEntity.getStatusCodeValue() == HttpStatus.OK.value()) {
-            log.info("Services retrieved");
             Response response = responseEntity.getBody();
             services = response.getServices();
          }

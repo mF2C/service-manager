@@ -147,7 +147,14 @@ public class ServiceManagerInterface {
    @PostMapping(value = GUI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
    public @ResponseBody
    Response postServiceFromGUI(@RequestBody Service service) {
-      return CimiInterface.postService(service);
+      Response response = new Response(service.getName(), SM_ROOT + GUI);
+      if (service.getSlaTemplates().get(0) == null) {
+         response.setBadRequest();
+         response.setMessage("Please, select the SLA template");
+         return response;
+      } else {
+         return CimiInterface.postService(service);
+      }
    }
 
    @DeleteMapping(value = GUI + SERVICE + SERVICE_ID, produces = MediaType.APPLICATION_JSON_VALUE)

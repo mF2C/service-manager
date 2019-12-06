@@ -23,7 +23,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static sm.Parameters.*;
 
@@ -32,7 +34,6 @@ public class Categorizer {
    private static Logger log = LoggerFactory.getLogger(Categorizer.class);
    private KMeansClustering kMeansClustering;
    private ClusterSet clusterSet;
-   private HashMap<Integer, Integer> pointsCategories;
 
    public Categorizer() {
       log.info("Starting Categorizer...");
@@ -40,6 +41,7 @@ public class Categorizer {
       ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
       Runnable task = () -> {
          List<Service> services = CimiInterface.getServices();
+         log.info(services.size() + " services retrieved");
          if (services.size() > CLUSTER_CATEGORIES) {
             log.info("Categorizing services...");
             float[][] inputServices = createInputForServices(services);
@@ -52,7 +54,7 @@ public class Categorizer {
             Map<Integer, List<Service>> pointServicesMap = new HashMap<>();
             for (int i = 0; i < points.size(); i++) {
                PointClassification pointClassification = clusterSet.classifyPoint(points.get(i));
-               int pointId = Integer.valueOf(pointClassification.getCluster().getId());
+               int pointId = Integer.parseInt(pointClassification.getCluster().getId());
                if (!pointServicesMap.containsKey(pointId)) {
                   List<Service> servicesPerPoint = new ArrayList<>();
                   servicesPerPoint.add(services.get(i));
@@ -62,43 +64,33 @@ public class Categorizer {
                }
             }
 
-            pointsCategories = new HashMap<>();
+            log.info("Updating service categories...");
             for (Integer i : pointServicesMap.keySet()) {
                List<Service> servicesPerCategory = pointServicesMap.get(i);
                int category = mapCategories(servicesPerCategory);
-               pointsCategories.put(i, category);
-               for (Service s : servicesPerCategory) {
-                  s.setCategory(category);
-                  CimiInterface.putService(s);
+               for (Service service : servicesPerCategory) {
+                  service.setCategory(category);
+                  log.info("Service " + service.getId() + " got category " + category);
+                  CimiInterface.putService(service);
                }
             }
-            log.info("Service categories updated");
+
+            log.info("Service categories correctly updated");
+         } else {
+            log.info("Not enough services for categorization");
          }
       };
-      scheduledExecutorService.scheduleAtFixedRate(task, RETRAINING_DELAY_TIME, RETRAINING_TIME, TimeUnit.SECONDS);
+      scheduledExecutorService.scheduleAtFixedRate(task, RETRAINING_TIME, RETRAINING_TIME, TimeUnit.SECONDS);
    }
 
    public Service run(Service service) {
-      if (checkFormat(service)) {
-         float[] inputService = createInputForService(service);
-         List<Point> points = generatePoints(inputService);
-         if (clusterSet != null) {
-            PointClassification pointClassification = clusterSet.classifyPoint(points.get(0));
-            int category = pointsCategories.get(Integer.valueOf(pointClassification.getCluster().getId()));
-            service.setCategory(category);
-         } else {
-            service.setCategory(0);
-         }
-         log.info("Service categorized: " + service.getName());
-         return service;
-      } else {
-         log.error("Error categorizing the service: " + service.getName());
-         return null;
-      }
-   }
-
-   private boolean checkFormat(Service s) {
-      return s.getExecType() != null && s.getAgentType() != null;
+      service.setCpu(0.0);
+      service.setMemory(0.0);
+      service.setDisk(0.0);
+      service.setNetwork(0.0);
+      service.setCategory(0);
+      log.info("Service categorized: " + service.getName());
+      return service;
    }
 
    float[][] createInputForServices(List<Service> services) {
@@ -108,7 +100,7 @@ public class Categorizer {
       return inputServices;
    }
 
-   private float[] createInputForService(Service service) {
+   public float[] createInputForService(Service service) {
       float[] inputService = new float[SERVICE_FIELDS];
       if (service.getCpu() != null)
          inputService[0] = service.getCpu().floatValue();

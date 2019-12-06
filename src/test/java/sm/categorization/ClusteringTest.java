@@ -16,22 +16,22 @@ import static sm.Parameters.CLUSTER_CATEGORIES;
 public class ClusteringTest {
 
    private static final Logger log = LoggerFactory.getLogger(ClusteringTest.class);
+   private final int NUM_SERVICES = 5;
    private List<Service> services;
    private Categorizer categorizer;
    private Random rnd = new Random();
-   private final int NUM_SERVICES = 5;
 
    @Before
    public void createService() {
       categorizer = new Categorizer();
       services = new ArrayList<>();
       for (int i = 0; i < NUM_SERVICES; i++)
-         services.add(createRandomService(i));
+         services.add(createRandomService("service_" + i));
    }
 
-   private Service createRandomService(int id) {
+   private Service createRandomService(String name) {
       Service service = new Service();
-      service.setId(String.valueOf(id));
+      service.setName(name);
       service.setCpu(rnd.nextDouble());
       service.setMemory(rnd.nextDouble());
       service.setNetwork(rnd.nextDouble());
@@ -51,7 +51,7 @@ public class ClusteringTest {
       Map<Integer, List<Service>> pointServicesMap = new HashMap<>();
       for (int i = 0; i < points.size(); i++) {
          PointClassification pointClassification = clusterSet.classifyPoint(points.get(i));
-         int pointId = Integer.valueOf(pointClassification.getCluster().getId());
+         int pointId = Integer.parseInt(pointClassification.getCluster().getId());
          if (!pointServicesMap.containsKey(pointId)) {
             List<Service> servicesPerPoint = new ArrayList<>();
             servicesPerPoint.add(services.get(i));
@@ -62,17 +62,20 @@ public class ClusteringTest {
       }
 
       for (Integer i : pointServicesMap.keySet()) {
-         categorizer.mapCategories(pointServicesMap.get(i));
-         log.info("point " + i + " - category " + pointServicesMap.get(i).get(0).getCategory());
+         List<Service> servicesPerCategory = pointServicesMap.get(i);
+         int category = categorizer.mapCategories(servicesPerCategory);
+         for (Service s : servicesPerCategory)
+            s.setCategory(category);
       }
 
       for (int i = 0; i < CLUSTER_CATEGORIES; i++)
          for (Service service : services)
             if (service.getCategory() == i)
-               log.info("service " + service.getId() + " -> " + service.getCategory()
+               log.info("service " + service.getName() + " -> " + service.getCategory()
                        + " [cpu: " + service.getCpu()
                        + "][memory: " + service.getMemory()
                        + "][disk: " + service.getDisk()
                        + "][network: " + service.getNetwork() + "]");
+
    }
 }
