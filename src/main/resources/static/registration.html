@@ -31,7 +31,7 @@
         </p>
         <p>
             <label>Type of executable *</label>
-            <select id="exec_type" onchange="execTypeFunction()">
+            <select id="exec_type">
                 <option value="compss">compss</option>
                 <option value="docker">docker</option>
                 <option value="docker-compose">docker-compose</option>
@@ -41,7 +41,7 @@
         </p>
         <p>
             <label>Agent type *</label>
-            <select id="agent_type" onchange="">
+            <select id="agent_type">
                 <option value="normal">normal</option>
                 <option value="cloud">cloud</option>
                 <option value="micro">micro</option>
@@ -49,17 +49,16 @@
         </p>
         <p>
             <label>SLA template *</label>
-            <select id="sla_template" onchange="">
+            <select id="sla_template">
             </select>
         </p>
         <p>
             <label>Ports </label>
-            <input type="text" id="exec_ports" disabled
-                   placeholder="ex: 8080, 8081"/>
+            <input type="text" id="exec_ports" placeholder="ex: 8080, 8081"/>
         </p>
         <p>
             <label>Number of agents</label>
-            <input type="text" id="num_agents" disabled placeholder="ex: 5"/>
+            <input type="text" id="num_agents" placeholder="ex: 5"/>
         </p>
         <p>
             <label>CPU architecture</label>
@@ -79,24 +78,12 @@
             </select>
         </p>
         <p>
-            <label>Memory</label>
-            <input type="text" id="memory_min" disabled placeholder="ex: 1000"/>
-        </p>
-        <p>
-            <label>Storage</label>
-            <input type="text" id="storage_min" disabled placeholder="ex: 1000"/>
-        </p>
-        <p>
-            <label>Disk</label>
-            <input type="text" id="disk" disabled placeholder="ex: 100"/>
-        </p>
-        <p>
             <label>Required resources</label>
-            <input type="text" id="req_resource" disabled placeholder="ex: Location, Ambulance"/>
+            <input type="text" id="req_resource" placeholder="ex: Location, Ambulance"/>
         </p>
         <p>
             <label>Optional resources</label>
-            <input type="text" id="opt_resource" disabled placeholder="ex: SenseHat, GP-20U7"/>
+            <input type="text" id="opt_resource" placeholder="ex: SenseHat, GP-20U7"/>
         </p>
     </form>
     <button class="button button-submit" onClick="registerService()">Register</button>

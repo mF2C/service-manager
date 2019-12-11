@@ -1,17 +1,7 @@
 window.onload=function(){
-	execTypeFunction();
 	getSlaTemplates();
 };
 
-function execTypeFunction() {
-	var type = document.getElementById("exec_type").value;
-	if(type == "docker"){
-		document.getElementById("exec_ports").disabled = false;
-	} else {
-		document.getElementById("exec_ports").disabled = true;
-		document.getElementById("exec_ports").value = "";
-	}
-}
 
 function getSlaTemplates(){
 	try {
@@ -56,9 +46,6 @@ function registerService(){
 	var num_agents = document.getElementById("num_agents").value;
 	var cpu_arch = document.getElementById("cpu_arch").value;
 	var os = document.getElementById("os").value;
-	var memory_min = document.getElementById("memory_min").value;
-	var storage_min = document.getElementById("storage_min").value;
-	var disk = document.getElementById("disk").value;
 	var req_resource_string = document.getElementById("req_resource").value;
 	var req_resource;
 	if(req_resource_string !== "")
@@ -78,9 +65,6 @@ function registerService(){
 		num_agents: num_agents,
 		cpu_arch: cpu_arch,
 		os: os,
-		memory_min: memory_min,
-		storage_min: storage_min,
-		disk: disk,
 		req_resource: req_resource,
 		opt_resource: opt_resource
 	}
