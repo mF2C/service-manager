@@ -9,6 +9,32 @@ This development is part of the European Project mF2C.
 
 ## Usage
 
+The Service Manager provides a graphical user interface in `https://localhost/sm/index.html` to register new services into the system and to launch service instances.
+
+#### Service registration
+
+To register a new service, there are a set of required parameters that must be specified:
+
+- Name: descriptive name of the service
+- Executable name: specific name of the executable (e.g. hello-world)
+- Type of executable: the type of application [compss, docker, docker-compose, docker-swarm, kubernetes]
+- Agent type: the type of agent where the application must run [cloud, normal, micro]
+- SLA template: a SLA template has to be selected for the service
+
+And a set of optional parameters:
+
+- Description: short description of the service
+- Ports: required ports to run the service
+- Number of agents: specific number of agents to run the service, if not specified, the service is launched in all available agents
+- CPU architecture: type of architecture for the service to run [x86-64, ARM]
+- Operating system: type of OS for the service to run [linux, mac, windows]
+- Required resources: set of required resources (i.e. sensors) for the service to run 
+- Optional resources: set of optional resources (i.e. actuators) for the service to use
+
+#### Service catalog
+
+Once the service is registered, it will appear in the service catalog among with other registered services. The service can be launched in the system using the launch button or be deleted.
+
 ### API
 
 - Endpoint `http://localhost:46200`
@@ -16,35 +42,23 @@ This development is part of the European Project mF2C.
 - GET `/api/<service_id>` -> returns the specified service
 - POST `/api`, DATA `service` -> submit new service
 - GET `/api/{service_instance_id}` -> check QoS and returns the specified service instance
+- Service definition example:
 
-The rest of actions can be performed through the GUI `https://localhost/sm/index.html`
+       {
+            "name": "compss-hello-world",
+            "description": "hello world example",
+            "exec": "mf2c/compss-test:it2",
+            "exec_type": "compss",
+            "exec_ports": [8080, 8081],
+            "sla_templates": [template1],
+            "agent_type": "normal",
+            "num_agents": 1,
+            "cpu_arch": "x86-64",
+            "os": "linux",
+            "req_resource": ["sensor_1"],
+            "opt_resource": ["sensor_2"]
+       }
 
-#### Examples
-
-submitting a new service:
-
-    POST /api
-    DATA:
-        {
-             "name": "compss-hello-world",
-             "description": "hello world example",
-             "exec": "mf2c/compss-test:it2",
-             "exec_type": "compss",
-             "exec_ports": [8080, 8081],
-             "agent_type": "normal",
-             "num_agents": 1,
-             "cpu_arch": "x86-64",
-             "os": "linux",
-             "cpu": 0.0,
-             "memory": 0.0,
-             "disk": 0.0,
-             "network": 0.0,
-             "storage_min": 0,
-             "req_resource": ["sensor_1"],
-             "opt_resource": ["sensor_2"]
-        }
-
-### Troubleshooting
 
 ## CHANGELOG
 
